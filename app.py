@@ -225,9 +225,6 @@ body, .gradio-container, .main {{
 }}
 """
 
-# ==============================================================================
-# 2. القائمة الرسمية الكاملة للدول العربية (مبدوءة بـ "الدولة")
-# ==============================================================================
 ARAB_COUNTRIES = [
     "الدولة", "جمهورية مصر العربية", "دولة قطر", "المملكة العربية السعودية",
     "دولة الإمارات العربية المتحدة", "المملكة الأردنية الهاشمية",
@@ -238,9 +235,6 @@ ARAB_COUNTRIES = [
     "جمهورية جيبوتي", "جمهورية الصومال الفيدرالية", "اتحاد جزر القمر", "دولة فلسطين"
 ]
 
-# ==============================================================================
-# 3. وظائف مساعدة للتلوين الديناميكي المستند للمستويات (أخضر 80+، أصفر 51-79، أحمر <50)
-# ==============================================================================
 def get_colored_score_html(score):
     if score >= 80:
         return f"<span style='color: #16A34A; font-weight: bold;'>{score}% (أداء مرتفع 🟢)</span>"
@@ -249,9 +243,6 @@ def get_colored_score_html(score):
     else:
         return f"<span style='color: #DC2626; font-weight: bold;'>{score}% (فجوة هيكلية حرجة 🔴)</span>"
 
-# ==============================================================================
-# 4. وظائف التشغيل والحساب التفاعلي المستندة لدراسة مؤشر AACRI
-# ==============================================================================
 def calculate_aacri_platform(country_choice, ti_score, ed_score, hc_score, rf_score, cd_score, history_state):
     if country_choice == "الدولة":
         return "<div style='padding:20px; text-align:center; color:#991B1B; background:#FEF2F2; border-radius:10px; border:1px solid #F87171;'><b>⚠️ يرجى اختيار دولة عربية حقيقية من القائمة لتنفيذ التشخيص القياسي.</b></div>", None, pd.DataFrame(), history_state, gr.update(), gr.update(), gr.update()
@@ -626,19 +617,14 @@ def plot_structural_hierarchy():
     )
     return fig
 
-# ==============================================================================
-# 5. بناء واجهة Gradio Blocks الشاملة للمنصة (الأقسام الأربعة الرئيسية)
-# ==============================================================================
 with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
 
     comparison_history_state = gr.State(value=[])
 
-    # 1) مفتاح اللغة العلوي
     with gr.Row():
         lang_btn = gr.Button("English (Under Construction 🚧)", elem_classes=["lang-btn-style"])
         lang_btn.click(fn=notify_under_construction, inputs=[], outputs=[])
 
-    # 2) تروياسة المشروع البحثي المحدثة
     gr.Markdown(f"""
     <div class="header-center">
     <h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
@@ -646,7 +632,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
     </div>
     """)
 
-    # 3) الشريط الإخباري المتحرك الانسيابي
     gr.HTML("""
     <div class="ticker-wrap">
       <div class="ticker">
@@ -659,10 +644,8 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
     </div>
     """)
 
-    # 4) التبويبات الأربعة الرئيسية للمنصة
     with gr.Tabs(elem_classes=["rtl-mode", "tabs"]) as main_tabs:
 
-        # 📊 التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع أداة الحذف الفوري
         with gr.TabItem("📊 تشخيص مؤشر الجاهزية (AACRI)", id="tab1"):
             gr.Markdown("### 🌐 التشخيص القياسي لمؤشر الجاهزية الذكية للصناعات الثقافية والإبداعية (AACRI)")
             gr.Markdown("إمكانية التشخيص للدول العربية المختارة مع تسجيل وثبات النتائج في الجدول التراكمي وإدارة السجلات.")
@@ -708,7 +691,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
 
             gr.HTML(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>')
 
-        # 📈 التبويب الثاني: محاكي السياسات (Policy Simulator)
         with gr.TabItem("📈 محاكي السياسات (Policy Simulator)", id="tab2"):
             gr.Markdown("### 🔬 محاكي السياسات الاستشرافي والمتابعة التراكمية للسيناريوهات")
             gr.Markdown("استشراف أثر التدخلات الاستثمارية والتقنية عبر النمذجة القياسية ومتغيرات التحفيز الاستراتيجي.")
@@ -747,7 +729,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
 
             gr.HTML(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>')
 
-        # 🛡️ التبويب الثالث: لوحة دعم اتخاذ القرار وتوطين السياسات
         with gr.TabItem("🛡️ لوحة دعم اتخاذ القرار", id="tab3"):
             gr.Markdown("### 🛡️ لوحة دعم اتخاذ القرار ولوحة التطعيم الثقافي (Cultural Grafting Canvas)")
             gr.Markdown("استعراض وتثبيت التوصيات المخصصة لكل دولة مختارة بديناميكية تمنع التكرار وتدعم السيادة الرقمية.")
@@ -769,7 +750,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
 
             gr.HTML(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>')
 
-        # 📑 التبويب الرابع: التقرير التنفيذي الموحد (Executive Summary Report)
         with gr.TabItem("📑 التقرير التنفيذي الموحد", id="tab4"):
             gr.Markdown("### 📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية")
             gr.Markdown("ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.")
@@ -802,7 +782,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
         outputs=[delete_msg_output, comparison_table, comparison_history_state, decision_country_sel, sim_country_sel, delete_country_dropdown]
     )
 
-
+# التشغيل الآمن المتوافق مع المنصات السحابية (Streamlit / Hugging Face)
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7860))
-    demo.launch(server_name="0.0.0.0", server_port=port, share=False)
+    demo.launch(server_name="0.0.0.0", share=False)
