@@ -9,7 +9,6 @@ Original file is located at
 
 import os
 import random
-import spaces
 import gradio as gr
 import pandas as pd
 import plotly.express as px
@@ -251,9 +250,8 @@ def get_colored_score_html(score):
         return f"<span style='color: #DC2626; font-weight: bold;'>{score}% (فجوة هيكلية حرجة 🔴)</span>"
 
 # ==============================================================================
-# 4. وظائف التشغيل والحساب التفاعلي المستندة لدراسة مؤشر AACRI (مع تزليق @spaces.GPU)
+# 4. وظائف التشغيل والحساب التفاعلي المستندة لدراسة مؤشر AACRI
 # ==============================================================================
-@spaces.GPU
 def calculate_aacri_platform(country_choice, ti_score, ed_score, hc_score, rf_score, cd_score, history_state):
     if country_choice == "الدولة":
         return "<div style='padding:20px; text-align:center; color:#991B1B; background:#FEF2F2; border-radius:10px; border:1px solid #F87171;'><b>⚠️ يرجى اختيار دولة عربية حقيقية من القائمة لتنفيذ التشخيص القياسي.</b></div>", None, pd.DataFrame(), history_state, gr.update(), gr.update(), gr.update()
