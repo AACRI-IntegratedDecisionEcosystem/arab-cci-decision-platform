@@ -784,4 +784,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
 
 # التشغيل الآمن المتوافق مع المنصات السحابية (Streamlit / Hugging Face)
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", share=False)
+    import os
+    port = int(os.environ.get("PORT", 7860))
+    demo.launch(server_name="0.0.0.0", server_port=port, share=False)
