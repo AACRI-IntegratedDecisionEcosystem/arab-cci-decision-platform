@@ -1,12 +1,12 @@
 import os
 import random
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
 # ==============================================================================
-# 0. إعدادات الصفحة وتهيئة الجلسة لـ Streamlit
+# إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL)
 # ==============================================================================
 st.set_page_config(
     page_title="منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية",
@@ -15,34 +15,22 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# تهيئة حالة الجلسة للتسجيل والبيانات
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "history_state" not in st.session_state:
-    st.session_state.history_state = []
-if "simulated_results_dict" not in st.session_state:
-    st.session_state.simulated_results_dict = {}
-if "decision_results_dict" not in st.session_state:
-    st.session_state.decision_results_dict = {}
+# الألوان التراثية الرسمية للمنصة
+CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
+CBE_ORANGE_MID = "#B45309"   # برتقالي غامق تراثي
+CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
+CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
+CBE_BG = "#F8FAFC"           # خلفية ناعمة
 
-# ==============================================================================
-# 1. الهوية البصرية والتصميم (Custom CSS للألوان والاتجاه من اليمين لليسار)
-# ==============================================================================
-CBE_ORANGE_DARK = "#78350F" # برتقالي غامق جداً قاتم
-CBE_ORANGE_MID = "#B45309"  # برتقالي غامق تراثي
-CBE_ORANGE_LIGHT = "#D97706"# برتقالي أفتح نسبياً عند التحديد
-CBE_NAVY = "#0A192F"        # أزرق ملكي عميق
-CBE_BG = "#F8FAFC"          # خلفية ناعمة
-
-st.markdown(f"""
+CUSTOM_CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
 
 html, body, [class*="css"] {{
-    background-color: {CBE_BG} !important;
-    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-family: 'Cairo', sans-serif !important;
     direction: rtl !important;
     text-align: right !important;
+    background-color: {CBE_BG} !important;
 }}
 
 .stApp {{
@@ -55,7 +43,6 @@ html, body, [class*="css"] {{
                 url('https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1600&auto=format&fit=crop') !important;
     background-size: cover !important;
     background-position: center !important;
-    backdrop-filter: blur(12px) !important;
     color: #FFFFFF !important;
     padding: 40px 20px !important;
     border-radius: 16px !important;
@@ -80,7 +67,7 @@ html, body, [class*="css"] {{
     margin-bottom: 0px !important;
 }}
 
-/* شريط الأخبار المتحرك الانسيابي */
+/* شريط الأخبار المتحرك */
 .ticker-wrap {{
     width: 100%;
     background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%);
@@ -114,70 +101,80 @@ html, body, [class*="css"] {{
     100% {{ transform: translate(100%, 0); }}
 }}
 
-.primary-btn {{
+.primary-btn button {{
     background: linear-gradient(135deg, {CBE_ORANGE_MID} 0%, {CBE_ORANGE_LIGHT} 100%) !important;
     color: #FFFFFF !important;
     font-weight: bold !important;
-    font-size: 15px !important;
     border-radius: 8px !important;
     border: none !important;
-    padding: 12px 24px !important;
-    box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4) !important;
+    width: 100% !important;
 }}
 
-.danger-btn {{
+.danger-btn button {{
     background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%) !important;
     color: #FFFFFF !important;
     font-weight: bold !important;
-    font-size: 14px !important;
     border-radius: 8px !important;
     border: none !important;
-    padding: 10px 20px !important;
+    width: 100% !important;
+}}
+
+.export-btn button {{
+    background: linear-gradient(135deg, {CBE_NAVY} 0%, #1E293B 100%) !important;
+    color: #FBBF24 !important;
+    font-weight: bold !important;
+    border: 1px solid {CBE_ORANGE_MID} !important;
+    border-radius: 8px !important;
+    width: 100% !important;
 }}
 
 .footer-copyright {{
     text-align: center;
     color: #64748B;
     font-size: 13px;
-    margin-top: 30px;
+    margin-top: 40px;
     border-top: 1px solid #E2E8F0;
     padding-top: 15px;
     font-weight: bold;
 }}
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ==============================================================================
-# 2. واجهة الدخول (Login Modal / Box) في منتصف الشاشة
+# إدارة جلسة الدخول (Authentication)
 # ==============================================================================
-if not st.session_state.logged_in:
-    st.markdown("<br><br>", unsafe_allow_html=True)
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown(f"""
-        <div style="background: #FFFFFF; padding: 35px; border-radius: 16px; border: 2px solid {CBE_ORANGE_MID}; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: right;" dir="rtl">
-            <h2 style="color: {CBE_NAVY}; font-weight: 800; text-align: center; margin-bottom: 10px;">🏛️ منصة منظومة القرار المتكاملة</h2>
-            <p style="color: #475569; font-size: 14px; text-align: center; line-height: 1.6; margin-bottom: 25px;">
-                نموذج رقمي استراتيجي لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي. يرجى تسجيل الدخول للمتابعة.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        with st.form("login_form"):
-            username = st.text_input("اسم المستخدم (User)", value="")
-            password = st.text_input("كلمة المرور (Password)", type="password", value="")
-            submit_login = st.form_submit_button("تسجيل الولوج للمنصة 🚀", use_container_width=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        login_container = st.container()
+        with login_container:
+            st.markdown(f"""
+            <div style="background: #FFFFFF; padding: 30px; border-radius: 16px; border: 2px solid {CBE_ORANGE_MID}; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: right;" dir="rtl">
+                <h2 style="color: {CBE_NAVY}; text-align: center; font-weight: 800; margin-bottom: 10px;">🏛️ منصة منظومة القرار المتكاملة</h2>
+                <p style="color: #475569; text-align: center; font-size: 14px; line-height: 1.6; margin-bottom: 25px;">
+                    نموذج تشغيلي ذكي لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي. يرجى تسجيل الدخول للمتابعة.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
             
-            if submit_login:
+            username = st.text_input("اسم المستخدم (Username)", placeholder="أدخل اسم المستخدم...")
+            password = st.text_input("كلمة المرور (Password)", type="password", placeholder="أدخل كلمة المرور...")
+            
+            if st.button("🔐 تسجيل الدخول للمنصة", use_container_width=True):
                 if username == "user" and password == "123":
-                    st.session_state.logged_in = True
+                    st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (جرّب user و 123)")
+                    st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (تجريبي: user / 123)")
     st.stop()
 
 # ==============================================================================
-# 3. القائمة الرسمية للدول العربية والمكتبات المساعدة
+# القائمة الرسمية الكاملة للدول العربية
 # ==============================================================================
 ARAB_COUNTRIES = [
     "الدولة", "جمهورية مصر العربية", "دولة قطر", "المملكة العربية السعودية",
@@ -197,8 +194,16 @@ def get_colored_score_html(score):
     else:
         return f"<span style='color: #DC2626; font-weight: bold;'>{score}% (فجوة هيكلية حرجة 🔴)</span>"
 
+# تهيئة الذاكرة المؤقتة للبيانات
+if "history_state" not in st.session_state:
+    st.session_state.history_state = []
+if "simulated_results_dict" not in st.session_state:
+    st.session_state.simulated_results_dict = {}
+if "decision_results_dict" not in st.session_state:
+    st.session_state.decision_results_dict = {}
+
 # ==============================================================================
-# 4. التروياسة والشريط الإخباري العلوي
+# التروياسة والشريط الإخباري
 # ==============================================================================
 st.markdown(f"""
 <div class="header-center">
@@ -220,12 +225,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 5. التبويبات الأربعة الرئيسية للمنصة عبر Streamlit Tabs
+# التقسيم الرئيسي إلى 4 تبويبات (Tabs)
 # ==============================================================================
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📊 تشخيص مؤشر الجاهزية (AACRI)",
-    "📈 محاكي السياسات (Policy Simulator)",
-    "🛡️ لوحة دعم اتخاذ القرار",
+    "📊 تشخيص مؤشر الجاهزية (AACRI)", 
+    "📈 محاكي السياسات (Policy Simulator)", 
+    "🛡️ لوحة دعم اتخاذ القرار", 
     "📑 التقرير التنفيذي الموحد"
 ])
 
@@ -236,105 +241,101 @@ with tab1:
     st.markdown("### 🌐 التشخيص القياسي لمؤشر الجاهزية الذكية للصناعات الثقافية والإبداعية (AACRI)")
     st.markdown("إمكانية التشخيص للدول العربية المختارة مع تسجيل وثبات النتائج في الجدول التراكمي وإدارة السجلات.")
 
-    col_a, col_b = st.columns([1, 2], gap="large")
-    
-    with col_a:
-        country_sel = st.selectbox("اختر الدولة العربية", ARAB_COUNTRIES, key="c_sel")
-        ti_slider = st.slider("1️⃣ البنية التقنية (وزن 20%)", 0, 100, 68)
-        ed_slider = st.slider("2️⃣ الديناميكيات الاقتصادية (وزن 15%)", 0, 100, 70)
-        hc_slider = st.slider("3️⃣ رأس المال البشري (وزن 30%)", 0, 100, 72)
-        rf_slider = st.slider("4️⃣ البيئة التنظيمية والتشريعية (وزن 20%)", 0, 100, 65)
-        cd_slider = st.slider("5️⃣ المحددات الثقافية والهوياتية (وزن 15%)", 0, 100, 82)
+    col_input, col_result = st.columns([1, 2], gap="large")
 
-        calc_btn = st.button("🚀 احسب وسجل قياس الدولة", use_container_width=True)
+    with col_input:
+        country_sel = st.selectbox("اختر الدولة العربية", ARAB_COUNTRIES, key="t1_country")
+        ti_slider = st.slider("1️⃣ البنية التقنية (وزن 20%)", 0, 100, 68, key="t1_ti")
+        ed_slider = st.slider("2️⃣ الديناميكيات الاقتصادية (وزن 15%)", 0, 100, 70, key="t1_ed")
+        hc_slider = st.slider("3️⃣ رأس المال البشري (وزن 30%)", 0, 100, 72, key="t1_hc")
+        rf_slider = st.slider("4️⃣ البيئة التنظيمية والتشريعية (وزن 20%)", 0, 100, 65, key="t1_rf")
+        cd_slider = st.slider("5️⃣ المحددات الثقافية والهوياتية (وزن 15%)", 0, 100, 82, key="t1_cd")
 
-    with col_b:
-        result_placeholder = st.empty()
-        radar_placeholder = st.empty()
+        calc_clicked = st.button("🚀 احسب وسجل قياس الدولة", use_container_width=True, type="primary")
 
-    if calc_btn:
-        if country_sel == "الدولة":
-            result_placeholder.markdown("<div style='padding:20px; text-align:center; color:#991B1B; background:#FEF2F2; border-radius:10px; border:1px solid #F87171;'><b>⚠️ يرجى اختيار دولة عربية حقيقية من القائمة لتنفيذ التشخيص القياسي.</b></div>", unsafe_allow_html=True)
-        else:
-            weights = {'TI': 0.20, 'ED': 0.15, 'HC': 0.30, 'RF': 0.20, 'CD': 0.15}
-            final_score = (ti_slider * weights['TI']) + (ed_slider * weights['ED']) + (hc_slider * weights['HC']) + (rf_slider * weights['RF']) + (cd_slider * weights['CD'])
-            final_score = round(final_score, 2)
-            score_colored = get_colored_score_html(final_score)
-
-            if final_score >= 80:
-                diagnosis = "🟢 جاهزية متقدمة للغاية نحو السيادة الرقمية والابتكار المستدام وتفعيل 'المبدع المعزز'."
-                detailed_diag = f"🟢 **جاهزية متقدمة ومستدامة:** إجمالي المؤشر المركب {score_colored}. تعكس هذه النتيجة تفوقاً هيكلياً في بيئة العمل، ورأس مال بشري مؤهل للتعامل مع التقنيات التوليدية، وبنية تقنية متطورة تتيح قيادة التحالفات الإقليمية وتوطين النماذج الثقافية الرقمية بكفاءة عالية بما يضمن صون الأمن الثقافي."
-            elif final_score >= 51:
-                diagnosis = "🟡 جاهزية متوسطة، تتطلب تدخلات استباقية لمعالجة الاختناقات الهيكلية."
-                detailed_diag = f"🟡 **جاهزية متوسطة تتطلب تدخلاً استباقياً:** إجمالي المؤشر المركب {score_colored}. تشير المؤشرات إلى توازن نسبي يواجه بعض الاختناقات الهيكلية في سلاسل القيمة أو التشريعات التنظيمية، مما يستوجب حزم تحفيزية وبرامج إعادة تأهيل (Upskilling & Reskilling) لردم الفجوات القائمة."
+    with col_result:
+        if calc_clicked:
+            if country_sel == "الدولة":
+                st.warning("⚠️ يرجى اختيار دولة عربية حقيقية من القائمة لتنفيذ التشخيص القياسي.")
             else:
-                diagnosis = "🔴 وجود فجوة ذكية هيكلية تستوجب تفعيل محاكي السياسات ولوحة دعم اتخاذ القرار فوراً."
-                detailed_diag = f"🔴 **فجوة ذكية هيكلية حرجة:** إجمالي المؤشر المركب {score_colored}. توضح القراءة الحالية وجود اختناقات عميقة في البنية التحتية والبيئة التشريعية ورأس المال البشري، مما يستوجب تفعيل محاكي السياسات ولوحة التطعيم الثقافي لدعم 'المبدع المعزز' وتفادي الاستلاب الخوارزمي."
+                weights = {'TI': 0.20, 'ED': 0.15, 'HC': 0.30, 'RF': 0.20, 'CD': 0.15}
+                final_score = round((ti_slider * weights['TI']) + (ed_slider * weights['ED']) + (hc_slider * weights['HC']) + (rf_slider * weights['RF']) + (cd_slider * weights['CD']), 2)
+                score_html_colored = get_colored_score_html(final_score)
 
-            entry = {
-                "الدولة": country_sel,
-                "المؤشر المركب (AACRI)": final_score,
-                "البنية التقنية (20%)": ti_slider,
-                "الديناميكيات الاقتصادية (15%)": ed_slider,
-                "رأس المال البشري (30%)": hc_slider,
-                "البيئة التنظيمية والتشريعية (20%)": rf_slider,
-                "المحددات الثقافية والهوياتية (15%)": cd_slider,
-                "التقييم المنظومي": diagnosis
-            }
+                if final_score >= 80:
+                    diagnosis = "🟢 جاهزية متقدمة للغاية نحو السيادة الرقمية والابتكار المستدام وتفعيل 'المبدع المعزز'."
+                    detailed_diag = f"🟢 **جاهزية متقدمة ومستدامة:** إجمالي المؤشر المركب {score_html_colored}. تعكس هذه النتيجة تفوقاً هيكلياً في بيئة العمل، ورأس مال بشري مؤهل للتعامل مع التقنيات التوليدية، وبنية تقنية متطورة تتيح قيادة التحالفات الإقليمية وتوطين النماذج الثقافية الرقمية بكفاءة عالية بما يضمن صون الأمن الثقافي."
+                elif final_score >= 51:
+                    diagnosis = "🟡 جاهزية متوسطة، تتطلب تدخلات استباقية لمعالجة الاختناقات الهيكلية."
+                    detailed_diag = f"🟡 **جاهزية متوسطة تتطلب تدخلاً استباقياً:** إجمالي المؤشر المركب {score_html_colored}. تشير المؤشرات إلى توازن نسبي يواجه بعض الاختناقات الهيكلية في سلاسل القيمة أو التشريعات التنظيمية، مما يستوجب حزم تحفيزية وبرامج إعادة تأهيل (Upskilling & Reskilling) لردم الفجوات القائمة."
+                else:
+                    diagnosis = "🔴 وجود فجوة ذكية هيكلية تستوجب تفعيل محاكي السياسات ولوحة دعم اتخاذ القرار فوراً."
+                    detailed_diag = f"🔴 **فجوة ذكية هيكلية حرجة:** إجمالي المؤشر المركب {score_html_colored}. توضح القراءة الحالية وجود اختناقات عميقة في البنية التحتية والبيئة التشريعية ورأس المال البشري، مما يستوجب تفعيل محاكي السياسات ولوحة التطعيم الثقافي لدعم 'المبدع المعزز' وتفادي الاستلاب الخوارزمي."
 
-            # تحديث السجل التراكمي
-            updated = False
-            for idx, item in enumerate(st.session_state.history_state):
-                if item["الدولة"] == country_sel:
-                    st.session_state.history_state[idx] = entry
-                    updated = True
-                    break
-            if not updated:
-                st.session_state.history_state.append(entry)
+                entry = {
+                    "الدولة": country_sel,
+                    "المؤشر المركب (AACRI)": final_score,
+                    "البنية التقنية (20%)": ti_slider,
+                    "الديناميكيات الاقتصادية (15%)": ed_slider,
+                    "رأس المال البشري (30%)": hc_slider,
+                    "البيئة التنظيمية والتشريعية (20%)": rf_slider,
+                    "المحددات الثقافية والهوياتية (15%)": cd_slider,
+                    "التقييم المنظومي": diagnosis
+                }
 
-            result_html = f"""
-            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-              <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
-              <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CBE_NAVY}; font-weight: bold;">{country_sel}</span></p>
-              <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_colored}</span></p>
-              <div style="background: {CBE_BG}; padding: 16px; border-radius: 8px; border-right: 5px solid {CBE_ORANGE_MID}; margin-top: 10px;">
-                <p style="margin: 0 0 8px 0; font-weight: bold; color: {CBE_NAVY};">التقييم التشخيصي والتفصيل المنظومي:</p>
-                <p style="margin: 0; color: #1E293B; font-size: 14.5px;">{detailed_diag}</p>
-              </div>
-            </div>
-            """
-            result_placeholder.markdown(result_html, unsafe_allow_html=True)
+                updated = False
+                for idx, item in enumerate(st.session_state.history_state):
+                    if item["الدولة"] == country_sel:
+                        st.session_state.history_state[idx] = entry
+                        updated = True
+                        break
+                if not updated:
+                    st.session_state.history_state.append(entry)
 
-            categories = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
-            scores_list = [ti_slider, ed_slider, hc_slider, rf_slider, cd_slider]
-            fig = go.Figure()
-            fig.add_trace(go.Scatterpolar(r=scores_list, theta=categories, fill='toself', name=country_sel, line_color=CBE_ORANGE_MID))
-            fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), paper_bgcolor="#FFFFFF", font=dict(family="Cairo", size=13))
-            radar_placeholder.plotly_chart(fig, use_container_width=True)
+                st.markdown(f"""
+                <div style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
+                  <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CBE_NAVY}; font-weight: bold;">{country_sel}</span></p>
+                  <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_html_colored}</span></p>
+                  <div style="background: {CBE_BG}; padding: 16px; border-radius: 8px; border-right: 5px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                    <p style="margin: 0 0 8px 0; font-weight: bold; color: {CBE_NAVY};">التقييم التشخيصي والتفصيل المنظومي:</p>
+                    <p style="margin: 0; color: #1E293B; font-size: 14.5px;">{detailed_diag}</p>
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                categories = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
+                scores_list = [ti_slider, ed_slider, hc_slider, rf_slider, cd_slider]
+                fig = go.Figure()
+                fig.add_trace(go.Scatterpolar(r=scores_list, theta=categories, fill='toself', name=country_sel, line_color=CBE_ORANGE_MID))
+                fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), paper_bgcolor="#FFFFFF", font=dict(family="Cairo", size=13))
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("📊 يرجى اختيار الدولة وضبط درجات المحاور ثم الضغط على زر الحساب لعرض النتائج والتمثيل الراداري.")
 
     st.markdown("---")
     st.markdown("### 📋 قائمة ترتيب الدول العربية المسجلة")
 
     if st.session_state.history_state:
-        df_hist = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
-        # جعل الجدول يبدأ من رقم 1 بدلاً من 0 وتوجيهه من اليمين لليسار
-        df_hist.index = range(1, len(df_hist) + 1)
-        st.dataframe(df_hist, use_container_width=True)
+        df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
+        df_history.index = df_history.index + 1  # تبدأ من 1 بدلاً من 0
+        st.dataframe(df_history, use_container_width=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
-            countries_in_hist = [item["الدولة"] for item in st.session_state.history_state]
-            del_choice = st.selectbox("اختر دولة من السجل لحذفها", countries_in_hist, key="del_sel")
+            recorded_countries = [item["الدولة"] for item in st.session_state.history_state]
+            country_to_delete = st.selectbox("اختر دولة من السجل لحذفها", recorded_countries, key="del_country_box")
         with col_del2:
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🗑️ حذف الدولة المحددة", use_container_width=True):
-                st.session_state.history_state = [item for item in st.session_state.history_state if item["الدولة"] != del_choice]
-                st.success(f"تم حذف سجل دولة ({del_choice}) بنجاح.")
+            if st.button("🗑️ حذف الدولة المحددة", use_container_width=True, type="secondary"):
+                st.session_state.history_state = [item for item in st.session_state.history_state if item["الدولة"] != country_to_delete]
+                st.success(f"✅ تم حذف سجل دولة ({country_to_delete}) بنجاح.")
                 st.rerun()
     else:
-        st.info("📂 لا توجد دول مسجلة حتى الآن. قم بإدخال بيانات الدولة في الأعلى واضغط على زر الحساب.")
+        st.info("📂 لا توجد دول مسجلة حتى الآن. قم بإجراء التشخيص في الأعلى لتسجيل وترتيب الدول.")
 
-    if st.button("📥 تصدير وطباعة تقرير القسم الأول (طباعة رسمية)", key="exp1"):
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("📥 تصدير وطباعة تقرير القسم الأول (PDF / طباعة)", use_container_width=True):
         st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
 
     with st.expander("📂 استعراض المصفوفة الإجرائية للمحاور الرئيسة والأبعاد والـ 69 متغيراً للمؤشر (AACRI)"):
@@ -346,9 +347,11 @@ with tab1:
         * **المحددات الثقافية والهوياتية (وزن 15%):** يضم نسبة المحتوى الرقمي المتاح بالعربية، أرشفة التراث ثلاثي الأبعاد (3D Archives), ومؤشرات الأمن الثقافي.
         """)
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
-        weights = [20, 15, 30, 20, 15]
-        fig_bar = px.bar(x=axes_names, y=weights, text=weights, title="توزيع الأوزان النسبية لمحاور مؤشر الجاهزية الذكية (AACRI) وفق التحليل الهرمي AHP", color=weights, color_continuous_scale="Oranges")
+        weights_vals = [20, 15, 30, 20, 15]
+        fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'}, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
         st.plotly_chart(fig_bar, use_container_width=True)
+
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # التبويب الثاني: محاكي السياسات (Policy Simulator)
@@ -357,81 +360,88 @@ with tab2:
     st.markdown("### 🔬 محاكي السياسات الاستشرافي والمتابعة التراكمية للسيناريوهات")
     st.markdown("استشراف أثر التدخلات الاستثمارية والتقنية عبر النمذجة القياسية ومتغيرات التحفيز الاستراتيجي.")
 
-    col_s1, col_s2 = st.columns([1, 2], gap="large")
-    with col_s1:
-        registered_countries = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES[1:]
-        sim_country = st.selectbox("اختر الدولة للمحاكاة", registered_countries, key="sim_c")
-        base_aacri_val = st.slider("قيمة المؤشر الافتراضي الحالي", 30.0, 100.0, 68.5, 0.5)
-        
-        # ربط القيمة الفعلية إن كانت مسجلة في التبويب الأول لضمان الثبات والاتساق
-        for item in st.session_state.history_state:
-            if item["الدولة"] == sim_country:
-                base_aacri_val = item["المؤشر المركب (AACRI)"]
+    col_sim_in, col_sim_out = st.columns([1, 2], gap="large")
 
-        scenario_type = st.selectbox("اختر السيناريو الاستراتيجي", [
-            "📊 السيناريو المعتدل / التفاؤلي (استثمارات تقليدية تدريجية)",
+    with col_sim_in:
+        recorded_countries_sim = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES
+        sim_country_sel = st.selectbox("اختر الدولة للمحاكاة", recorded_countries_sim, key="sim_country")
+        base_aacri_input = st.slider("قيمة المؤشر الافتراضي الحالي", 30.0, 100.0, 68.5, 0.5, key="sim_base")
+        scenario_dropdown = st.selectbox("اختر السيناريو الاستراتيجي", [
             "📉 السيناريو التشاؤمي (غياب التدخل وضعف الاستثمار)",
+            "📊 السيناريو المعتدل / التفاؤلي (استثمارات تقليدية تدريجية)",
             "🚀 السيناريو الطموح / الاستباقي (إصلاحات هيكلية شاملة وسيادة تقنية)"
-        ])
-        var1_t = st.slider("1️⃣ نسبة الزيادة في البنية التقنية (%)", 0, 50, 20)
-        var2_e = st.slider("2️⃣ نسبة الزيادة في الديناميكيات الاقتصادية (%)", 0, 15, 15)
-        var3_h = st.slider("3️⃣ نسبة الزيادة في رأس المال البشري (%)", 0, 50, 15)
-        var4_r = st.slider("4️⃣ معدل تطوير البيئة التنظيمية (%)", 0, 50, 10)
-        var5_cu = st.slider("5️⃣ نسبة التوسع في المحددات الثقافية (%)", 0, 50, 25)
-
-        run_sim_btn = st.button("📋 إضافة وتثبيت سيناريو الدولة", use_container_width=True)
-
-    with col_s2:
-        sim_box_placeholder = st.empty()
+        ], key="sim_scen")
         
+        var1_tech = st.slider("1️⃣ نسبة الزيادة في البنية التقنية وتوطين النماذج (%)", 0, 50, 20, key="sim_v1")
+        var2_eco = st.slider("2️⃣ نسبة الزيادة في الديناميكيات الاقتصادية (%)", 0, 50, 15, key="sim_v2")
+        var3_hc = st.slider("3️⃣ نسبة الزيادة في رأس المال البشري (%)", 0, 50, 15, key="sim_v3")
+        var4_reg = st.slider("4️⃣ معدل تطوير البيئة التشريعية (%)", 0, 50, 10, key="sim_v4")
+        var5_cult = st.slider("5️⃣ نسبة التوسع في المحددات الثقافية (%)", 0, 50, 25, key="sim_v5")
+
+        run_sim_btn = st.button("📋 إضافة وتثبيت سيناريو الدولة", use_container_width=True, type="primary")
+
+    with col_sim_out:
         if run_sim_btn:
-            combined_boost = (var1_t * 0.25) + (var2_e * 0.15) + (var3_h * 0.3) + (var4_r * 0.2) + (var5_cu * 0.1)
-            if scenario_type.startswith("📉"):
-                sim_val = max(0.0, base_aacri_val * 0.90)
-                analysis_text = f"تحذير هيكلي لـ ({sim_country}): استمرار الركود وغياب الإصلاحات سيؤدي إلى تفاقم فجوة الإحلال الخوارزمي واندثار المهن الثقافية بنسبة تصل إلى 32%."
-                action_plan = "التدخل الفوري لإيقاف التدهور وإعادة تخصيص ميزانيات طارئة وتفعيل لوحة التطعيم الثقافي."
-            elif scenario_type.startswith("📊"):
-                sim_val = min(100.0, base_aacri_val * (1 + (combined_boost * 0.0022)))
-                analysis_text = f"تقدم ملحوظ لـ ({sim_country}): نجاح تدريجي في ترشيد استخدام الأدوات التوليدية، دعم مهارات 'المبدع المعزز'، وتقليص الفجوة المهنية."
-                action_plan = "توسيع برامج التدريب المستمر (Upskilling & Reskilling) واعتماد حزم تحفيزية."
+            if sim_country_sel == "الدولة":
+                st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
             else:
-                sim_val = min(100.0, base_aacri_val * (1 + (combined_boost * 0.0042)))
-                analysis_text = f"نجاح استراتيجي فائق لـ ({sim_country}): تحقيق السيادة الرقمية الكاملة، توطين النماذج اللغوية الثقافية العربية، وتفعيل دور المبدع كشريك إبداعي مهيمن."
-                action_plan = "قيادة التحالفات التقنية الإقليمية وإطلاق المنصات السحابية المفتوحة وتأمين الأمن الثقافي."
+                base_val = base_aacri_input
+                if st.session_state.history_state:
+                    for item in st.session_state.history_state:
+                        if item["الدولة"] == sim_country_sel:
+                            base_val = item["المؤشر المركب (AACRI)"]
+                            break
 
-            sim_val = round(sim_val, 2)
-            delta = round(sim_val - base_aacri_val, 2)
-            sim_colored_html = get_colored_score_html(sim_val)
+                combined_boost = (var1_tech * 0.25) + (var2_eco * 0.15) + (var3_hc * 0.3) + (var4_reg * 0.2) + (var5_cult * 0.1)
 
-            if base_aacri_val >= 80:
-                deep_analysis = "<div style='background: #F0FDF4; padding: 14px; border-radius: 8px; border-right: 4px solid #16A34A; margin-top: 10px;'><p style='margin: 0; color: #14532D; font-size: 14px;'>الدولة تتمتع بامتصاص صدمات تقنية عالية؛ لذا فإن السياسات المستهدفة يجب أن تركز على قيادة المعايير العالمية للوسم المائي وحماية الهوية.</p></div>"
-            elif base_aacri_val >= 51:
-                deep_analysis = "<div style='background: #FEFCE8; padding: 14px; border-radius: 8px; border-right: 4px solid #CA8A04; margin-top: 10px;'><p style='margin: 0; color: #713F12; font-size: 14px;'>يتضح وجود تفاوت بين البنية التقنية ورأس المال البشري؛ يتطلب الأمر التركيز على سد الفجوة بين مخرجات التعليم العالي واحتياجات الاقتصاد البرتقالي.</p></div>"
-            else:
-                deep_analysis = "<div style='background: #FEF2F2; padding: 14px; border-radius: 8px; border-right: 4px solid #DC2626; margin-top: 10px;'><p style='margin: 0; color: #7F1D1D; font-size: 14px;'>الدولة تواجه هشاشة في سلاسل القيمة الإبداعية؛ تتطلب المحاكاة هنا تدخلات عاجلة وحزم طوارئ استثمارية لدعم البنية التحتية واحتواء الاقتصاد غير الرسمي.</p></div>"
+                if scenario_dropdown.startswith("📉"):
+                    simulated_val = max(0.0, base_val * 0.90)
+                    analysis_text = f"تحذير هيكلي لـ ({sim_country_sel}): استمرار الركود وغياب الإصلاحات سيؤدي إلى تفاقم فجوة الإحلال الخوارزمي واندثار المهن الثقافية بنسبة تصل إلى 32%."
+                    action_plan = "التدخل الفوري لإيقاف التدهور وإعادة تخصيص ميزانيات طارئة وتفعيل لوحة التطعيم الثقافي."
+                elif scenario_dropdown.startswith("📊"):
+                    simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0022)))
+                    analysis_text = f"تقدم ملحوظ لـ ({sim_country_sel}): نجاح تدريجي في ترشيد استخدام الأدوات التوليدية، دعم مهارات 'المبدع المعزز'، وتقليص الفجوة المهنية."
+                    action_plan = "توسيع برامج التدريب المستمر (Upskilling & Reskilling) واعتماد حزم تحفيزية."
+                else:
+                    simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0042)))
+                    analysis_text = f"نجاح استراتيجي فائق لـ ({sim_country_sel}): تحقيق السيادة الرقمية الكاملة، توطين النماذج اللغوية الثقافية العربية، وتفعيل دور المبدع كشريك إبداعي مهيمن."
+                    action_plan = "قيادة التحالفات التقنية الإقليمية وإطلاق المنصات السحابية المفتوحة وتأمين الأمن الثقافي."
 
-            new_sim_box = f"""
-            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-              <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country} | السيناريو: {scenario_type}</h3>
-              <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر بعد المحاكاة:</b> {sim_colored_html} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
-              <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
-                <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
-                <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك الاستباقية: {action_plan}</p>
-              </div>
-              {deep_analysis}
-            </div>
-            """
-            st.session_state.simulated_results_dict[sim_country] = new_sim_box
+                simulated_val = round(simulated_val, 2)
+                delta = round(simulated_val - base_val, 2)
+                sim_colored_html = get_colored_score_html(simulated_val)
 
-        # عرض جميع السيناريوهات المثبتة للحفاظ على الثبات والاتساق
+                if base_val >= 80:
+                    deep_analysis = "<p style='color: #14532D; font-size: 14px;'>الدولة تتمتع بامتصاص صدمات تقنية عالية؛ لذا فإن السياسات المستهدفة يجب أن تركز على قيادة المعايير العالمية للوسم المائي وتماية الهوية.</p>"
+                elif base_val >= 51:
+                    deep_analysis = "<p style='color: #713F12; font-size: 14px;'>يتضح وجود تفاوت بين البنية التقنية ورأس المال البشري؛ يتطلب الأمر التركيز على سد الفجوة بين مخرجات التعليم واحتياجات الاقتصاد البرتقالي.</p>"
+                else:
+                    deep_analysis = "<p style='color: #7F1D1D; font-size: 14px;'>الدولة تواجه هشاشة في سلاسل القيمة الإبداعية؛ تتطلب المحاكاة هنا تدخلات عاجلة وحزم طوارئ استثمارية لدعم البنية التحتية الأساسية.</p>"
+
+                box_html = f"""
+                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
+                  <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر:</b> {sim_colored_html} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
+                  <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                    <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
+                    <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
+                    {deep_analysis}
+                  </div>
+                </div>
+                """
+                st.session_state.simulated_results_dict[sim_country_sel] = box_html
+
         if st.session_state.simulated_results_dict:
-            combined_sim_html = "".join(st.session_state.simulated_results_dict.values())
-            sim_box_placeholder.markdown(combined_sim_html, unsafe_allow_html=True)
+            for b_html in st.session_state.simulated_results_dict.values():
+                st.markdown(b_html, unsafe_allow_html=True)
         else:
-            sim_box_placeholder.markdown("<div style='padding:20px; text-align:center; color:#0A192F; background:#FFFFFF; border-radius:10px; border:1px solid #B45309;'><b>📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا.</b></div>", unsafe_allow_html=True)
+            st.info("📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا.")
 
-    if st.button("📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)", key="exp2"):
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)", use_container_width=True):
         st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # التبويب الثالث: لوحة دعم اتخاذ القرار
@@ -440,53 +450,58 @@ with tab3:
     st.markdown("### 🛡️ لوحة دعم اتخاذ القرار ولوحة التطعيم الثقافي (Cultural Grafting Canvas)")
     st.markdown("استعراض وتثبيت التوصيات المخصصة لكل دولة مختارة بديناميكية تمنع التكرار وتدعم السيادة الرقمية.")
 
-    col_d1, col_d2 = st.columns([1, 2], gap="large")
-    with col_d1:
-        registered_countries_d = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES[1:]
-        decision_country = st.selectbox("اختر الدولة لاستعراض وإضافة التوصيات", registered_countries_d, key="dec_c")
-        gen_dec_btn = st.button("📋 إضافة وتثبيت توصيات الدولة المختارة", use_container_width=True)
+    col_dec_in, col_dec_out = st.columns([1, 2], gap="large")
 
-    with col_d2:
-        dec_box_placeholder = st.empty()
+    with col_dec_in:
+        recorded_countries_dec = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES
+        decision_country_sel = st.selectbox("اختر الدولة لاستعراض التوصيات", recorded_countries_dec, key="dec_country")
+        generate_decision_btn = st.button("📋 إضافة وتثبيت توصيات الدولة المختارة", use_container_width=True, type="primary")
 
-        if gen_dec_btn:
-            score = 70.0
-            for item in st.session_state.history_state:
-                if item["الدولة"] == decision_country:
-                    score = item["المؤشر المركب (AACRI)"]
-                    break
-
-            score_colored_str = get_colored_score_html(score)
-
-            if score >= 80:
-                recs = f"<li><b>تعزيز ريادة الابتكار الإقليمي:</b> الاستفادة من جاهزية ({decision_country}) لتصدير النماذج اللغوية الثقافية.</li><li><b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> قيادة الجهود التشريعية بمعايير الوسم المائي.</li>"
-                deep_d = "<div style='background: #F0FDF4; padding: 14px; border-radius: 8px; border-right: 4px solid #16A34A; margin-top: 12px;'><p style='margin:0; color:#14532D; font-size:14px;'>توصي منظومة القرار بإنشاء مجلس سيادي أعلى للذكاء الاصطناعي والثقافة لربط البحث والتطوير بالأسواق الإقليمية.</p></div>"
-            elif score >= 51:
-                recs = f"<li><b>ردم الفجوة التقنية والبشرية:</b> إطلاق حزم إعادة التأهيل السريع (Upskilling & Reskilling) في ({decision_country}).</li><li><b>توثيق التراث الرقمي:</b> تسريع أرشفة الأصول عبر قواعد بيانات ثلاثية الأبعاد.</li>"
-                deep_d = "<div style='background: #FEFCE8; padding: 14px; border-radius: 8px; border-right: 4px solid #CA8A04; margin-top: 12px;'><p style='margin:0; color:#713F12; font-size:14px;'>تتطلب صانعة القرار هنا تفعيل حاضنات الأعمال الإبداعية المشتركة وتوجيه الدعم نحو القطاعات الأكثر عرضة للإحلال.</p></div>"
+    with col_dec_out:
+        if generate_decision_btn:
+            if not st.session_state.history_state or decision_country_sel == "الدولة":
+                st.warning("⚠️ يرجى أولاً إدخال بيانات الدولة وحساب مؤشر AACRI في القسم الأول.")
             else:
-                recs = f"<li><b>التدخل الاستباقي العاجل:</b> معالجة الاختناقات الهيكلية الحادة لـ ({decision_country}).</li><li><b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة المستترة عبر أدوات الحصر الرقمي.</li>"
-                deep_d = "<div style='background: #FEF2F2; padding: 14px; border-radius: 8px; border-right: 4px solid #DC2626; margin-top: 12px;'><p style='margin:0; color:#7F1D1D; font-size:14px;'>تفرض الضرورة استدعاء إطار التكامل الوظيفي الإقليمي ونقل الخبرات التقنية والبنية التحتية.</p></div>"
+                country_data = next((item for item in st.session_state.history_state if item["الدولة"] == decision_country_sel), None)
+                if country_data:
+                    score = country_data["المؤشر المركب (AACRI)"]
+                    score_colored_str = get_colored_score_html(score)
 
-            new_dec_box = f"""
-            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-              <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">🛡️ تقرير وتوصيات دولة: {decision_country} (المؤشر المركب: {score_colored_str})</h3>
-              <ul style="margin: 0 0 10px 0; padding-right: 20px; line-height: 1.8; color: #1E293B;">
-                {recs}
-              </ul>
-              {deep_d}
-            </div>
-            """
-            st.session_state.decision_results_dict[decision_country] = new_dec_box
+                    if score >= 80:
+                        recs = "<li><b>تعزيز ريادة الابتكار الإقليمي:</b> تصدير النماذج اللغوية الثقافية العربية الموطنة.</li><li><b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> قيادة الجهود التشريعية للوسم المائي.</li>"
+                        deep_third = "<p style='color: #14532D; font-size: 14px;'>توصي منظومة القرار بإنشاء 'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'.</p>"
+                    elif score >= 51:
+                        recs = "<li><b>ردم الفجوة التقنية والبشرية:</b> إطلاق حزم برامج إعادة التأهيل السريع (Upskilling & Reskilling).</li><li><b>سد الاختناقات الهيكلية:</b> تحفيز الشراكات الأكاديمية والقطاع الإبداعي.</li>"
+                        deep_third = "<p style='color: #713F12; font-size: 14px;'>تتطلب صانعة القرار تفعيل 'حاضنات الأعمال الإبداعية المشتركة'.</p>"
+                    else:
+                        recs = "<li><b>التدخل الاستباقي العاجل:</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية.</li><li><b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة.</li>"
+                        deep_third = "<p style='color: #7F1D1D; font-size: 14px;'>تفرض الضرورة القصوى استدعاء إطار 'التكامل الوظيفي الإقليمي'.</p>"
+
+                    dec_box = f"""
+                    <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                      <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">🛡️ تقرير وتوصيات دولة: {decision_country_sel} (المؤشر المركب: {score_colored_str})</h3>
+                      <ul style="margin: 0 0 10px 0; padding-right: 20px; line-height: 1.8; color: #1E293B;">
+                        {recs}
+                      </ul>
+                      <div style='background: {CBE_BG}; padding: 14px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 12px;'>
+                        <p style='margin: 0; font-weight: bold; color: {CBE_NAVY};'>🛡️ إضافات تحليلية عميقة لدعم القرار:</p>
+                        {deep_third}
+                      </div>
+                    </div>
+                    """
+                    st.session_state.decision_results_dict[decision_country_sel] = dec_box
 
         if st.session_state.decision_results_dict:
-            combined_dec_html = "".join(st.session_state.decision_results_dict.values())
-            dec_box_placeholder.markdown(combined_dec_html, unsafe_allow_html=True)
+            for d_html in st.session_state.decision_results_dict.values():
+                st.markdown(d_html, unsafe_allow_html=True)
         else:
-            dec_box_placeholder.markdown("<div style='padding:20px; text-align:center; color:#0A192F; background:#FFFFFF; border-radius:10px; border:1px solid #B45309;'><b>🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.</b></div>", unsafe_allow_html=True)
+            st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
 
-    if st.button("📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (طباعة)", key="exp3"):
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)", use_container_width=True):
         st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # التبويب الرابع: التقرير التنفيذي الموحد
@@ -495,56 +510,60 @@ with tab4:
     st.markdown("### 📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية")
     st.markdown("ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.")
 
-    if st.button("🔄 تحديث وتوليد التقرير التنفيذي الموحد بناءً على البيانات المدخلة", use_container_width=True):
+    if st.button("🔄 تحديث وتوليد التقرير التنفيذي الموحد", use_container_width=True, type="primary"):
         if not st.session_state.history_state:
             st.warning("📂 لا توجد بيانات مسجلة كافية حتى الآن. يرجى إدخال تشخيص دولة واحدة على الأقل في القسم الأول.")
         else:
             df_rep = pd.DataFrame(st.session_state.history_state)
-            top_row = df_rep.iloc[0] if not df_rep.empty else None
-            top_country = top_row["الدولة"] if top_row is not None else "غير محدد"
-            top_score = top_row["المؤشر المركب (AACRI)"] if top_row is not None else 0
-            top_score_col = get_colored_score_html(top_score)
+            top_row = df_rep.iloc[0]
+            top_country = top_row["الدولة"]
+            top_score = top_row["المؤشر المركب (AACRI)"]
+            top_score_colored = get_colored_score_html(top_score)
 
             countries_summary = ""
-            for idx, row in df_rep.iterrows():
+            for _, row in df_rep.iterrows():
                 s = row['المؤشر المركب (AACRI)']
                 s_col = get_colored_score_html(s)
                 countries_summary += f"""
-                <li style="margin-bottom: 15px; background: #F8FAFC; padding: 14px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                <li style="margin-bottom: 15px; line-height: 1.8; background: #F8FAFC; padding: 14px; border-radius: 8px; border: 1px solid #E2E8F0;">
                     <b>{row['الدولة']}</b> — المؤشر المركب: {s_col} — التقييم: {row['التقييم المنظومي']}
                 </li>
                 """
 
-            exec_html = f"""
-            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9;">
+            exec_report_html = f"""
+            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
               <div style="text-align: center; border-bottom: 2px solid {CBE_ORANGE_MID}; padding-bottom: 15px; margin-bottom: 25px;">
                 <h2 style="color: {CBE_NAVY}; font-weight: 800; margin: 0;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h2>
                 <p style="color: #64748B; font-size: 14.5px; margin-top: 6px;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار - بناءً على مخرجات الدراسة المنهجية والتفكير المنظومي (AACRI)</p>
               </div>
+
               <div style="background: {CBE_BG}; padding: 18px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 25px;">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية:</h4>
-                <p style="margin-bottom: 8px;">الدولة المتصدرة حالياً في مؤشر الجاهزية الذكية هي: <span style="font-weight: bold;">{top_country}</span> بقيمة مركبة تبلغ {top_score_col}.</p>
+                <p style="margin-bottom: 8px;">الدولة المتصدرة حالياً في مؤشر الجاهزية الذكية هي: <span style="font-weight: bold;">{top_country}</span> بقيمة مركبة تبلغ {top_score_colored}.</p>
                 <p style="margin: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
               </div>
+
               <h4 style="color: {CBE_NAVY}; margin-bottom: 12px;">📋 ملخص نتائج التشخيص التراكمي للدول:</h4>
               <ul style="margin-bottom: 25px; padding-right: 0; list-style-type: none;">
                 {countries_summary}
               </ul>
+
               <div style="background: #FFFBEB; padding: 22px; border-radius: 12px; border: 1.5px solid #FCD34D; margin-bottom: 15px;">
                 <h4 style="color: #92400E; margin-top: 0; font-size: 17px;">🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h4>
                 <ul style="margin: 0; padding-right: 20px; line-height: 1.9; color: #78350F;">
-                  <li><b>1. المعلمات والميزانيات:</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب.</li>
-                  <li><b>2. تدفق المعلومات وحلقات التغذية الراجعة:</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمي.</li>
-                  <li><b>3. القواعد والحوكمة:</b> تشريع أطر الملكية الفكرية المشتركة وحماية حقوق المبدع المعزز.</li>
-                  <li><b>4. أهداف النظام:</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية والأمن الثقافي.</li>
-                  <li><b>5. النماذج الفكرية والبارادايمات:</b> ترسيخ مفهوم الاقتصاد البرتقالي والبنفسجي.</li>
+                  <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب.</li>
+                  <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية.</li>
+                  <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة وحماية حقوق المبدع المعزز.</li>
+                  <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية والأمن الثقافي.</li>
+                  <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة للتنمية المستدامة.</li>
                 </ul>
               </div>
             </div>
             """
-            st.markdown(exec_html, unsafe_allow_html=True)
+            st.markdown(exec_report_html, unsafe_allow_html=True)
 
-    if st.button("📥 تصدير وطباعة التقرير التنفيذي الموحد (طباعة رسمية للقيادات)", key="exp4"):
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("📥 تصدير وطباعة التقرير التنفيذي الموحد (PDF / طباعة)", use_container_width=True):
         st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
 
-st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
