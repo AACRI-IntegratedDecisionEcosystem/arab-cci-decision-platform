@@ -362,7 +362,6 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # بناء جدول HTML مخصص ونظيف بالكامل
         html_table = f"""
         <div style="overflow-x: auto; width: 100%;">
         <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
@@ -439,7 +438,7 @@ with tab1:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثاني: محاكي السياسات (Policy Simulator)
+# التبويب الثاني: محاكي السياسات (Policy Simulator) - السيناريو المعتدل كافتراضي
 # ------------------------------------------------------------------------------
 with tab2:
     st.markdown("""
@@ -456,11 +455,13 @@ with tab2:
         recorded_countries_sim = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES
         sim_country_sel = st.selectbox("اختر الدولة للمحاكاة", recorded_countries_sim, key="sim_country")
         base_aacri_input = st.slider("قيمة المؤشر الافتراضي الحالي", 30.0, 100.0, 68.5, 0.5, key="sim_base")
+        
+        # جعل السيناريو المعتدل هو الافتراضي (index=1)
         scenario_dropdown = st.selectbox("اختر السيناريو الاستراتيجي", [
             "📉 السيناريو التشاؤمي (غياب التدخل وضعف الاستثمار)",
             "📊 السيناريو المعتدل / التفاؤلي (استثمارات تقليدية تدريجية)",
             "🚀 السيناريو الطموح / الاستباقي (إصلاحات هيكلية شاملة وسيادة تقنية)"
-        ], key="sim_scen")
+        ], index=1, key="sim_scen")
         
         var1_tech = st.slider("1️⃣ نسبة الزيادة في البنية التقنية وتوطين النماذج (%)", 0, 50, 20, key="sim_v1")
         var2_eco = st.slider("2️⃣ نسبة الزيادة في الديناميكيات الاقتصادية (%)", 0, 50, 15, key="sim_v2")
@@ -478,37 +479,50 @@ with tab2:
                 st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
             else:
                 base_val = base_aacri_input
+                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82  # قيم افتراضية للمحاور
                 if st.session_state.history_state:
                     for item in st.session_state.history_state:
                         if item["الدولة"] == sim_country_sel:
                             base_val = item["المؤشر المركب (AACRI)"]
+                            t_val = item["البنية التقنية (20%)"]
+                            e_val = item["الديناميكيات الاقتصادية (15%)"]
+                            h_val = item["رأس المال البشري (30%)"]
+                            r_val = item["البيئة التنظيمية والتشريعية (20%)"]
+                            c_val = item["المحددات الثقافية والهوياتية (15%)"]
                             break
 
                 combined_boost = (var1_tech * 0.25) + (var2_eco * 0.15) + (var3_hc * 0.3) + (var4_reg * 0.2) + (var5_cult * 0.1)
 
                 if scenario_dropdown.startswith("📉"):
                     simulated_val = max(0.0, base_val * 0.90)
-                    analysis_text = f"تحذير هيكلي لـ ({sim_country_sel}): استمرار الركود وغياب الإصلاحات سيؤدي إلى تفاقم فجوة الإحلال الخوارزمي واندثار المهن الثقافية بنسبة تصل إلى 32%."
-                    action_plan = "التدخل الفوري لإيقاف التدهور وإعادة تخصيص ميزانيات طارئة وتفعيل لوحة التطعيم الثقافي."
+                    analysis_text = f"تحذير هيكلي لـ ({sim_country_sel}): في ضوء البنية التقنية ({t_val}%) ورأس المال البشري ({h_val}%)، فإن غياب الإصلاحات سيؤدي إلى تفاقم فجوة الإحلال الخوارزمي واندثار المهن الثقافية."
+                    action_plan = f"التدخل الفوري لتعزيز البيئة التشريعية المسجلة حالياً عند ({r_val}%) وإعادة تخصيص ميزانيات طارئة."
                 elif scenario_dropdown.startswith("📊"):
                     simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0022)))
-                    analysis_text = f"تقدم ملحوظ لـ ({sim_country_sel}): نجاح تدريجي في ترشيد استخدام الأدوات التوليدية، دعم مهارات 'المبدع المعزز'، وتقليص الفجوة المهنية."
-                    action_plan = "توسيع برامج التدريب المستمر (Upskilling & Reskilling) واعتماد حزم تحفيزية."
+                    analysis_text = f"تقدم ملحوظ لـ ({sim_country_sel}): استناداً إلى المحددات الثقافية ({c_val}%) والديناميكيات الاقتصادية ({e_val}%)، يتحقق نجاح تدريجي في ترشيد الأدوات التوليدية ودعم مهارات 'المبدع المعزز'."
+                    action_plan = f"توسيع برامج إعادة التأهيل (Reskilling) للاستفادة من رصيد رأس المال البشري البالغ ({h_val}%)."
                 else:
                     simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0042)))
-                    analysis_text = f"نجاح استراتيجي فائق لـ ({sim_country_sel}): تحقيق السيادة الرقمية الكاملة، توطين النماذج اللغوية الثقافية العربية، وتفعيل دور المبدع كشريك إبداعي مهيمن."
-                    action_plan = "قيادة التحالفات التقنية الإقليمية وإطلاق المنصات السحابية المفتوحة وتأمين الأمن الثقافي."
+                    analysis_text = f"نجاح استراتيجي فائق لـ ({sim_country_sel}): توظيف البنية التقنية المتقدمة ({t_val}%) والبيئة التنظيمية ({r_val}%) لتحقيق السيادة الرقمية وتوطين النماذج اللغوية الثقافية العربية."
+                    action_plan = "قيادة التحالفات التقنية الإقليمية وإطلاق المنصات السحابية المفتوحة وتأمين الأمن الثقافي القومي."
 
                 simulated_val = round(simulated_val, 2)
                 delta = round(simulated_val - base_val, 2)
                 sim_colored_html = get_colored_score_html(simulated_val)
 
-                if base_val >= 80:
-                    deep_analysis = "<p style='color: #14532D; font-size: 14px;'>الدولة تتمتع بامتصاص صدمات تقنية عالية؛ لذا فإن السياسات المستهدفة يجب أن تركز على قيادة المعايير العالمية للوسم المائي وحماية الهوية.</p>"
-                elif base_val >= 51:
-                    deep_analysis = "<p style='color: #713F12; font-size: 14px;'>يتضح وجود تفاوت بين البنية التقنية ورأس المال البشري؛ يتطلب الأمر التركيز على سد الفجوة بين مخرجات التعليم واحتياجات الاقتصاد البرتقالي.</p>"
-                else:
-                    deep_analysis = "<p style='color: #7F1D1D; font-size: 14px;'>الدولة تواجه هشاشة في سلاسل القيمة الإبداعية؛ تتطلب المحاكاة هنا تدخلات عاجلة وحزم طوارئ استثمارية لدعم البنية التحتية الأساسية.</p>"
+                # تحليل عميق مخصص يعتمد على درجات المحاور الخمسة
+                deep_analysis = f"""
+                <div style='font-size: 14px; color: #1E293B; line-height: 1.8;'>
+                  <b>📊 التشخيص القياسي المفصل للمحاور الخمسة لدولة ({sim_country_sel}):</b>
+                  <ul style='margin: 5px 0 0 0; padding-right: 20px;'>
+                    <li><b>البنية التقنية ({t_val}%):</b> تعكس قدرة البنية التحتية على استيعاب النماذج التوليدية.</li>
+                    <li><b>الديناميكيات الاقتصادية ({e_val}%):</b> تؤشر على مساهمة الاقتصاد البرتقالي وعوائد الاستثمار.</li>
+                    <li><b>رأس المال البشري ({h_val}%):</b> تقيس جاهزية الكوادر وجاهزيتهم لمهارات عصر الذكاء الاصطناعي.</li>
+                    <li><b>البيئة التنظيمية ({r_val}%):</b> تحدد مدى كفاية تشريعات الملكية الفكرية والوسم المائي.</li>
+                    <li><b>المحددات الثقافية ({c_val}%):</b> تعبر عن حصانة الهوية الرقمية ومستوى الأرشفة التراثية.</li>
+                  </ul>
+                </div>
+                """
 
                 box_html = f"""
                 <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
@@ -517,6 +531,7 @@ with tab2:
                   <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
                     <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
                     <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
+                    <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
                     {deep_analysis}
                   </div>
                 </div>
@@ -537,7 +552,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار
+# التبويب الثالث: لوحة دعم اتخاذ القرار - إضافات تحليلية عميقة ومخصصة لكل محور
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -565,17 +580,43 @@ with tab3:
                 country_data = next((item for item in st.session_state.history_state if item["الدولة"] == decision_country_sel), None)
                 if country_data:
                     score = country_data["المؤشر المركب (AACRI)"]
+                    t_val = country_data["البنية التقنية (20%)"]
+                    e_val = country_data["الديناميكيات الاقتصادية (15%)"]
+                    h_val = country_data["رأس المال البشري (30%)"]
+                    r_val = country_data["البيئة التنظيمية والتشريعية (20%)"]
+                    c_val = country_data["المحددات الثقافية والهوياتية (15%)"]
                     score_colored_str = get_colored_score_html(score)
 
                     if score >= 80:
-                        recs = "<li><b>تعزيز ريادة الابتكار الإقليمي:</b> تصدير النماذج اللغوية الثقافية العربية الموطنة.</li><li><b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> قيادة الجهود التشريعية للوسم المائي.</li>"
-                        deep_third = "<p style='color: #14532D; font-size: 14px;'>توصي منظومة القرار بإنشاء 'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'.</p>"
+                        recs = f"<li><b>تعزيز ريادة الابتكار الإقليمي:</b> توظيف البنية التقنية المتقدمة ({t_val}%) لتصدير النماذج اللغوية الثقافية العربية.</li><li><b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> استثمار البيئة التنظيمية ({r_val}%) لقيادة المعايير العالمية للوسم المائي.</li>"
+                        deep_third = f"""
+                        <p style='color: #14532D; font-size: 14.5px; margin-bottom: 8px;'><b>💡 إضافات تحليلية استراتيجية عميقة:</b></p>
+                        <ul style='margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8;'>
+                          <li>توصي منظومة القرار بإنشاء <b>'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'</b> مستفيدين من رأس المال البشري المتميز ({h_val}%).</li>
+                          <li>تفعيل آليات <b>التطعيم الثقافي (Cultural Grafting)</b> لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).</li>
+                          <li>خلق شراكات إقليمية استراتيجية مدعومة بالديناميكيات الاقتصادية القوية ({e_val}%).</li>
+                        </ul>
+                        """
                     elif score >= 51:
-                        recs = "<li><b>ردم الفجوة التقنية والبشرية:</b> إطلاق حزم برامج إعادة التأهيل السريع (Upskilling & Reskilling).</li><li><b>سد الاختناقات الهيكلية:</b> تحفيز الشراكات الأكاديمية والقطاع الإبداعي.</li>"
-                        deep_third = "<p style='color: #713F12; font-size: 14px;'>تتطلب صانعة القرار تفعيل 'حاضنات الأعمال الإبداعية المشتركة'.</p>"
+                        recs = f"<li><b>ردم الفجوة التقنية والبشرية:</b> إطلاق حزم برامج إعادة التأهيل السريع بناءً على رصيد رأس المال البشري ({h_val}%).</li><li><b>سد الاختناقات الهيكلية:</b> تطوير أطر البيئة التنظيمية المسجلة عند ({r_val}%) لتحفيز القطاع الإبداعي.</li>"
+                        deep_third = f"""
+                        <p style='color: #713F12; font-size: 14.5px; margin-bottom: 8px;'><b>💡 إضافات تحليلية استراتيجية عميقة:</b></p>
+                        <ul style='margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8;'>
+                          <li>تتطلب صانعة القرار تفعيل <b>'حاضنات الأعمال الإبداعية المشتركة'</b> لرفع كفاءة البنية التقنية ({t_val}%).</li>
+                          <li>توجيه الدعم المالي والاقتصادي نحو الأنشطة البرتقالية لتعقيم الاقتصاد ضد صدمات البطالة التكنولوجية في ضوء ({e_val}%).</li>
+                          <li>تعزيز المحتوى الرقمي العربي لتجاوز قصور المحددات الثقافية ({c_val}%).</li>
+                        </ul>
+                        """
                     else:
-                        recs = "<li><b>التدخل الاستباقي العاجل:</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية.</li><li><b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة.</li>"
-                        deep_third = "<p style='color: #7F1D1D; font-size: 14px;'>تفرض الضرورة القصوى استدعاء إطار 'التكامل الوظيفي الإقليمي'.</p>"
+                        recs = f"<li><b>التدخل الاستباقي العاجل:</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).</li><li><b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%).</li>"
+                        deep_third = f"""
+                        <p style='color: #7F1D1D; font-size: 14.5px; margin-bottom: 8px;'><b>💡 إضافات تحليلية استراتيجية عميقة:</b></p>
+                        <ul style='margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8;'>
+                          <li>تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).</li>
+                          <li>تنفيذ خطط طوارئ استثمارية لرفع مساهمة الاقتصاد البرتقالي المتدنية ({e_val}%).</li>
+                          <li>إطلاق برامج عاجلة للأمن الثقافي وحماية التراث الرقمي لمعالجة هشاشة المحددات الثقافية ({c_val}%).</li>
+                        </ul>
+                        """
 
                     dec_box = f"""
                     <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
@@ -584,7 +625,6 @@ with tab3:
                         {recs}
                       </ul>
                       <div style='background: {CBE_BG}; padding: 14px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 12px;'>
-                        <p style='margin: 0; font-weight: bold; color: {CBE_NAVY};'>🛡️ إضافات تحليلية عميقة لدعم القرار:</p>
                         {deep_third}
                       </div>
                     </div>
@@ -605,7 +645,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد
+# التبويب الرابع: التقرير التنفيذي الموحد - ترتيب تنازلي دقيق وملخص تراكمي معمق
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -619,7 +659,7 @@ with tab4:
         if not st.session_state.history_state:
             st.warning("📂 لا توجد بيانات مسجلة كافية حتى الآن. يرجى إدخال تشخيص دولة واحدة على الأقل في القسم الأول.")
         else:
-            # تصحيح طريقة الفرز لجلب الدولة الأعلى في المؤشر بدقة تامة
+            # ترتيب تنازلي دقيق وثابت بناءً على المؤشر المركب
             df_rep = pd.DataFrame(st.session_state.history_state).sort_values(
                 by="المؤشر المركب (AACRI)", ascending=False
             ).reset_index(drop=True)
@@ -630,12 +670,13 @@ with tab4:
             top_score_colored = get_colored_score_html(top_score)
 
             countries_summary = ""
-            for _, row in df_rep.iterrows():
+            for idx, row in df_rep.iterrows():
                 s = row['المؤشر المركب (AACRI)']
                 s_col = get_colored_score_html(s)
                 countries_summary += f"""
-                <li style="margin-bottom: 15px; line-height: 1.8; background: #F8FAFC; padding: 14px; border-radius: 8px; border: 1px solid #E2E8F0;">
-                    <b>{row['الدولة']}</b> — المؤشر المركب: {s_col} — التقييم: {row['التقييم المنظومي']}
+                <li style="margin-bottom: 12px; line-height: 1.8; background: #F8FAFC; padding: 12px 16px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                    <b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {s_col} | البنية التقنية: {row['البنية التقنية (20%)']}% | رأس المال البشري: {row['رأس المال البشري (30%)']}% <br>
+                    <span style="color: #475569; font-size: 13.5px;"><b>التقييم التشخيصي:</b> {row['التقييم المنظومي']}</span>
                 </li>
                 """
 
@@ -648,23 +689,30 @@ with tab4:
 
               <div style="background: {CBE_BG}; padding: 18px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 25px;">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية:</h4>
-                <p style="margin-bottom: 8px;">الدولة المتصدرة حالياً في مؤشر الجاهزية الذكية هي: <span style="font-weight: bold;">{top_country}</span> بقيمة مركبة تبلغ {top_score_colored}.</p>
+                <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CBE_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_colored}.</p>
                 <p style="margin: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
               </div>
 
-              <h4 style="color: {CBE_NAVY}; margin-bottom: 12px;">📋 ملخص نتائج التشخيص التراكمي للدول:</h4>
+              <h4 style="color: {CBE_NAVY}; margin-bottom: 12px;">📋 ترتيب الملخص التراكمي للدول (من الأعلى للأقل أدائية):</h4>
               <ul style="margin-bottom: 25px; padding-right: 0; list-style-type: none;">
                 {countries_summary}
               </ul>
 
+              <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-bottom: 20px;">
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
+                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin: 0;">
+                  تؤكد مخرجات التشخيص المنظومي ومحاكاة السياسات ولوحة دعم القرار أن سد الفجوات الهيكلية في الصناعات الثقافية والإبداعية العربية يتطلب تكامل المحاور الخمسة (البنية التقنية، الاقتصاد البرتقالي، رأس المال البشري، التشريعات، والمحددات الثقافية). إن الدول التي تسجل أداءً متقدماً تعتمد على توطين النماذج اللغوية الكبيرة وحماية الملكية الفكرية، بينما تستوجب الدول ذات الفجوات الهحرجة تفعيل برامج الطوارئ الاستثمارية والتطعيم الثقافي لتمكين 'المبدع المعزز' وتفادي الاستلاب الخوارزمي.
+                </p>
+              </div>
+
               <div style="background: #FFFBEB; padding: 22px; border-radius: 12px; border: 1.5px solid #FCD34D; margin-bottom: 15px;">
                 <h4 style="color: #92400E; margin-top: 0; font-size: 17px;">🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h4>
                 <ul style="margin: 0; padding-right: 20px; line-height: 1.9; color: #78350F;">
-                  <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب.</li>
-                  <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية.</li>
-                  <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة وحماية حقوق المبدع المعزز.</li>
-                  <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية والأمن الثقافي.</li>
-                  <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة للتنمية المستدامة.</li>
+                  <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب وإعادة التأهيل.</li>
+                  <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية ومؤشرات قياس آنية.</li>
+                  <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة ومعايير الوسم المائي لحماية الحقوق.</li>
+                  <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي القومي.</li>
+                  <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة أساسية للتنمية المستدامة في عصر الذكاء الاصطناعي.</li>
                 </ul>
               </div>
             </div>
