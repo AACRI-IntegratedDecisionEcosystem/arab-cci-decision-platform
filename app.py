@@ -1,8 +1,12 @@
+import io
 import random
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # ==============================================================================
 # إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL)
@@ -268,7 +272,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -656,7 +660,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -686,7 +690,9 @@ with tab3:
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                         <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                             {item['deep']}
-
+                        </div>
+                    </div>
+                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
@@ -787,6 +793,53 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+            # توليد وتحضير ملف الـ Word للتحميل المباشر
+            doc = Document()
+            # ضبط الاتجاه العام للمستند ليكون من اليمين لليسار
+            for p in doc.paragraphs:
+                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
+            # عنوان المستند
+            p_title = doc.add_paragraph()
+            p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run_title = p_title.add_run("التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية")
+            run_title.bold = True
+            run_title.font.size = Pt(16)
+            run_title.font.color.rgb = RGBColor(10, 25, 47)
+
+            # إضافة تفاصيل الدولة المتصدرة
+            doc.add_heading("مؤشرات الأداء العام والريادة الإقليمية", level=2)
+            doc.add_paragraph(f"تتصدّر الدولة التالية قائمة الجاهزية الذكية: {top_country} بقيمة مركبة تبلغ {top_score}.")
+            doc.add_paragraph(f"الإطار الإقليمي: {region_info}")
+            doc.add_paragraph(f"إجمالي الدول الخاضعة للتشخيص: {len(df_rep)} دولة.")
+
+            # جدول الدول المسجلة
+            doc.add_heading("ترتيب الملخص التراكمي للدول", level=2)
+            table = doc.add_table(rows=1, cols=3)
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = "الدولة"
+            hdr_cells[1].text = "المؤشر المركب (AACRI)"
+            hdr_cells[2].text = "التقييم المنظومي"
+
+            for _, row in df_rep.iterrows():
+                row_cells = table.add_row().cells
+                row_cells[0].text = str(row["الدولة"])
+                row_cells[1].text = str(row["المؤشر المركب (AACRI)"])
+                row_cells[2].text = str(row["التقييم المنظومي"])
+
+            # حفظ الملف في ذاكرة مؤقتة
+            buffer = io.BytesIO()
+            doc.save(buffer)
+            buffer.seek(0)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.download_button(
+                label="📥 تحميل التقرير التنفيذي بصيغة Word (DOCX)",
+                data=buffer,
+                file_name="Cultural_Policy_Executive_Report.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
+            )
+
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
