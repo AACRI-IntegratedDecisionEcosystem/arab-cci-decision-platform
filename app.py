@@ -266,7 +266,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML النظيف
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -362,7 +362,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # بناء جدول HTML مخصص ونظيف بالكامل ضمن متغير واحد فقط
+        # بناء جدول HTML مخصص ونظيف بالكامل
         html_table = f"""
         <div style="overflow-x: auto; width: 100%;">
         <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
@@ -619,7 +619,7 @@ with tab4:
         if not st.session_state.history_state:
             st.warning("📂 لا توجد بيانات مسجلة كافية حتى الآن. يرجى إدخال تشخيص دولة واحدة على الأقل في القسم الأول.")
         else:
-            df_rep = pd.DataFrame(st.session_state.history_state)
+            df_rep = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
             top_row = df_rep.iloc[0]
             top_country = top_row["الدولة"]
             top_score = top_row["المؤشر المركب (AACRI)"]
