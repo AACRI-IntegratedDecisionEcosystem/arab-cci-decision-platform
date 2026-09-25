@@ -489,6 +489,37 @@ with tab2:
             st.session_state.simulated_results_dict = {}
             st.success("✅ تم مسح جميع سيناريوهات المحاكي بنجاح.")
             st.rerun()
+
+        # زر تحميل تقرير محاكي السياسات في ملف Word
+        sim_word_data = f"""
+        <html dir="rtl">
+        <head><meta charset="utf-8"><title>تقرير محاكي السياسات</title></head>
+        <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+            <h1 style="color: #0A192F; text-align: center;">تقرير محاكي السياسات والاستشراف الاستراتيجي</h1>
+            <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
+            <hr>
+            <h3>ملخص السيناريوهات المثبتة:</h3>
+        """
+        if st.session_state.simulated_results_dict:
+            for k, v in st.session_state.simulated_results_dict.items():
+                sim_word_data += f"<p><b>المحاكاة:</b> {k}</p>"
+        else:
+            sim_word_data += "<p>لا توجد سيناريوهات مسجلة حالياً.</p>"
+            
+        sim_word_data += f"""
+            <hr>
+            <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+            <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+        </body>
+        </html>
+        """
+        st.download_button(
+            label="📥 تحميل تقرير محاكي السياسات (Word)",
+            data=sim_word_data.encode("utf-8-sig"),
+            file_name="تقرير_محاكي_السياسات.doc",
+            mime="application/msword",
+            use_container_width=True
+        )
             
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -615,6 +646,37 @@ with tab3:
             st.session_state.decision_results_dict = {}
             st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
             st.rerun()
+
+        # زر تحميل تقرير لوحة دعم القرار في ملف Word
+        dec_word_data = f"""
+        <html dir="rtl">
+        <head><meta charset="utf-8"><title>تقرير لوحة دعم القرار</title></head>
+        <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+            <h1 style="color: #0A192F; text-align: center;">تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي</h1>
+            <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
+            <hr>
+            <h3>التوصيات الاستراتيجية المعتمدة:</h3>
+        """
+        if st.session_state.decision_results_dict:
+            for k, v in st.session_state.decision_results_dict.items():
+                dec_word_data += f"<p><b>الدولة:</b> {k} - <b>المؤشر:</b> {v['score_str']}</p>"
+        else:
+            dec_word_data += "<p>لا توجد توصيات مسجلة حالياً.</p>"
+            
+        dec_word_data += f"""
+            <hr>
+            <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+            <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+        </body>
+        </html>
+        """
+        st.download_button(
+            label="📥 تحميل تقرير لوحة دعم القرار (Word)",
+            data=dec_word_data.encode("utf-8-sig"),
+            file_name="تقرير_لوحة_دعم_القرار.doc",
+            mime="application/msword",
+            use_container_width=True
+        )
             
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -790,52 +852,38 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-            # بناء محتوى ملف وورد متكامل يشمل الأقسام والبنود الأربعة المطلوبة
-            countries_list_html = ""
-            for idx, row in df_rep.iterrows():
-                countries_list_html += f"<li><b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {row['المؤشر المركب (AACRI)']}ريال | التقييم: {row['التقييم المنظومي']}</li>"
-
+            # إعداد وتجهيز ملف Word بصيغة HTML مخصصة ومتوافقة مع Word
             word_content = f"""
             <html dir="rtl">
             <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
-            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right; line-height: 1.8; color: #1E293B;">
-                <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
-                <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار - إطار AACRI والتفكير المنظومي</p>
-                <hr style="border: 0; border-top: 2px solid #B45309; margin: 20px 0;">
-
-                <h3 style="color: #0A192F;">🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h3>
-                <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
-                <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
-                <p>إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
-
-                <h3 style="color: #0A192F; margin-top: 25px;">📋 ترتيب الملخص التراكمي للدول:</h3>
+            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+                <h1 style="color: #0A192F; text-align: center;">التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
+                <p style="text-align: center; color: #64748B;">إطار مؤشر الجاهزية الذكية المركب (AACRI)</p>
+                <hr>
+                <h3>1. ريادة الأداء العام:</h3>
+                <p>تتصدر القائمة الدولة: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
+                <p><b>الإطار الإقليمي:</b> {region_info}</p>
+                <hr>
+                <h3>2. ملخص نتائج التشخيص والمحاكي ودعم القرار:</h3>
+                <p>يعكس هذا التقرير مخرجات دراسة تطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي.</p>
+                <hr>
+                <h3>3. إطار نقاط الرفع لدونيلا ميدوز:</h3>
                 <ul>
-                    {countries_list_html}
+                    <li>المعلمات والميزانيات (Parameters)</li>
+                    <li>تدفق المعلومات (Information Flows)</li>
+                    <li>القواعد والحوكمة (Rules)</li>
+                    <li>أهداف النظام (Goals)</li>
+                    <li>النماذج الفكرية (Paradigms)</li>
                 </ul>
-
-                <h3 style="color: #0A192F; margin-top: 25px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-                <p>يقدم هذا التقرير تجميعاً تحليلياً متكاملاً لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:</p>
-                <p><b>1. التشخيص القياسي والترتيب التراكمي (القسم الأول):</b> أظهرت نتائج تقييم المحاور الخمسة تفاوتات هيكلية تستوجب سياسات تفصيلية مخصصة لكل بيئة إقليمية على حدة لتقليص الفجوات الذكية.</p>
-                <p><b>2. استشراف السياسات وبدائل السيناريوهات (القسم الثاني):</b> بينت مخرجات المحاكي أن التحفيز الموجه نحو برامج إعادة التأهيل وتطوير البنية التحتية يرفع بفاعلية من القيمة المركبة للمؤشر ويقي الاقتصادات صدمات البطالة التكنولوجية والإحلال الخوارزمي.</p>
-                <p><b>3. لوحة دعم القرار والتطعيم الثقافي (القسم الثالث):</b> عززت التوصيات المخصصة والديناميكية ضرورة إرساء مجالس عليا للسيادة الرقمية وتفعيل حاضنات الأنشطة الإبداعية المشتركة.</p>
-
-                <h3 style="color: #0A192F; margin-top: 25px;">🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
-                <ul>
-                    <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب وإعادة التأهيل.</li>
-                    <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية ومؤشرات قياس آنية.</li>
-                    <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة ومعايير الوسم المائي لحماية الحقوق.</li>
-                    <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي القومي.</li>
-                    <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة أساسية للتنمية المستدامة.</li>
-                </ul>
-
-                <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 30px 0;">
-                <p style="text-align: center; color: #64748B; font-size: 13px; font-weight: bold;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+                <hr>
+                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
             </body>
             </html>
             """
             
             st.download_button(
-                label="📥 تحميل التقرير التنفيذي في ملف مستند (Word / Doc)",
+                label="📥 تحميل التقرير التنفيذي في ملف مستند (Word / HTML متوافق)",
                 data=word_content.encode("utf-8-sig"),
                 file_name="التقرير_التنفيذي_للسياسات_الثقافية.doc",
                 mime="application/msword",
