@@ -1,12 +1,10 @@
-import io
 import random
+import io
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # ==============================================================================
 # إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL)
@@ -793,53 +791,35 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-            # توليد وتحضير ملف الـ Word للتحميل المباشر
-            doc = Document()
-            # ضبط الاتجاه العام للمستند ليكون من اليمين لليسار
-            for p in doc.paragraphs:
-                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    # إضافة مفتاح تحميل التقرير في ملف Word (docx)
+    if st.session_state.history_state:
+        doc = Document()
+        doc.add_heading('التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية', 0)
+        
+        doc.add_heading('ترتيب الدول والنتائج المسجلة:', level=1)
+        df_word = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
+        for idx, row in df_word.iterrows():
+            doc.add_paragraph(f"المركز {idx + 1}: {row['الدولة']} - المؤشر المركب: {row['المؤشر المركب (AACRI)']}%\nالتقييم: {row['التقييم المنظومي']}")
 
-            # عنوان المستند
-            p_title = doc.add_paragraph()
-            p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run_title = p_title.add_run("التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية")
-            run_title.bold = True
-            run_title.font.size = Pt(16)
-            run_title.font.color.rgb = RGBColor(10, 25, 47)
+        doc.add_heading('إطار شجرة قرارات نقاط الرفع المنظومي:', level=1)
+        doc.add_paragraph('1. المعلمات والميزانيات: تعديل نسب الإنفاق المباشر وموازنات دعم التدريب.')
+        doc.add_paragraph('2. تدفق المعلومات: توفير قواعد بيانات مرجعية ومؤشرات قياس آنية.')
+        doc.add_paragraph('3. القواعد والحوكمة: تشريع أطر الملكية الفكرية وحماية الحقوق.')
+        doc.add_paragraph('4. أهداف النظام: توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي.')
+        doc.add_paragraph('5. النماذج الفكرية: ترسيخ مفهوم الاقتصاد البرتقالي كركيزة للتنمية المستدامة.')
 
-            # إضافة تفاصيل الدولة المتصدرة
-            doc.add_heading("مؤشرات الأداء العام والريادة الإقليمية", level=2)
-            doc.add_paragraph(f"تتصدّر الدولة التالية قائمة الجاهزية الذكية: {top_country} بقيمة مركبة تبلغ {top_score}.")
-            doc.add_paragraph(f"الإطار الإقليمي: {region_info}")
-            doc.add_paragraph(f"إجمالي الدول الخاضعة للتشخيص: {len(df_rep)} دولة.")
+        bio = io.BytesIO()
+        doc.save(bio)
+        bio.seek(0)
 
-            # جدول الدول المسجلة
-            doc.add_heading("ترتيب الملخص التراكمي للدول", level=2)
-            table = doc.add_table(rows=1, cols=3)
-            hdr_cells = table.rows[0].cells
-            hdr_cells[0].text = "الدولة"
-            hdr_cells[1].text = "المؤشر المركب (AACRI)"
-            hdr_cells[2].text = "التقييم المنظومي"
-
-            for _, row in df_rep.iterrows():
-                row_cells = table.add_row().cells
-                row_cells[0].text = str(row["الدولة"])
-                row_cells[1].text = str(row["المؤشر المركب (AACRI)"])
-                row_cells[2].text = str(row["التقييم المنظومي"])
-
-            # حفظ الملف في ذاكرة مؤقتة
-            buffer = io.BytesIO()
-            doc.save(buffer)
-            buffer.seek(0)
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.download_button(
-                label="📥 تحميل التقرير التنفيذي بصيغة Word (DOCX)",
-                data=buffer,
-                file_name="Cultural_Policy_Executive_Report.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                use_container_width=True
-            )
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.download_button(
+            label="📥 تحميل التقرير التنفيذي (ملف Word - .docx)",
+            data=bio,
+            file_name="Executive_Report_Cultural_Policies.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            use_container_width=True
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
