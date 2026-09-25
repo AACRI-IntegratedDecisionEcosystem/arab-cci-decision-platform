@@ -550,7 +550,6 @@ with tab2:
                 delta = round(simulated_val - base_val, 2)
                 sim_colored_html = get_colored_score_html(simulated_val)
 
-                # استدعاء الوظائف الديناميكية المستقلة لكل محور لضمان التباين التام وعدم التكرار
                 deep_analysis = f"""
                 <div style='font-size: 14px; color: #1E293B; line-height: 1.8;'>
                   <b>📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</b>
