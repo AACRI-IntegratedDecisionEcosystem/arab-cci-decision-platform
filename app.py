@@ -82,6 +82,30 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     font-weight: 700 !important;
 }}
 
+/* تنسيق زر الطباعة المباشر الفعال */
+.print-btn-html {{
+    display: block;
+    width: 100%;
+    background-color: {CBE_ORANGE_MID};
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: background 0.3s ease;
+    cursor: pointer;
+    border: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}}
+.print-btn-html:hover {{
+    background-color: {CBE_ORANGE_DARK};
+    color: #FBBF24;
+}}
+
 .header-center {{
     text-align: center !important;
     background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(120, 53, 15, 0.90) 100%),
@@ -424,8 +448,12 @@ with tab1:
         st.info("📂 لا توجد دول مسجلة حتى الآن. قم بإجراء التشخيص في الأعلى لتسجيل وترتيب الدول.")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("📥 تصدير وطباعة تقرير القسم الأول (PDF / طباعة)", use_container_width=True):
-        st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+    # تفعيل زر الطباعة الفعال عبر HTML Click Event
+    st.markdown("""
+    <button onclick="window.print();" class="print-btn-html">
+        📥 تصدير وطباعة تقرير القسم الأول (PDF / طباعة)
+    </button>
+    """, unsafe_allow_html=True)
 
     with st.expander("📂 استعراض المصفوفة الإجرائية للمحاور الرئيسة وأبعادها وفق مؤشر (AACRI)"):
         st.markdown("""
@@ -592,8 +620,12 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)", use_container_width=True):
-        st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+    # تفعيل زر الطباعة الفعال عبر HTML Click Event
+    st.markdown("""
+    <button onclick="window.print();" class="print-btn-html">
+        📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)
+    </button>
+    """, unsafe_allow_html=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -692,7 +724,9 @@ with tab3:
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                         <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                             {item['deep']}
-
+                        </div>
+                    </div>
+                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
@@ -700,8 +734,12 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)", use_container_width=True):
-        st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+    # تفعيل زر الطباعة الفعال عبر HTML Click Event
+    st.markdown("""
+    <button onclick="window.print();" class="print-btn-html">
+        📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)
+    </button>
+    """, unsafe_allow_html=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -796,7 +834,11 @@ with tab4:
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("📥 تصدير وطباعة التقرير التنفيذي الموحد (PDF / طباعة)", use_container_width=True):
-        st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+    # تفعيل زر الطباعة الفعال عبر HTML Click Event
+    st.markdown("""
+    <button onclick="window.print();" class="print-btn-html">
+        📥 تصدير وطباعة التقرير التنفيذي الموحد (PDF / طباعة)
+    </button>
+    """, unsafe_allow_html=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
