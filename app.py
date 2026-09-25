@@ -45,16 +45,25 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* === تعديلات CSS متقدمة لإجبار جداول Streamlit على الانعكاس الكامل (RTL) وتوسيط الخلايا من اليمين === */
-div[data-testid="stDataFrame"], div[data-testid="stTable"], .stDataFrame {{
+/* خصائص CSS متقدمة لإجبار جداول Streamlit (Dataframe / Arrow) على الانعكاس لليمين */
+div[data-testid="stDataFrame"] {{
     direction: rtl !important;
     text-align: right !important;
 }}
 
-/* استهداف حاويات الجداول وخلايا العرض لضمان بدء المحاذاة من اليمين */
-div[data-testid="stDataFrame"] div, div[data-testid="stTable"] div {{
+div[data-testid="stDataFrame"] table {{
     direction: rtl !important;
     text-align: right !important;
+}}
+
+div[data-testid="stDataFrame"] th, div[data-testid="stDataFrame"] td {{
+    text-align: right !important;
+    direction: rtl !important;
+}}
+
+/* دعم إضافي لعناصر العرض الهيكلية لجداول الأرو */
+[data-testid="stDataFrame"] [data-baseweb="table"] {{
+    direction: rtl !important;
 }}
 
 table {{
@@ -65,18 +74,6 @@ table {{
 th, td {{
     text-align: right !important;
     direction: rtl !important;
-}}
-
-/* إجبار عناصر الـ Grid أو الـ Flex داخل الجداول على التراصف من اليمين */
-[data-testid="stDataFrame"] [role="table"], [data-testid="stDataFrame"] [role="grid"] {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-
-[data-testid="stDataFrame"] [role="columnheader"], [data-testid="stDataFrame"] [role="gridcell"] {{
-    text-align: right !important;
-    direction: rtl !important;
-    justify-content: flex-end !important;
 }}
 
 .header-center {{
@@ -252,7 +249,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه المحاذاة والنصوص للجدول
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه الجدول من اليمين لليسار
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -347,10 +344,14 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
-        df_history.index = df_history.index + 1  # تبدأ من 1 بدلاً من 0
+        df_history.index = df_history.index + 1  # تبدأ الفهرسة من 1 لتمثل عمود (م)
         
-        # عرض الجدول داخل حاوية مخصصة تضمن انعكاس الاتجاه بالكامل من اليمين لليسار
-        st.markdown('<div dir="rtl" style="text-align: right; width: 100%;">', unsafe_allow_html=True)
+        # إعادة ترتيب الأعمدة برمجياً لتبدأ بـ (الدولة) ثم المؤشر وباقي المحاور بالترتيب المطلوب
+        cols_order = ["الدولة", "المؤشر المركب (AACRI)", "البنية التقنية (20%)", "الديناميكيات الاقتصادية (15%)", "رأس المال البشري (30%)", "البيئة التنظيمية والتشريعية (20%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
+        df_history = df_history[[c for c in cols_order if c in df_history.columns]]
+
+        # إجبار حاوية الجدول على الالتزام باتجاه اليمين لليسار تماماً
+        st.markdown('<div dir="rtl" style="text-align: right; direction: rtl;">', unsafe_allow_html=True)
         st.dataframe(df_history, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
