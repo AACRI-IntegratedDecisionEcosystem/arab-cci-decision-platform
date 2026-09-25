@@ -441,7 +441,6 @@ with tab1:
         """, unsafe_allow_html=True)
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
-        html, body, [class*="css"] {{
         fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'}, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
         st.plotly_chart(fig_bar, use_container_width=True)
 
