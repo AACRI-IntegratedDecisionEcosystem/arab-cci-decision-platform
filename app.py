@@ -101,33 +101,6 @@ html, body, [class*="css"] {{
     100% {{ transform: translate(100%, 0); }}
 }}
 
-.primary-btn button {{
-    background: linear-gradient(135deg, {CBE_ORANGE_MID} 0%, {CBE_ORANGE_LIGHT} 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: bold !important;
-    border-radius: 8px !important;
-    border: none !important;
-    width: 100% !important;
-}}
-
-.danger-btn button {{
-    background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: bold !important;
-    border-radius: 8px !important;
-    border: none !important;
-    width: 100% !important;
-}}
-
-.export-btn button {{
-    background: linear-gradient(135deg, {CBE_NAVY} 0%, #1E293B 100%) !important;
-    color: #FBBF24 !important;
-    font-weight: bold !important;
-    border: 1px solid {CBE_ORANGE_MID} !important;
-    border-radius: 8px !important;
-    width: 100% !important;
-}}
-
 .footer-copyright {{
     text-align: center;
     color: #64748B;
@@ -235,15 +208,20 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه المحاذاة والنصوص
 # ------------------------------------------------------------------------------
 with tab1:
-    st.markdown("### 🌐 التشخيص القياسي لمؤشر الجاهزية الذكية للصناعات الثقافية والإبداعية (AACRI)")
-    st.markdown("إمكانية التشخيص للدول العربية المختارة مع تسجيل وثبات النتائج في الجدول التراكمي وإدارة السجلات.")
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>🌐 التشخيص القياسي لمؤشر الجاهزية الذكية للصناعات الثقافية والإبداعية (AACRI)</h3>
+        <p>إمكانية التشخيص للدول العربية المختارة مع تسجيل وثبات النتائج في الجدول التراكمي وإدارة السجلات الموضح أدناه.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     col_input, col_result = st.columns([1, 2], gap="large")
 
     with col_input:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         country_sel = st.selectbox("اختر الدولة العربية", ARAB_COUNTRIES, key="t1_country")
         ti_slider = st.slider("1️⃣ البنية التقنية (وزن 20%)", 0, 100, 68, key="t1_ti")
         ed_slider = st.slider("2️⃣ الديناميكيات الاقتصادية (وزن 15%)", 0, 100, 70, key="t1_ed")
@@ -252,8 +230,10 @@ with tab1:
         cd_slider = st.slider("5️⃣ المحددات الثقافية والهوياتية (وزن 15%)", 0, 100, 82, key="t1_cd")
 
         calc_clicked = st.button("🚀 احسب وسجل قياس الدولة", use_container_width=True, type="primary")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_result:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         if calc_clicked:
             if country_sel == "الدولة":
                 st.warning("⚠️ يرجى اختيار دولة عربية حقيقية من القائمة لتنفيذ التشخيص القياسي.")
@@ -293,7 +273,7 @@ with tab1:
                     st.session_state.history_state.append(entry)
 
                 st.markdown(f"""
-                <div style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                   <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
                   <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CBE_NAVY}; font-weight: bold;">{country_sel}</span></p>
                   <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_html_colored}</span></p>
@@ -312,9 +292,14 @@ with tab1:
                 st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("📊 يرجى اختيار الدولة وضبط درجات المحاور ثم الضغط على زر الحساب لعرض النتائج والتمثيل الراداري.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 📋 قائمة ترتيب الدول العربية المسجلة")
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>📋 قائمة ترتيب الدول العربية المسجلة</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
@@ -412,7 +397,7 @@ with tab2:
                 sim_colored_html = get_colored_score_html(simulated_val)
 
                 if base_val >= 80:
-                    deep_analysis = "<p style='color: #14532D; font-size: 14px;'>الدولة تتمتع بامتصاص صدمات تقنية عالية؛ لذا فإن السياسات المستهدفة يجب أن تركز على قيادة المعايير العالمية للوسم المائي وتماية الهوية.</p>"
+                    deep_analysis = "<p style='color: #14532D; font-size: 14px;'>الدولة تتمتع بامتصاص صدمات تقنية عالية؛ لذا فإن السياسات المستهدفة يجب أن تركز على قيادة المعايير العالمية للوسم المائي وحماية الهوية.</p>"
                 elif base_val >= 51:
                     deep_analysis = "<p style='color: #713F12; font-size: 14px;'>يتضح وجود تفاوت بين البنية التقنية ورأس المال البشري؛ يتطلب الأمر التركيز على سد الفجوة بين مخرجات التعليم واحتياجات الاقتصاد البرتقالي.</p>"
                 else:
