@@ -55,6 +55,40 @@ th, td {{
     direction: rtl !important;
 }}
 
+/* تخصيص ألوان تبويبات (Tabs) الأقسام الرئيسية بألوان قاتمة وعند التحديد أو المرور تصبح فاتحة */
+.stTabs [data-baseweb="tab-list"] {{
+    gap: 8px;
+    background-color: {CBE_NAVY};
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}}
+
+.stTabs [data-baseweb="tab"] {{
+    background-color: #1E293B !important; /* لون قاتم افتراضي للتبويب */
+    color: #CBD5E1 !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 700 !important;
+    font-family: 'Cairo', sans-serif !important;
+    border: 1px solid #334155 !important;
+    transition: all 0.3s ease-in-out;
+}}
+
+.stTabs [data-baseweb="tab"]:hover {{
+    background-color: {CBE_ORANGE_DARK} !important; /* لون فاتح نسبياً عند المرور */
+    color: #FFFFFF !important;
+    border-color: {CBE_ORANGE_MID} !important;
+}}
+
+.stTabs [aria-selected="true"] {{
+    background-color: {CBE_ORANGE_MID} !important; /* لون مضيء وفاتح عند التحديد والضغط */
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    border-color: #FBBF24 !important;
+    box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4);
+}}
+
 .header-center {{
     text-align: center !important;
     background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(120, 53, 15, 0.90) 100%),
@@ -228,7 +262,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML المخصص
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML المصلح تماماً
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -324,45 +358,45 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # بناء جدول HTML مخصص لضمان الترتيب العربي الصحيح (من اليمين لليسار)
+        # بناء جدول HTML مصلح بالكامل وخالٍ من أي عيوب في الأسطر
         html_table = f"""
         <div style="overflow-x: auto; width: 100%;">
-        <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
-            <thead>
-                <tr style="background-color: {CBE_NAVY}; color: #FFFFFF; text-align: right;">
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 5%;">م</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 18%;">الدولة</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 12%;">المؤشر المركب (AACRI)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">البنية التقنية (20%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">الديناميكيات الاقتصادية (15%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">رأس المال البشري (30%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">البيئة التنظيمية (20%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">المحددات الثقافية (15%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 10%;">التقييم المنظومي</th>
-                </tr>
-            </thead>
-            <tbody>
+            <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
+                <thead>
+                    <tr style="background-color: {CBE_NAVY}; color: #FFFFFF; text-align: right;">
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 5%;">م</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 18%;">الدولة</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 12%;">المؤشر المركب (AACRI)</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">البنية التقنية (20%)</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">الديناميكيات الاقتصادية (15%)</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">رأس المال البشري (30%)</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">البيئة التنظيمية (20%)</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">المحددات الثقافية (15%)</th>
+                        <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 10%;">التقييم المنظومي</th>
+                    </tr>
+                </thead>
+                <tbody>
         """
         
         for idx, row in df_history.iterrows():
             row_bg = "#F8FAFC" if idx % 2 == 0 else "#FFFFFF"
             html_table += f"""
-                <tr style="background-color: {row_bg}; border-bottom: 1px solid #E2E8F0;">
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold;">{idx + 1}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['البنية التقنية (20%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['الديناميكيات الاقتصادية (15%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['رأس المال البشري (30%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['البيئة التنظيمية والتشريعية (20%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['المحددات الثقافية والهوياتية (15%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-size: 13px;">{row['التقييم المنظومي']}</td>
-                </tr>
+                    <tr style="background-color: {row_bg}; border-bottom: 1px solid #E2E8F0;">
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold;">{idx + 1}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['البنية التقنية (20%)']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['الديناميكيات الاقتصادية (15%)']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['رأس المال البشري (30%)']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['البيئة التنظيمية والتشريعية (20%)']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['المحددات الثقافية والهوياتية (15%)']}</td>
+                        <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-size: 13px;">{row['التقييم المنظومي']}</td>
+                    </tr>
             """
             
         html_table += """
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         </div>
         """
         
