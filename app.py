@@ -39,20 +39,9 @@ html, body, [class*="css"] {{
     text-align: right !important;
 }}
 
-/* ضبط اتجاه عناصر Streamlit والتحكم في المحاذاة لليمين */
 div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.stTable {{
     direction: rtl !important;
     text-align: right !important;
-}}
-
-table {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-
-th, td {{
-    text-align: right !important;
-    direction: rtl !important;
 }}
 
 /* تخصيص التبويبات (Tabs) بألوان قاتمة وعند التحديد أو المرور تصبح برتقالية */
@@ -219,13 +208,13 @@ ARAB_COUNTRIES = [
 
 def get_colored_score_html(score):
     if score >= 80:
-        return f"<span style='color: #16A34A; font-weight: bold;'>{score}% (أداء مرتفع 🟢)</span>"
+        return f"{score}% (أداء مرتفع 🟢)"
     elif score >= 51:
-        return f"<span style='color: #CA8A04; font-weight: bold;'>{score}% (أداء متوسط 🟡)</span>"
+        return f"{score}% (أداء متوسط 🟡)"
     else:
-        return f"<span style='color: #DC2626; font-weight: bold;'>{score}% (فجوة هيكلية حرجة 🔴)</span>"
+        return f"{score}% (فجوة هيكلية حرجة 🔴)"
 
-# وظائف لتوليد وصف ديناميكي مخصص ومتباين لكل محور بناءً على درجته الفعلية
+# وظائف وصف المحاور الخمسة لدعم التمايز
 def describe_ti(val):
     if val >= 80:
         return f"البنية التقنية المتقدمة للغاية ({val}%) تتيح بيئة عريضة النطاق لتوطين وتشغيل النماذج التوليدية الضخمة."
@@ -307,7 +296,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML المخصص والنظيف
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) - مع جدول Streamlit النظيف الآمن
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -339,17 +328,17 @@ with tab1:
             else:
                 weights = {'TI': 0.20, 'ED': 0.15, 'HC': 0.30, 'RF': 0.20, 'CD': 0.15}
                 final_score = round((ti_slider * weights['TI']) + (ed_slider * weights['ED']) + (hc_slider * weights['HC']) + (rf_slider * weights['RF']) + (cd_slider * weights['CD']), 2)
-                score_html_colored = get_colored_score_html(final_score)
+                score_str_plain = get_colored_score_html(final_score)
 
                 if final_score >= 80:
                     diagnosis = "🟢 جاهزية متقدمة للغاية نحو السيادة الرقمية والابتكار المستدام وتفعيل 'المبدع المعزز'."
-                    detailed_diag = f"🟢 **جاهزية متقدمة ومستدامة:** إجمالي المؤشر المركب {score_html_colored}. تعكس هذه النتيجة تفوقاً هيكلياً في بيئة العمل، ورأس مال بشري مؤهل للتعامل مع التقنيات التوليدية، وبنية تقنية متطورة تتيح قيادة التحالفات الإقليمية وتوطين النماذج الثقافية الرقمية بكفاءة عالية بما يضمن صون الأمن الثقافي."
+                    detailed_diag = f"🟢 **جاهزية متقدمة ومستدامة:** إجمالي المؤشر المركب {score_str_plain}. تعكس هذه النتيجة تفوقاً هيكلياً في بيئة العمل، ورأس مال بشري مؤهل للتعامل مع التقنيات التوليدية، وبنية تقنية متطورة تتيح قيادة التحالفات الإقليمية وتوطين النماذج الثقافية الرقمية بكفاءة عالية بما يضمن صون الأمن الثقافي."
                 elif final_score >= 51:
                     diagnosis = "🟡 جاهزية متوسطة، تتطلب تدخلات استباقية لمعالجة الاختناقات الهيكلية."
-                    detailed_diag = f"🟡 **جاهزية متوسطة تتطلب تدخلاً استباقياً:** إجمالي المؤشر المركب {score_html_colored}. تشير المؤشرات إلى توازن نسبي يواجه بعض الاختناقات الهيكلية في سلاسل القيمة أو التشريعات التنظيمية، مما يستوجب حزم تحفيزية وبرامج إعادة تأهيل (Upskilling & Reskilling) لردم الفجوات القائمة."
+                    detailed_diag = f"🟡 **جاهزية متوسطة تتطلب تدخلاً استباقياً:** إجمالي المؤشر المركب {score_str_plain}. تشير المؤشرات إلى توازن نسبي يواجه بعض الاختناقات الهيكلية في سلاسل القيمة أو التشريعات التنظيمية، مما يستوجب حزم تحفيزية وبرامج إعادة تأهيل (Upskilling & Reskilling) لردم الفجوات القائمة."
                 else:
                     diagnosis = "🔴 وجود فجوة ذكية هيكلية تستوجب تفعيل محاكي السياسات ولوحة دعم اتخاذ القرار فوراً."
-                    detailed_diag = f"🔴 **فجوة ذكية هيكلية حرجة:** إجمالي المؤشر المركب {score_html_colored}. توضح القراءة الحالية وجود اختناقات عميقة في البنية التحتية والبيئة التشريعية ورأس المال البشري، مما يستوجب تفعيل محاكي السياسات ولوحة التطعيم الثقافي لدعم 'المبدع المعزز' وتفادي الاستلاب الخوارزمي."
+                    detailed_diag = f"🔴 **فجوة ذكية هيكلية حرجة:** إجمالي المؤشر المركب {score_str_plain}. توضح القراءة الحالية وجود اختناقات عميقة في البنية التحتية والبيئة التشريعية ورأس المال البشري، مما يستوجب تفعيل محاكي السياسات ولوحة التطعيم الثقافي لدعم 'المبدع المعزز' وتفادي الاستلاب الخوارزمي."
 
                 entry = {
                     "الدولة": country_sel,
@@ -375,7 +364,7 @@ with tab1:
                 <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                   <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
                   <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CBE_NAVY}; font-weight: bold;">{country_sel}</span></p>
-                  <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_html_colored}</span></p>
+                  <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_str_plain}</span></p>
                   <div style="background: {CBE_BG}; padding: 16px; border-radius: 8px; border-right: 5px solid {CBE_ORANGE_MID}; margin-top: 10px;">
                     <p style="margin: 0 0 8px 0; font-weight: bold; color: {CBE_NAVY};">التقييم التشخيصي والتفصيل المنظومي:</p>
                     <p style="margin: 0; color: #1E293B; font-size: 14.5px;">{detailed_diag}</p>
@@ -402,49 +391,10 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
+        df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        html_table = f"""
-        <div style="overflow-x: auto; width: 100%;">
-        <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
-            <thead>
-                <tr style="background-color: {CBE_NAVY}; color: #FFFFFF; text-align: right;">
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 5%;">م</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 18%;">الدولة</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 12%;">المؤشر المركب (AACRI)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">البنية التقنية (20%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">الديناميكيات الاقتصادية (15%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">رأس المال البشري (30%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">البيئة التنظيمية (20%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 11%;">المحددات الثقافية (15%)</th>
-                    <th style="padding: 12px; border: 1px solid #CBD5E1; text-align: right; width: 10%;">التقييم المنظومي</th>
-                </tr>
-            </thead>
-            <tbody>
-        """
-        
-        for idx, row in df_history.iterrows():
-            row_bg = "#F8FAFC" if idx % 2 == 0 else "#FFFFFF"
-            html_table += f"""
-                <tr style="background-color: {row_bg}; border-bottom: 1px solid #E2E8F0;">
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold;">{idx + 1}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['البنية التقنية (20%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['الديناميكيات الاقتصادية (15%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['رأس المال البشري (30%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['البيئة التنظيمية والتشريعية (20%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right;">{row['المحددات الثقافية والهوياتية (15%)']}</td>
-                    <td style="padding: 10px; border: 1px solid #CBD5E1; text-align: right; font-size: 13px;">{row['التقييم المنظومي']}</td>
-                </tr>
-            """
-            
-        html_table += """
-            </tbody>
-        </table>
-        </div>
-        """
-        
-        st.markdown(html_table, unsafe_allow_html=True)
+        # استخدام جدول Streamlit الآمن تماماً ضد ظهور أي أكواد HTML نصية
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -548,7 +498,7 @@ with tab2:
 
                 simulated_val = round(simulated_val, 2)
                 delta = round(simulated_val - base_val, 2)
-                sim_colored_html = get_colored_score_html(simulated_val)
+                score_str_plain = get_colored_score_html(simulated_val)
 
                 deep_analysis = f"""
                 <div style='font-size: 14px; color: #1E293B; line-height: 1.8;'>
@@ -566,7 +516,7 @@ with tab2:
                 box_html = f"""
                 <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
                   <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
-                  <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر:</b> {sim_colored_html} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
+                  <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر:</b> {score_str_plain} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
                   <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
                     <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
                     <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
@@ -624,7 +574,7 @@ with tab3:
                     h_val = country_data["رأس المال البشري (30%)"]
                     r_val = country_data["البيئة التنظيمية والتشريعية (20%)"]
                     c_val = country_data["المحددات الثقافية والهوياتية (15%)"]
-                    score_colored_str = get_colored_score_html(score)
+                    score_str_plain = get_colored_score_html(score)
 
                     if score >= 80:
                         recs = f"<li><b>تعزيز ريادة الابتكار الإقليمي:</b> توظيف البنية التقنية المتقدمة ({t_val}%) لتصدير النماذج اللغوية الثقافية العربية.</li><li><b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> استثمار البيئة التنظيمية ({r_val}%) لقيادة المعايير العالمية للوسم المائي.</li>"
@@ -659,7 +609,7 @@ with tab3:
 
                     dec_box = f"""
                     <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                      <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">🛡️ تقرير وتوصيات دولة: {decision_country_sel} (المؤشر المركب: {score_colored_str})</h3>
+                      <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">🛡️ تقرير وتوصيات دولة: {decision_country_sel} (المؤشر المركب: {score_str_plain})</h3>
                       <ul style="margin: 0 0 10px 0; padding-right: 20px; line-height: 1.8; color: #1E293B;">
                         {recs}
                       </ul>
@@ -705,15 +655,15 @@ with tab4:
             top_row = df_rep.iloc[0]
             top_country = top_row["الدولة"]
             top_score = top_row["المؤشر المركب (AACRI)"]
-            top_score_colored = get_colored_score_html(top_score)
+            top_score_str = get_colored_score_html(top_score)
 
             countries_summary = ""
             for idx, row in df_rep.iterrows():
                 s = row['المؤشر المركب (AACRI)']
-                s_col = get_colored_score_html(s)
+                s_str = get_colored_score_html(s)
                 countries_summary += f"""
                 <li style="margin-bottom: 12px; line-height: 1.8; background: #F8FAFC; padding: 12px 16px; border-radius: 8px; border: 1px solid #E2E8F0;">
-                    <b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {s_col} | البنية التقنية: {row['البنية التقنية (20%)']}% | رأس المال البشري: {row['رأس المال البشري (30%)']}% <br>
+                    <b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {s_str} | البنية التقنية: {row['البنية التقنية (20%)']}% | رأس المال البشري: {row['رأس المال البشري (30%)']}% <br>
                     <span style="color: #475569; font-size: 13.5px;"><b>التقييم التشخيصي:</b> {row['التقييم المنظومي']}</span>
                 </li>
                 """
@@ -727,7 +677,7 @@ with tab4:
 
               <div style="background: {CBE_BG}; padding: 18px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 25px;">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية:</h4>
-                <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CBE_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_colored}.</p>
+                <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CBE_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p style="margin: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
               </div>
 
