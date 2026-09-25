@@ -536,8 +536,8 @@ with tab2:
 
                 deep_analysis = f"""
                 <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 10px;" dir="rtl">
-                    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
-                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
+                    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
+                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right; direction: rtl;">
                         <li><b>1. البنية التقنية:</b> {describe_ti(t_val)}</li>
                         <li><b>2. الديناميكيات الاقتصادية:</b> {describe_ed(e_val)}</li>
                         <li><b>3. رأس المال البشري:</b> {describe_hc(h_val)}</li>
@@ -549,11 +549,11 @@ with tab2:
 
                 box_html = f"""
                 <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
-                  <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر:</b> {score_str_plain} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
-                  <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
-                    <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
-                    <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
+                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
+                  <p style="font-size: 15px; margin-bottom: 8px; text-align: right;"><b>القيمة المتوقعة للمؤشر:</b> {score_str_plain} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
+                  <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px; text-align: right;" dir="rtl">
+                    <p style="margin-bottom: 6px; text-align: right;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
+                    <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold; text-align: right;">🛠️ خطة التحرك: {action_plan}</p>
                   </div>
                 </div>
                 """
@@ -578,7 +578,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار (توجيه كافة التحليلات من اليمين لليسار بدقة)
+# التبويب الثالث: لوحة دعم اتخاذ القرار (توجيه كامل من اليمين لليسار)
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -661,14 +661,17 @@ with tab3:
             for item in st.session_state.decision_results_dict.values():
                 st.markdown(f"""
                 <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 20px; border-radius: 10px; border: 1px solid #CBD5E1; margin-bottom: 15px;">
-                    <h3 style="color: {CBE_NAVY}; margin-top: 0;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                    <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 10px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                </div>
                 """, unsafe_allow_html=True)
+                
                 for r in item["recs"]:
-                    st.markdown(f"* {r}")
+                    st.markdown(f"<div dir='rtl' style='text-align: right; margin-bottom: 6px;'>* {r}</div>", unsafe_allow_html=True)
+                
+                st.markdown("<hr style='border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;'>", unsafe_allow_html=True)
+                st.markdown("<div dir='rtl' style='text-align: right; font-weight: bold; color: #78350F; margin-bottom: 6px;'>💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</div>", unsafe_allow_html=True)
+                st.markdown(f"<div dir='rtl' style='text-align: right; line-height: 1.8;'>{item['deep']}</div>", unsafe_allow_html=True)
                 st.markdown("---")
-                st.markdown("**💡 إضافات تحليلية استراتيجية عميقة ومخصصة:**")
-                st.markdown(item["deep"])
-                st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -735,7 +738,7 @@ with tab4:
                 st.markdown(summary_card, unsafe_allow_html=True)
 
             st.markdown(f"""
-            <div style="background: {CBE_FDF4 if 'CBE_FDF4' in locals() else '#F0FDF4'}; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
+            <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
                   يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
