@@ -426,7 +426,7 @@ with tab1:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثاني: محاكي السياسات (Policy Simulator) - مع تثبيت استجابات السيناريوهات للمقارنة
+# التبويب الثاني: محاكي السياسات (Policy Simulator)
 # ------------------------------------------------------------------------------
 with tab2:
     st.markdown("""
@@ -504,16 +504,12 @@ with tab2:
                 score_str_plain = get_colored_score_html(simulated_val)
 
                 deep_analysis = f"""
-                <div style='font-size: 14px; color: #1E293B; line-height: 1.8;'>
-                  <b>📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</b>
-                  <ul style='margin: 5px 0 0 0; padding-right: 20px;'>
-                    <li><b>1. البنية التقنية:</b> {describe_ti(t_val)}</li>
-                    <li><b>2. الديناميكيات الاقتصادية:</b> {describe_ed(e_val)}</li>
-                    <li><b>3. رأس المال البشري:</b> {describe_hc(h_val)}</li>
-                    <li><b>4. البيئة التنظيمية:</b> {describe_rf(r_val)}</li>
-                    <li><b>5. المحددات الثقافية:</b> {describe_cd(c_val)}</li>
-                  </ul>
-                </div>
+                **📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):**
+                * **1. البنية التقنية:** {describe_ti(t_val)}
+                * **2. الديناميكيات الاقتصادية:** {describe_ed(e_val)}
+                * **3. رأس المال البشري:** {describe_hc(h_val)}
+                * **4. البيئة التنظيمية:** {describe_rf(r_val)}
+                * **5. المحددات الثقافية:** {describe_cd(c_val)}
                 """
 
                 box_html = f"""
@@ -523,20 +519,19 @@ with tab2:
                   <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
                     <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
                     <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
-                    <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
-                    {deep_analysis}
                   </div>
                 </div>
                 """
-                # استخدام المفتاح المركب (الدولة + السيناريو) لتثبيت وعرض كافة السيناريوهات للمقارنة
                 sim_key = f"{sim_country_sel} - {scenario_dropdown}"
-                st.session_state.simulated_results_dict[sim_key] = box_html
+                st.session_state.simulated_results_dict[sim_key] = {"html": box_html, "deep": deep_analysis}
 
         if st.session_state.simulated_results_dict:
             st.markdown("---")
             st.markdown("<h4>📋 مقارنة السيناريوهات المثبتة للدول:</h4>", unsafe_allow_html=True)
-            for b_html in st.session_state.simulated_results_dict.values():
-                st.markdown(b_html, unsafe_allow_html=True)
+            for item in st.session_state.simulated_results_dict.values():
+                st.markdown(item["html"], unsafe_allow_html=True)
+                st.markdown(item["deep"])
+                st.markdown("---")
         else:
             st.info("📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا بغرض المقارنة.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -548,7 +543,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار
+# التبويب الثالث: لوحة دعم اتخاذ القرار (معالجة تامة لأي أكواد HTML مكشوفة)
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -565,6 +560,12 @@ with tab3:
         recorded_countries_dec = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES
         decision_country_sel = st.selectbox("اختر الدولة لاستعراض التوصيات", recorded_countries_dec, key="dec_country")
         generate_decision_btn = st.button("📋 إضافة وتثبيت توصيات الدولة المختارة", use_container_width=True, type="primary")
+        
+        if st.button("🗑️ مسح وإعادة تعيين لوحة القرار", use_container_width=True, type="secondary"):
+            st.session_state.decision_results_dict = {}
+            st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
+            st.rerun()
+            
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col_dec_out:
@@ -584,52 +585,55 @@ with tab3:
                     score_str_plain = get_colored_score_html(score)
 
                     if score >= 80:
-                        recs = f"<li><b>تعزيز ريادة الابتكار الإقليمي:</b> توظيف البنية التقنية المتقدمة ({t_val}%) لتصدير النماذج اللغوية الثقافية العربية.</li><li><b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> استثمار البيئة التنظيمية ({r_val}%) لقيادة المعايير العالمية للوسم المائي.</li>"
-                        deep_third = f"""
-                        <p style='color: #14532D; font-size: 14.5px; margin-bottom: 8px;'><b>💡 إضافات تحليلية استراتيجية عميقة:</b></p>
-                        <ul style='margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8;'>
-                          <li>توصي منظومة القرار بإنشاء <b>'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'</b> مستفيدين من رأس المال البشري المتميز ({h_val}%).</li>
-                          <li>تفعيل آليات <b>التطعيم الثقافي (Cultural Grafting)</b> لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).</li>
-                          <li>خلق شراكات إقليمية استراتيجية مدعومة بالديناميكيات الاقتصادية القوية ({e_val}%).</li>
-                        </ul>
+                        recs_list = [
+                            f"**تعزيز ريادة الابتكار الإقليمي:** توظيف البنية التقنية المتقدمة ({t_val}%) لتصدير النماذج اللغوية الثقافية العربية.",
+                            f"**الحوكمة المتقدمة للذكاء الاصطناعي:** استثمار البيئة التنظيمية ({r_val}%) لقيادة المعايير العالمية للوسم المائي."
+                        ]
+                        deep_analysis_text = f"""
+**💡 إضافات تحليلية استراتيجية عميقة ومخصصة:**
+* توصي منظومة القرار بإنشاء **'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'** مستفيدين من رأس المال البشري المتميز ({h_val}%).
+* تفعيل آليات **التطعيم الثقافي (Cultural Grafting)** لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).
+* خلق شراكات إقليمية استراتيجية مدعومة بالديناميكيات الاقتصادية القوية ({e_val}%).
                         """
                     elif score >= 51:
-                        recs = f"<li><b>ردم الفجوة التقنية والبشرية:</b> إطلاق حزم برامج إعادة التأهيل السريع بناءً على رصيد رأس المال البشري ({h_val}%).</li><li><b>سد الاختناقات الهيكلية:</b> تطوير أطر البيئة التنظيمية المسجلة عند ({r_val}%) لتحفيز القطاع الإبداعي.</li>"
-                        deep_third = f"""
-                        <p style='color: #713F12; font-size: 14.5px; margin-bottom: 8px;'><b>💡 إضافات تحليلية استراتيجية عميقة:</b></p>
-                        <ul style='margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8;'>
-                          <li>تتطلب صانعة القرار تفعيل <b>'حاضنات الأعمال الإبداعية المشتركة'</b> لرفع كفاءة البنية التقنية ({t_val}%).</li>
-                          <li>توجيه الدعم المالي والاقتصادي نحو الأنشطة البرتقالية لتعقيم الاقتصاد ضد صدمات البطالة التكنولوجية في ضوء ({e_val}%).</li>
-                          <li>تعزيز المحتوى الرقمي العربي لتجاوز قصور المحددات الثقافية ({c_val}%).</li>
-                        </ul>
+                        recs_list = [
+                            f"**ردم الفجوة التقنية والبشرية:** إطلاق حزم برامج إعادة التأهيل السريع بناءً على رصيد رأس المال البشري ({h_val}%).",
+                            f"**سد الاختناقات الهيكلية:** تطوير أطر البيئة التنظيمية المسجلة عند ({r_val}%) لتحفيز القطاع الإبداعي."
+                        ]
+                        deep_analysis_text = f"""
+**💡 إضافات تحليلية استراتيجية عميقة ومخصصة:**
+* تتطلب صانعة القرار تفعيل **'حاضنات الأعمال الإبداعية المشتركة'** لرفع كفاءة البنية التقنية ({t_val}%).
+* توجيه الدعم المالي والاقتصادي نحو الأنشطة البرتقالية لتعقيم الاقتصاد ضد صدمات البطالة التكنولوجية في ضوء ({e_val}%).
+* تعزيز المحتوى الرقمي العربي لتجاوز قصور المحددات الثقافية ({c_val}%).
                         """
                     else:
-                        recs = f"<li><b>التدخل الاستباقي العاجل:</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).</li><li><b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%).</li>"
-                        deep_third = f"""
-                        <p style='color: #7F1D1D; font-size: 14.5px; margin-bottom: 8px;'><b>💡 إضافات تحليلية استراتيجية عميقة:</b></p>
-                        <ul style='margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8;'>
-                          <li>تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).</li>
-                          <li>تنفيذ خطط طوارئ استثمارية لرفع مساهمة الاقتصاد البرتقالي المتدنية ({e_val}%).</li>
-                          <li>إطلاق برامج عاجلة للأمن الثقافي وحماية التراث الرقمي لمعالجة هشاشة المحددات الثقافية ({c_val}%).</li>
-                        </ul>
+                        recs_list = [
+                            f"**التدخل الاستباقي العاجل:** معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
+                            f"**احتواء الاقتصاد غير الرسمي:** دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%)."
+                        ]
+                        deep_analysis_text = f"""
+**💡 إضافات تحليلية استراتيجية عميقة ومخصصة:**
+* تفرض الضرورة القصوى استدعاء إطار **'التكامل الوظيفي الإقليمي'** لتعويض الفجوة في رأس المال البشري ({h_val}%).
+* تنفيذ خطط طوارئ استثمارية لرفع مساهمة الاقتصاد البرتقالي المتدنية ({e_val}%).
+* إطلاق برامج عاجلة للأمن الثقافي وحماية التراث الرقمي لمعالجة هشاشة المحددات الثقافية ({c_val}%).
                         """
 
-                    dec_box = f"""
-                    <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                      <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">🛡️ تقرير وتوصيات دولة: {decision_country_sel} (المؤشر المركب: {score_str_plain})</h3>
-                      <ul style="margin: 0 0 10px 0; padding-right: 20px; line-height: 1.8; color: #1E293B;">
-                        {recs}
-                      </ul>
-                      <div style='background: {CBE_BG}; padding: 14px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 12px;'>
-                        {deep_third}
-                      </div>
-                    </div>
-                    """
-                    st.session_state.decision_results_dict[decision_country_sel] = dec_box
+                    # تخزين العنصر كمدخلات نظيفة معتمدة على Markdown بالكامل لتجنب أي أكواد مكشوفة
+                    st.session_state.decision_results_dict[decision_country_sel] = {
+                        "country": decision_country_sel,
+                        "score_str": score_str_plain,
+                        "recs": recs_list,
+                        "deep": deep_analysis_text
+                    }
 
         if st.session_state.decision_results_dict:
-            for d_html in st.session_state.decision_results_dict.values():
-                st.markdown(d_html, unsafe_allow_html=True)
+            for item in st.session_state.decision_results_dict.values():
+                st.markdown(f"### 🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})")
+                for r in item["recs"]:
+                    st.markdown(f"* {r}")
+                st.markdown("---")
+                st.markdown(item["deep"])
+                st.markdown("---")
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
