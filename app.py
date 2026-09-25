@@ -1,4 +1,3 @@
-راجع ظهور أكواد الـ HTML نصياً في كافة أقسام المنصة. بشكل ملفت أرجو منك المساعدة
 import os
 import random
 import pandas as pd
