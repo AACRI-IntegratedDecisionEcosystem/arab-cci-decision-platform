@@ -1,4 +1,3 @@
-import os
 import random
 import pandas as pd
 import streamlit as st
@@ -80,30 +79,6 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     border-radius: 8px !important;
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700 !important;
-}}
-
-/* تنسيق زر الطباعة المباشر الفعال */
-.print-btn-html {{
-    display: block;
-    width: 100%;
-    background-color: {CBE_ORANGE_MID};
-    color: white;
-    text-align: center;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: background 0.3s ease;
-    cursor: pointer;
-    border: none;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}}
-.print-btn-html:hover {{
-    background-color: {CBE_ORANGE_DARK};
-    color: #FBBF24;
 }}
 
 .header-center {{
@@ -295,6 +270,17 @@ def get_region_and_features(country_name):
     else:
         return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
+# دالة مساعدة لطباعة القسم فورياً عبر HTML/JS مباشر
+def render_print_button(button_label="📥 تصدير وطباعة التقرير (PDF / طباعة)"):
+    print_html = f"""
+    <div style="margin-top: 20px; margin-bottom: 20px;" dir="rtl">
+        <button onclick="window.print();" style="width: 100%; background-color: {CBE_ORANGE_MID}; color: white; padding: 12px 20px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: background 0.3s;">
+            {button_label}
+        </button>
+    </div>
+    """
+    st.markdown(print_html, unsafe_allow_html=True)
+
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
     st.session_state.history_state = []
@@ -448,12 +434,7 @@ with tab1:
         st.info("📂 لا توجد دول مسجلة حتى الآن. قم بإجراء التشخيص في الأعلى لتسجيل وترتيب الدول.")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    # تفعيل زر الطباعة الفعال عبر HTML Click Event
-    st.markdown("""
-    <button onclick="window.print();" class="print-btn-html">
-        📥 تصدير وطباعة تقرير القسم الأول (PDF / طباعة)
-    </button>
-    """, unsafe_allow_html=True)
+    render_print_button("📥 تصدير وطباعة تقرير القسم الأول (PDF / طباعة)")
 
     with st.expander("📂 استعراض المصفوفة الإجرائية للمحاور الرئيسة وأبعادها وفق مؤشر (AACRI)"):
         st.markdown("""
@@ -470,7 +451,6 @@ with tab1:
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        # ضبط اتجاه ونصوص الرسم البياني ليكون من اليمين لليسار
         fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'})
         fig_bar.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
@@ -620,17 +600,12 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    # تفعيل زر الطباعة الفعال عبر HTML Click Event
-    st.markdown("""
-    <button onclick="window.print();" class="print-btn-html">
-        📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)
-    </button>
-    """, unsafe_allow_html=True)
+    render_print_button("📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)")
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار (مطابق جمالياً تماماً للقسم الثاني وموجه لليمين)
+# التبويب الثالث: لوحة دعم اتخاذ القرار
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -734,12 +709,7 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    # تفعيل زر الطباعة الفعال عبر HTML Click Event
-    st.markdown("""
-    <button onclick="window.print();" class="print-btn-html">
-        📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)
-    </button>
-    """, unsafe_allow_html=True)
+    render_print_button("📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)")
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -834,11 +804,6 @@ with tab4:
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    # تفعيل زر الطباعة الفعال عبر HTML Click Event
-    st.markdown("""
-    <button onclick="window.print();" class="print-btn-html">
-        📥 تصدير وطباعة التقرير التنفيذي الموحد (PDF / طباعة)
-    </button>
-    """, unsafe_allow_html=True)
+    render_print_button("📥 تصدير وطباعة التقرير التنفيذي الموحد (PDF / طباعة)")
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
