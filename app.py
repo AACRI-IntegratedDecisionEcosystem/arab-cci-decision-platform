@@ -430,7 +430,7 @@ with tab1:
     with st.expander("📂 استعراض المصفوفة الإجرائية للمحاور الرئيسة وأبعادها وفق مؤشر (AACRI)"):
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
-        <ul>
+        <ul style="padding-right: 20px; list-style-type: disc;">
             <li><b>البنية التقنية (وزن 20%):</b> يضم مؤشرات سعة وتدفق البيانات الضخمة، سرعات الإنترنت عريض الباند، وتوطين النماذج اللغوية الكبيرة (LLMs).</li>
             <li><b>الديناميكيات الاقتصادية (وزن 15%):</b> يضم مساهمة الاقتصاد البرتقالي في الناتج المحلي، الصادرات الإبداعية، وصفقات رأس المال المخاطر (VC).</li>
             <li><b>رأس المال البشري (وزن 30%):</b> يضم نسب التدريب المعتمد في هندسة الأوامر (Prompt Engineering) وبرامج إعادة التأهيل (Reskilling & Upskilling) وتمكين 'المبدع المعزز'.</li>
@@ -684,6 +684,8 @@ with tab3:
                     <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                     <div style="color: #1E293B; line-height: 1.9; text-align: right;">
                         {item['deep']}
+                    </div>
+                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
