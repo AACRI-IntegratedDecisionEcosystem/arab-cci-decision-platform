@@ -677,22 +677,24 @@ with tab3:
                         "deep": deep_analysis_text
                     }
 
-       if st.session_state.decision_results_dict:
-            for item in st.session_state.decision_results_dict.values():
-                card_html = f"""
-                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
-                    <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
-                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
-                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
-                        <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
-                            <li>{item['recs'][0]}</li>
-                            <li>{item['recs'][1]}</li>
-                        </ul>
-                        <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
-                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
-                        <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 4px;">
-                            {item['deep']}
-</div>
+        if st.session_state.decision_results_dict:
+            for item in st.session_state.decision_results_dict.values():
+                card_html = f"""
+                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
+                    <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
+                        <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
+                            <li>{item['recs'][0]}</li>
+                            <li>{item['recs'][1]}</li>
+                        </ul>
+                        <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
+                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
+                        <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 4px;">
+                            {item['deep']}
+                        </div>
+                    </div>
+                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
