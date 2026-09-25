@@ -685,7 +685,6 @@ with tab3:
                     <div style="color: #1E293B; line-height: 1.9; text-align: right;">
                         {item['deep']}
                     </div>
-                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
