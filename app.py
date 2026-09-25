@@ -447,7 +447,7 @@ with tab1:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثاني: محاكي السياسات (Policy Simulator) - تمايز دقيق ديناميكي بالكامل
+# التبويب الثاني: محاكي السياسات (Policy Simulator)
 # ------------------------------------------------------------------------------
 with tab2:
     st.markdown("""
@@ -507,7 +507,6 @@ with tab2:
 
                 combined_boost = (var1_tech * 0.25) + (var2_eco * 0.15) + (var3_hc * 0.3) + (var4_reg * 0.2) + (var5_cult * 0.1)
 
-                # صياغة قياسية وتحليلية ديناميكية فريدة تتغير كلياً حسب درجات الدولة الفعلية ومستوى السيناريو
                 if scenario_dropdown.startswith("📉"):
                     simulated_val = max(0.0, base_val * 0.90)
                     if base_val >= 80:
@@ -590,7 +589,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار (اتجاه اليمين وحذف أي وسم </div> مكشوف)
+# التبويب الثالث: لوحة دعم اتخاذ القرار (نظيف تماماً وموجه لليمين بالكامل)
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -674,13 +673,13 @@ with tab3:
                 st.markdown(f"""
                 <div style="background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
                     <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                </div>
                 """, unsafe_allow_html=True)
                 for r in item["recs"]:
                     st.markdown(f"<p style='text-align: right; margin-bottom: 8px;' dir='rtl'>* {r}</p>", unsafe_allow_html=True)
                 st.markdown("<hr style='border: 0; border-top: 1px solid #CBD5E1; margin: 12px 0;'>", unsafe_allow_html=True)
                 st.markdown("<p style='font-weight: bold; color: #0A192F; text-align: right;' dir='rtl'>💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>", unsafe_allow_html=True)
                 st.markdown(f"<div style='text-align: right; line-height: 1.8;' dir='rtl'>{item['deep']}</div>", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
