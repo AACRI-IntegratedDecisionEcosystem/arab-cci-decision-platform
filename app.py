@@ -35,6 +35,14 @@ html, body, [class*="css"] {{
 
 .stApp {{
     background-color: {CBE_BG} !important;
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
+/* ضبط اتجاه عناصر Streamlit والتحكم في المحاذاة لليمين */
+div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.stTable {{
+    direction: rtl !important;
+    text-align: right !important;
 }}
 
 .header-center {{
@@ -49,6 +57,7 @@ html, body, [class*="css"] {{
     border-bottom: 5px solid {CBE_ORANGE_MID} !important;
     box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
     margin-bottom: 20px !important;
+    direction: rtl !important;
 }}
 
 .header-center h1 {{
@@ -109,6 +118,7 @@ html, body, [class*="css"] {{
     border-top: 1px solid #E2E8F0;
     padding-top: 15px;
     font-weight: bold;
+    direction: rtl !important;
 }}
 </style>
 """
@@ -342,12 +352,17 @@ with tab1:
 # التبويب الثاني: محاكي السياسات (Policy Simulator)
 # ------------------------------------------------------------------------------
 with tab2:
-    st.markdown("### 🔬 محاكي السياسات الاستشرافي والمتابعة التراكمية للسيناريوهات")
-    st.markdown("استشراف أثر التدخلات الاستثمارية والتقنية عبر النمذجة القياسية ومتغيرات التحفيز الاستراتيجي.")
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>🔬 محاكي السياسات الاستشرافي والمتابعة التراكمية للسيناريوهات</h3>
+        <p>استشراف أثر التدخلات الاستثمارية والتقنية عبر النمذجة القياسية ومتغيرات التحفيز الاستراتيجي.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     col_sim_in, col_sim_out = st.columns([1, 2], gap="large")
 
     with col_sim_in:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         recorded_countries_sim = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES
         sim_country_sel = st.selectbox("اختر الدولة للمحاكاة", recorded_countries_sim, key="sim_country")
         base_aacri_input = st.slider("قيمة المؤشر الافتراضي الحالي", 30.0, 100.0, 68.5, 0.5, key="sim_base")
@@ -364,8 +379,10 @@ with tab2:
         var5_cult = st.slider("5️⃣ نسبة التوسع في المحددات الثقافية (%)", 0, 50, 25, key="sim_v5")
 
         run_sim_btn = st.button("📋 إضافة وتثبيت سيناريو الدولة", use_container_width=True, type="primary")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_sim_out:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         if run_sim_btn:
             if sim_country_sel == "الدولة":
                 st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
@@ -421,6 +438,7 @@ with tab2:
                 st.markdown(b_html, unsafe_allow_html=True)
         else:
             st.info("📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)", use_container_width=True):
@@ -432,17 +450,24 @@ with tab2:
 # التبويب الثالث: لوحة دعم اتخاذ القرار
 # ------------------------------------------------------------------------------
 with tab3:
-    st.markdown("### 🛡️ لوحة دعم اتخاذ القرار ولوحة التطعيم الثقافي (Cultural Grafting Canvas)")
-    st.markdown("استعراض وتثبيت التوصيات المخصصة لكل دولة مختارة بديناميكية تمنع التكرار وتدعم السيادة الرقمية.")
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>🛡️ لوحة دعم اتخاذ القرار ولوحة التطعيم الثقافي (Cultural Grafting Canvas)</h3>
+        <p>استعراض وتثبيت التوصيات المخصصة لكل دولة مختارة بديناميكية تمنع التكرار وتدعم السيادة الرقمية.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     col_dec_in, col_dec_out = st.columns([1, 2], gap="large")
 
     with col_dec_in:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         recorded_countries_dec = [item["الدولة"] for item in st.session_state.history_state] if st.session_state.history_state else ARAB_COUNTRIES
         decision_country_sel = st.selectbox("اختر الدولة لاستعراض التوصيات", recorded_countries_dec, key="dec_country")
         generate_decision_btn = st.button("📋 إضافة وتثبيت توصيات الدولة المختارة", use_container_width=True, type="primary")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_dec_out:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         if generate_decision_btn:
             if not st.session_state.history_state or decision_country_sel == "الدولة":
                 st.warning("⚠️ يرجى أولاً إدخال بيانات الدولة وحساب مؤشر AACRI في القسم الأول.")
@@ -481,6 +506,7 @@ with tab3:
                 st.markdown(d_html, unsafe_allow_html=True)
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)", use_container_width=True):
@@ -492,8 +518,12 @@ with tab3:
 # التبويب الرابع: التقرير التنفيذي الموحد
 # ------------------------------------------------------------------------------
 with tab4:
-    st.markdown("### 📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية")
-    st.markdown("ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.")
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية</h3>
+        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     if st.button("🔄 تحديث وتوليد التقرير التنفيذي الموحد", use_container_width=True, type="primary"):
         if not st.session_state.history_state:
