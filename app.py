@@ -268,18 +268,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
-
-# دالة مساعدة لطباعة القسم فورياً عبر HTML/JS مباشر
-def render_print_button(button_label="📥 تصدير وطباعة التقرير (PDF / طباعة)"):
-    print_html = f"""
-    <div style="margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-        <button onclick="window.print();" style="width: 100%; background-color: {CBE_ORANGE_MID}; color: white; padding: 12px 20px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: background 0.3s;">
-            {button_label}
-        </button>
-    </div>
-    """
-    st.markdown(print_html, unsafe_allow_html=True)
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -434,7 +423,6 @@ with tab1:
         st.info("📂 لا توجد دول مسجلة حتى الآن. قم بإجراء التشخيص في الأعلى لتسجيل وترتيب الدول.")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    render_print_button("📥 تصدير وطباعة تقرير القسم الأول (PDF / طباعة)")
 
     with st.expander("📂 استعراض المصفوفة الإجرائية للمحاور الرئيسة وأبعادها وفق مؤشر (AACRI)"):
         st.markdown("""
@@ -600,7 +588,6 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    render_print_button("📥 تصدير وطباعة تقرير المحاكي (PDF / طباعة)")
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -709,7 +696,6 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    render_print_button("📥 تصدير وطباعة تقرير لوحة القرار والتوصيات (PDF / طباعة)")
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -804,6 +790,5 @@ with tab4:
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    render_print_button("📥 تصدير وطباعة التقرير التنفيذي الموحد (PDF / طباعة)")
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
