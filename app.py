@@ -45,15 +45,38 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* ضبط جذري لاتجاه جداول البيانات وخلاتها لتكون من اليمين لليسار تماماً */
-div[data-testid="stDataFrame"], div[data-testid="stTable"], .stDataFrame table, table {{
+/* === تعديلات CSS متقدمة لإجبار جداول Streamlit على الانعكاس الكامل (RTL) وتوسيط الخلايا من اليمين === */
+div[data-testid="stDataFrame"], div[data-testid="stTable"], .stDataFrame {{
     direction: rtl !important;
     text-align: right !important;
 }}
 
-th, td, div[data-testid="stDataFrame"] div[role="columnheader"], div[data-testid="stDataFrame"] div[role="gridcell"] {{
+/* استهداف حاويات الجداول وخلايا العرض لضمان بدء المحاذاة من اليمين */
+div[data-testid="stDataFrame"] div, div[data-testid="stTable"] div {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
+table {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
+th, td {{
     text-align: right !important;
     direction: rtl !important;
+}}
+
+/* إجبار عناصر الـ Grid أو الـ Flex داخل الجداول على التراصف من اليمين */
+[data-testid="stDataFrame"] [role="table"], [data-testid="stDataFrame"] [role="grid"] {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
+[data-testid="stDataFrame"] [role="columnheader"], [data-testid="stDataFrame"] [role="gridcell"] {{
+    text-align: right !important;
+    direction: rtl !important;
+    justify-content: flex-end !important;
 }}
 
 .header-center {{
@@ -229,7 +252,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه جدول الدول من اليمين لليسار
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه المحاذاة والنصوص للجدول
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -326,12 +349,8 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.index = df_history.index + 1  # تبدأ من 1 بدلاً من 0
         
-        # ترتيب الأعمدة لضمان ظهور "الدولة" في أقصى اليمين تماماً
-        cols_order = ["الدولة", "المؤشر المركب (AACRI)", "البنية التقنية (20%)", "الديناميكيات الاقتصادية (15%)", "رأس المال البشري (30%)", "البيئة التنظيمية والتشريعية (20%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
-        df_history = df_history[[c for c in cols_order if c in df_history.columns]]
-
-        # عرض الجدول مع ضمان اتجاه المحاذاة من اليمين لليسار
-        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
+        # عرض الجدول داخل حاوية مخصصة تضمن انعكاس الاتجاه بالكامل من اليمين لليسار
+        st.markdown('<div dir="rtl" style="text-align: right; width: 100%;">', unsafe_allow_html=True)
         st.dataframe(df_history, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
