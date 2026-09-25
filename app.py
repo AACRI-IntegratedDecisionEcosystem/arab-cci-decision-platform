@@ -690,11 +690,9 @@ with tab3:
                         </ul>
                         <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
-                        <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 4px;">
+                        <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                             {item['deep']}
-                        </div>
-                    </div>
-                </div>
+
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
