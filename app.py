@@ -430,7 +430,7 @@ with tab1:
     with st.expander("📂 استعراض المصفوفة الإجرائية للمحاور الرئيسة وأبعادها وفق مؤشر (AACRI)"):
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
-        <ul style="padding-right: 20px; list-style-type: disc;">
+        <ul>
             <li><b>البنية التقنية (وزن 20%):</b> يضم مؤشرات سعة وتدفق البيانات الضخمة، سرعات الإنترنت عريض الباند، وتوطين النماذج اللغوية الكبيرة (LLMs).</li>
             <li><b>الديناميكيات الاقتصادية (وزن 15%):</b> يضم مساهمة الاقتصاد البرتقالي في الناتج المحلي، الصادرات الإبداعية، وصفقات رأس المال المخاطر (VC).</li>
             <li><b>رأس المال البشري (وزن 30%):</b> يضم نسب التدريب المعتمد في هندسة الأوامر (Prompt Engineering) وبرامج إعادة التأهيل (Reskilling & Upskilling) وتمكين 'المبدع المعزز'.</li>
@@ -441,7 +441,16 @@ with tab1:
         """, unsafe_allow_html=True)
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
-        fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'}, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
+        
+        # ضبط اتجاه ونصوص الرسم البياني ليكون من اليمين لليسار
+        fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'})
+        fig_bar.update_layout(
+            title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
+            xaxis=dict(title="المحاور الرئيسة", categoryorder='array', categoryarray=axes_names),
+            yaxis=dict(title="الوزن النسبي (%)"),
+            paper_bgcolor="#FFFFFF",
+            font=dict(family="Cairo", size=13)
+        )
         st.plotly_chart(fig_bar, use_container_width=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
@@ -547,7 +556,7 @@ with tab2:
 
                 deep_analysis = f"""
                 <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 10px;" dir="rtl">
-                    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
+                    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
                         <li><b>1. البنية التقنية:</b> {describe_ti(t_val)}</li>
                         <li><b>2. الديناميكيات الاقتصادية:</b> {describe_ed(e_val)}</li>
@@ -589,7 +598,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار (مطور جمالياً، موجه لليمين، وخالٍ تماماً من الأكواد الخام)
+# التبويب الثالث: لوحة دعم اتخاذ القرار (مطابق جمالياً تماماً للقسم الثاني وموجه لليمين)
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -632,31 +641,31 @@ with tab3:
 
                     if score >= 80:
                         recs_list = [
-                            f"**تعزيز ريادة الابتكار الإقليمي لدولة ({decision_country_sel}):** توظيف البنية التقنية المتقدمة ({t_val}%) لتصدير النماذج اللغوية الثقافية العربية وتأسيس معايير إقليمية ناظمة.",
-                            f"**الحوكمة المتقدمة للذكاء الاصطناعي:** استثمار رصيد البيئة التنظيمية ({r_val}%) لقيادة الجهود التشريعية العالمية للوسم المائي وحماية الملكية الفكرية."
+                            f"<b>تعزيز ريادة الابتكار الإقليمي لدولة ({decision_country_sel}):</b> توظيف البنية التقنية المتقدمة ({t_val}%) لتصدير النماذج اللغوية الثقافية العربية وتأسيس معايير إقليمية ناظمة.",
+                            f"<b>الحوكمة المتقدمة للذكاء الاصطناعي:</b> استثمار رصيد البيئة التنظيمية ({r_val}%) لقيادة الجهود التشريعية العالمية للوسم المائي وحماية الملكية الفكرية."
                         ]
                         deep_analysis_text = f"""
-* توصي منظومة القرار بإنشاء **'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'** مستفيدين من رأس المال البشري المتميز المقدر بـ ({h_val}%).
-* تفعيل آليات **التطعيم الثقافي (Cultural Grafting)** لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).
+* توصي منظومة القرار بإنشاء <b>'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'</b> مستفيدين من رأس المال البشري المتميز المقدر بـ ({h_val}%).
+* تفعيل آليات <b>التطعيم الثقافي (Cultural Grafting)</b> لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).
 * خلق شراكات إقليمية استراتيجية مدعومة بالديناميكيات الاقتصادية القوية ({e_val}%) لتمويل الابتكار المفتوح.
                         """
                     elif score >= 51:
                         recs_list = [
-                            f"**ردم الفجوة التقنية والبشرية في ({decision_country_sel}):** إطلاق حزم برامج إعادة التأهيل السريع بناءً على رصيد رأس المال البشري ({h_val}%).",
-                            f"**سد الاختناقات الهيكلية:** تطوير أطر البيئة التنظيمية المسجلة عند ({r_val}%) لتحفيز القطاع الإبداعي وحماية المصنفات من القرصنة."
+                            f"<b>ردم الفجوة التقنية والبشرية في ({decision_country_sel}):</b> إطلاق حزم برامج إعادة التأهيل السريع بناءً على رصيد رأس المال البشري ({h_val}%).",
+                            f"<b>سد الاختناقات الهيكلية:</b> تطوير أطر البيئة التنظيمية المسجلة عند ({r_val}%) لتحفيز القطاع الإبداعي وحماية المصنفات من القرصنة."
                         ]
                         deep_analysis_text = f"""
-* تتطلب صانعة القرار تفعيل **'حاضنات الأعمال الإبداعية المشتركة'** لرفع كفاءة البنية التقنية البالغة ({t_val}%).
+* تتطلب صانعة القرار تفعيل <b>'حاضنات الأعمال الإبداعية المشتركة'</b> لرفع كفاءة البنية التقنية البالغة ({t_val}%).
 * توجيه الدعم المالي والاقتصادي نحو الأنشطة البرتقالية لتعقيم الاقتصاد ضد صدمات البطالة التكنولوجية في ضوء ({e_val}%).
 * تعزيز المحتوى الرقمي العربي لتجاوز قصور المحددات الثقافية ({c_val}%).
                         """
                     else:
                         recs_list = [
-                            f"**التدخل الاستباقي العاجل لدولة ({decision_country_sel}):** معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"**احتواء الاقتصاد غير الرسمي:** دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
+                            f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
-* تفرض الضرورة القصوى استدعاء إطار **'التكامل الوظيفي الإقليمي'** لتعويض الفجوة في رأس المال البشري ({h_val}%).
+* تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
 * تنفيذ خطط طوارئ استثمارية لرفع مساهمة الاقتصاد البرتقالي المتدنية ({e_val}%).
 * إطلاق برامج عاجلة للأمن الثقافي وحماية التراث الرقمي لمعالجة هشاشة المحددات الثقافية ({c_val}%).
                         """
@@ -671,19 +680,19 @@ with tab3:
         if st.session_state.decision_results_dict:
             for item in st.session_state.decision_results_dict.values():
                 card_html = f"""
-                <div style="background: #FFFFFF; padding: 24px; border-radius: 14px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);" dir="rtl">
-                    <h3 style="color: {CBE_NAVY}; font-weight: 800; margin-bottom: 14px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
-                    <div style="background: {CBE_BG}; padding: 14px 18px; border-radius: 10px; border-right: 4px solid {CBE_ORANGE_MID}; margin-bottom: 16px;">
-                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
+                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
+                    <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
                         <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
                             <li>{item['recs'][0]}</li>
                             <li>{item['recs'][1]}</li>
                         </ul>
-                    </div>
-                    <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 16px 0;">
-                    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
-                    <div style="color: #1E293B; line-height: 1.9; text-align: right;">
-                        {item['deep']}
+                        <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
+                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
+                        <div style="color: #1E293B; line-height: 1.8; text-align: right;">
+                            {item['deep']}
+                        </div>
                     </div>
                 </div>
                 """
