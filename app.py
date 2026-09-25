@@ -684,7 +684,6 @@ with tab3:
                     <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                     <div style="color: #1E293B; line-height: 1.9; text-align: right;">
                         {item['deep']}
-                    </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
