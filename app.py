@@ -507,35 +507,35 @@ with tab2:
 
                 combined_boost = (var1_tech * 0.25) + (var2_eco * 0.15) + (var3_hc * 0.3) + (var4_reg * 0.2) + (var5_cult * 0.1)
 
-                # صياغة متمايزة تماماً للتحليل القياسي وخطة التحرك استناداً لدرجات المحاور الفعلية لدولة المحاكاة
+                # صياغة ديناميكية فريدة متمايزة لكل دولة بناءً على أرقامها الفعلية
                 if scenario_dropdown.startswith("📉"):
                     simulated_val = max(0.0, base_val * 0.90)
-                    analysis_text = f"تحذير هيكلي دقيق لـ ({sim_country_sel}): في ضوء تراجع البنية التقنية عند ({t_val}%) وهشاشة رأس المال البشري ({h_val}%)، فإن الجمود الاستثماري سيؤدي حتماً إلى تآكل المكتسبات الرقمية بنسبة تفوق 30% وانحسار عوائد الاقتصاد البرتقالي."
+                    analysis_text = f"تحذير هيكلي دقيق لـ ({sim_country_sel}): بالنظر إلى مستويات البنية التقنية ({t_val}%) ورأس المال البشري ({h_val}%)، فإن الجمود الاستثماري سيؤدي إلى تفاقم فجوة الإحلال الخوارزمي واندثار المهن الثقافية بنسبة تفوق 32%."
                     if t_val < 50:
-                        action_plan = f"خطة طوارئ عاجلة لترميم البنية التحتية المتقهقرة ({t_val}%) وضخ استثمارات مباشرة في النطاق العريض، بالتوازي مع معالجة الفجوة الحرجة في البيئة التنظيمية البالغة ({r_val}%)."
+                        action_plan = f"خطة طوارئ عاجلة لترميم البنية التحتية المتقهقرة في ({sim_country_sel}) عند ({t_val}%)، وضخ تمويلات طارئة للنطاق العريض ومعالجة القصور التشريعي البالغ ({r_val}%)."
                     else:
-                        action_plan = f"إعادة هيكلة موازنات دعم الكوادر البشرية لمعالجة القصور المؤشر البشري ({h_val}%) وحماية الوظائف الإبداعية من الإحلال الخوارزمي المطلق."
+                        action_plan = f"إعادة هيكلة موازنات دعم الكوادر الوطنية في ({sim_country_sel}) لمواجهة التراجع المقدر في رأس المال البشري ({h_val}%) وحماية الوظائف الإبداعية."
                 elif scenario_dropdown.startswith("📊"):
                     simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0022)))
                     analysis_text = f"تقدم ملحوظ لـ ({sim_country_sel}): استناداً إلى توازن المحددات الثقافية ({c_val}%) وديناميكيات السوق البرتقالي ({e_val}%)، يتحقق نمو تدريجي مستدام في حوكمة الاستخدام التوليدي وتمكين مهارات 'المبدع المعزز'."
                     if e_val >= 70:
-                        action_plan = f"توجيه العوائد القوية للاقتصاد البرتقالي ({e_val}%) نحو توسيع برامج إعادة التأهيل للكوادر لتعظيم العائد التنموي من رأس المال البشري المقدر بـ ({h_val}%)."
+                        action_plan = f"توجيه العوائد القوية للاقتصاد البرتقالي في ({sim_country_sel}) ({e_val}%) نحو توسيع برامج إعادة التأهيل (Reskilling) لتعظيم العائد التنموي من رأس المال البشري البالغ ({h_val}%)."
                     else:
-                        action_plan = f"تحفيز تدفقات رأس المال المخاطر ورفع كفاءة البيئة التشريعية الحالية عند ({r_val}%) لدعم استدامة الأنشطة الإبداعية وتحصين المصنفات."
+                        action_plan = f"تحفيز تدفقات رأس المال المخاطر ورفع كفاءة البيئة التشريعية الحالية في ({sim_country_sel}) عند ({r_val}%) لدعم استدامة الأنشطة الإبداعية وتحصين المصنفات."
                 else:
                     simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0042)))
                     analysis_text = f"نجاح استراتيجي فائق لـ ({sim_country_sel}): توظيف البنية التحتية العالية ({t_val}%) والتشريعات المتقدمة ({r_val}%) لتحقيق السيادة الرقمية الكاملة وتوطين النماذج الثقافية العربية المستقلة."
                     if c_val >= 80:
-                        action_plan = f"قيادة التحالفات التقنية الإقليمية، إطلاق المنصات السحابية الوطنية المفتوحة، وتوظيف المحددات الثقافية الراسخة ({c_val}%) لتصدير المحتوى الرقمي العربي للأسواق العالمية."
+                        action_plan = f"قيادة التحالفات التقنية الإقليمية، إطلاق المنصات السحابية الوطنية المفتوحة لـ ({sim_country_sel})، وتوظيف المحددات الثقافية الراسخة ({c_val}%) لتصدير المحتوى الرقمي العربي."
                     else:
-                        action_plan = f"تكثيف الأرشفة الثلاثية للتراث الوطني لرفع سقف المحددات الثقافية ({c_val}%) بالتوازي مع تفعيل آليات الوسم المائي وحماية حقوق الملكية الفكرية المشتركة."
+                        action_plan = f"تكثيف الأرشفة الثلاثية للتراث الوطني لرفع سقف المحددات الثقافية في ({sim_country_sel}) ({c_val}%) بالتوازي مع تفعيل آليات الوسم المائي وحماية حقوق الملكية الفكرية المشتركة."
 
                 simulated_val = round(simulated_val, 2)
                 delta = round(simulated_val - base_val, 2)
                 score_str_plain = get_colored_score_html(simulated_val)
 
                 deep_analysis = f"""
-                <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 10px;" dir="rtl">
+                <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1.5px solid #CBD5E1; margin-top: 10px;" dir="rtl">
                     <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right; direction: rtl;">
                         <li><b>1. البنية التقنية:</b> {describe_ti(t_val)}</li>
@@ -549,8 +549,8 @@ with tab2:
 
                 box_html = f"""
                 <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
-                  <p style="font-size: 15px; margin-bottom: 8px; text-align: right;"><b>القيمة المتوقعة للمؤشر:</b> {score_str_plain} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
+                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
+                  <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر:</b> {score_str_plain} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
                   <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px; text-align: right;" dir="rtl">
                     <p style="margin-bottom: 6px; text-align: right;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
                     <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold; text-align: right;">🛠️ خطة التحرك: {action_plan}</p>
@@ -578,7 +578,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار (توجيه كامل من اليمين لليسار)
+# التبويب الثالث: لوحة دعم اتخاذ القرار (اتجاه اليمين لكافة الاستجابات بشكل جمالي)
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -625,9 +625,14 @@ with tab3:
                             f"**الحوكمة المتقدمة للذكاء الاصطناعي:** استثمار رصيد البيئة التنظيمية ({r_val}%) لقيادة الجهود التشريعية العالمية للوسم المائي وحماية الملكية الفكرية."
                         ]
                         deep_analysis_text = f"""
-* توصي منظومة القرار بإنشاء **'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'** مستفيدين من رأس المال البشري المتميز المقدر بـ ({h_val}%).
-* تفعيل آليات **التطعيم الثقافي (Cultural Grafting)** لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).
-* خلق شراكات إقليمية استراتيجية مدعومة بالديناميكيات الاقتصادية القوية ({e_val}%) لتمويل الابتكار المفتوح.
+<div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; text-align: right;" dir="rtl">
+    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
+    <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right; direction: rtl;">
+        <li>توصي منظومة القرار بإنشاء <b>'مجلس سيادي أعلى للذكاء الاصطناعي والثقافة'</b> مستفيدين من رأس المال البشري المتميز المقدر بـ ({h_val}%).</li>
+        <li>تفعيل آليات <b>التطعيم الثقافي (Cultural Grafting)</b> لحماية الهوية عبر استثمار المحددات الثقافية المرتفعة ({c_val}%).</li>
+        <li>خلق شراكات إقليمية استراتيجية مدعومة بالديناميكيات الاقتصادية القوية ({e_val}%) لتمويل الابتكار المفتوح.</li>
+    </ul>
+</div>
                         """
                     elif score >= 51:
                         recs_list = [
@@ -635,9 +640,14 @@ with tab3:
                             f"**سد الاختناقات الهيكلية:** تطوير أطر البيئة التنظيمية المسجلة عند ({r_val}%) لتحفيز القطاع الإبداعي وحماية المصنفات من القرصنة."
                         ]
                         deep_analysis_text = f"""
-* تتطلب صانعة القرار تفعيل **'حاضنات الأعمال الإبداعية المشتركة'** لرفع كفاءة البنية التقنية البالغة ({t_val}%).
-* توجيه الدعم المالي والاقتصادي نحو الأنشطة البرتقالية لتعقيم الاقتصاد ضد صدمات البطالة التكنولوجية في ضوء ({e_val}%).
-* تعزيز المحتوى الرقمي العربي لتجاوز قصور المحددات الثقافية ({c_val}%).
+<div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; text-align: right;" dir="rtl">
+    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
+    <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right; direction: rtl;">
+        <li>تتطلب صانعة القرار تفعيل <b>'حاضنات الأعمال الإبداعية المشتركة'</b> لرفع كفاءة البنية التقنية البالغة ({t_val}%).</li>
+        <li>توجيه الدعم المالي والاقتصادي نحو الأنشطة البرتقالية لتعقيم الاقتصاد ضد صدمات البطالة التكنولوجية في ضوء ({e_val}%).</li>
+        <li>تعزيز المحتوى الرقمي العربي لتجاوز قصور المحددات الثقافية ({c_val}%).</li>
+    </ul>
+</div>
                         """
                     else:
                         recs_list = [
@@ -645,9 +655,14 @@ with tab3:
                             f"**احتواء الاقتصاد غير الرسمي:** دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
-* تفرض الضرورة القصوى استدعاء إطار **'التكامل الوظيفي الإقليمي'** لتعويض الفجوة في رأس المال البشري ({h_val}%).
-* تنفيذ خطط طوارئ استثمارية لرفع مساهمة الاقتصاد البرتقالي المتدنية ({e_val}%).
-* إطلاق برامج عاجلة للأمن الثقافي وحماية التراث الرقمي لمعالجة هشاشة المحددات الثقافية ({c_val}%).
+<div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; text-align: right;" dir="rtl">
+    <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
+    <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right; direction: rtl;">
+        <li>تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).</li>
+        <li>تنفيذ خطط طوارئ استثمارية لرفع مساهمة الاقتصاد البرتقالي المتدنية ({e_val}%).</li>
+        <li>إطلاق برامج عاجلة للأمن الثقافي وحماية التراث الرقمي لمعالجة هشاشة المحددات الثقافية ({c_val}%).</li>
+    </ul>
+</div>
                         """
 
                     st.session_state.decision_results_dict[decision_country_sel] = {
@@ -659,19 +674,17 @@ with tab3:
 
         if st.session_state.decision_results_dict:
             for item in st.session_state.decision_results_dict.values():
-                st.markdown(f"""
-                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 20px; border-radius: 10px; border: 1px solid #CBD5E1; margin-bottom: 15px;">
-                    <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 10px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                card_container = f"""
+                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); text-align: right;" dir="rtl">
+                    <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                    <ul style="margin: 0 0 15px 0; padding-right: 20px; line-height: 1.8; color: #1E293B; text-align: right; direction: rtl;">
+                        <li>{item['recs'][0]}</li>
+                        <li>{item['recs'][1]}</li>
+                    </ul>
+                    {item['deep']}
                 </div>
-                """, unsafe_allow_html=True)
-                
-                for r in item["recs"]:
-                    st.markdown(f"<div dir='rtl' style='text-align: right; margin-bottom: 6px;'>* {r}</div>", unsafe_allow_html=True)
-                
-                st.markdown("<hr style='border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;'>", unsafe_allow_html=True)
-                st.markdown("<div dir='rtl' style='text-align: right; font-weight: bold; color: #78350F; margin-bottom: 6px;'>💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</div>", unsafe_allow_html=True)
-                st.markdown(f"<div dir='rtl' style='text-align: right; line-height: 1.8;'>{item['deep']}</div>", unsafe_allow_html=True)
-                st.markdown("---")
+                """
+                st.markdown(card_container, unsafe_allow_html=True)
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -741,7 +754,7 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
+                  يقدم هذا التقرير تجميعاً تحليلياً متكاملاً لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
                 </p>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
                   <b>1. التشخيص القياسي والترتيب التراكمي (القسم الأول):</b> أظهرت نتائج تقييم المحاور الخمسة (البنية التقنية، الديناميكيات الاقتصادية، رأس المال البشري، البيئة التشريعية، المحددات الثقافية) تفاوتات هيكلية تستوجب سياسات تفصيلية مخصصة لكل بيئة إقليمية على حدة لتقليص الفجوات الذكية.
