@@ -45,35 +45,6 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص ألوان تبويبات Streamlit (Tabs) بألوان قاتمة وتفاعلية عند التحديد */
-.stTabs [data-baseweb="tab-list"] {{
-    gap: 8px;
-    direction: rtl !important;
-}}
-
-.stTabs [data-baseweb="tab"] {{
-    background-color: {CBE_ORANGE_DARK} !important;
-    color: #FFFFFF !important;
-    border-radius: 8px 8px 0px 0px !important;
-    padding: 10px 20px !important;
-    font-weight: 700 !important;
-    font-family: 'Cairo', sans-serif !important;
-    border: 1px solid {CBE_ORANGE_MID} !important;
-    transition: all 0.3s ease !important;
-}}
-
-.stTabs [data-baseweb="tab"]:hover {{
-    background-color: {CBE_ORANGE_LIGHT} !important;
-    color: #FFFFFF !important;
-}}
-
-.stTabs [aria-selected="true"] {{
-    background-color: {CBE_ORANGE_MID} !important;
-    color: #FBBF24 !important;
-    border-bottom: 4px solid #FBBF24 !important;
-    font-weight: 800 !important;
-}}
-
 table {{
     direction: rtl !important;
     text-align: right !important;
@@ -257,7 +228,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML المخصص المصحح تماماً
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML المخصص
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -353,7 +324,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # بناء جدول HTML مخصص صحيح تماماً وخالٍ من أي تداخل
+        # بناء جدول HTML مخصص لضمان الترتيب العربي الصحيح (من اليمين لليسار)
         html_table = f"""
         <div style="overflow-x: auto; width: 100%;">
         <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
