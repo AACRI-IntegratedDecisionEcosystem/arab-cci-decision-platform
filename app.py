@@ -39,9 +39,20 @@ html, body, [class*="css"] {{
     text-align: right !important;
 }}
 
+/* ضبط اتجاه عناصر Streamlit والتحكم في المحاذاة لليمين */
 div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.stTable {{
     direction: rtl !important;
     text-align: right !important;
+}}
+
+table {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
+th, td {{
+    text-align: right !important;
+    direction: rtl !important;
 }}
 
 .header-center {{
@@ -217,7 +228,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع جدول HTML المخصص
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -313,7 +324,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # بناء جدول HTML مخصص لضمان الترتيب العربي الصحيح (من اليمين لليسار)[cite: 7]
+        # بناء جدول HTML مخصص لضمان الترتيب العربي الصحيح (من اليمين لليسار)
         html_table = f"""
         <div style="overflow-x: auto; width: 100%;">
         <table style="width: 100%; border-collapse: collapse; background-color: #FFFFFF; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; border: 1px solid #CBD5E1; border-radius: 8px;">
