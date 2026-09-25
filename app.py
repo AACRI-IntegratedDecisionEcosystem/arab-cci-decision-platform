@@ -4,7 +4,6 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from docx import Document
 
 # ==============================================================================
 # إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL)
@@ -791,35 +790,43 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-    # إضافة مفتاح تحميل التقرير في ملف Word (docx)
-    if st.session_state.history_state:
-        doc = Document()
-        doc.add_heading('التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية', 0)
-        
-        doc.add_heading('ترتيب الدول والنتائج المسجلة:', level=1)
-        df_word = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
-        for idx, row in df_word.iterrows():
-            doc.add_paragraph(f"المركز {idx + 1}: {row['الدولة']} - المؤشر المركب: {row['المؤشر المركب (AACRI)']}%\nالتقييم: {row['التقييم المنظومي']}")
-
-        doc.add_heading('إطار شجرة قرارات نقاط الرفع المنظومي:', level=1)
-        doc.add_paragraph('1. المعلمات والميزانيات: تعديل نسب الإنفاق المباشر وموازنات دعم التدريب.')
-        doc.add_paragraph('2. تدفق المعلومات: توفير قواعد بيانات مرجعية ومؤشرات قياس آنية.')
-        doc.add_paragraph('3. القواعد والحوكمة: تشريع أطر الملكية الفكرية وحماية الحقوق.')
-        doc.add_paragraph('4. أهداف النظام: توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي.')
-        doc.add_paragraph('5. النماذج الفكرية: ترسيخ مفهوم الاقتصاد البرتقالي كركيزة للتنمية المستدامة.')
-
-        bio = io.BytesIO()
-        doc.save(bio)
-        bio.seek(0)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.download_button(
-            label="📥 تحميل التقرير التنفيذي (ملف Word - .docx)",
-            data=bio,
-            file_name="Executive_Report_Cultural_Policies.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            use_container_width=True
-        )
+            # إعداد وتجهيز ملف Word بصيغة HTML مخصصة ومتوافقة مع Word (قابل للفتح عبر ميكروسوفت وورد مباشرة دون أخطاء)
+            word_content = f"""
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
+            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+                <h1 style="color: #0A192F; text-align: center;">التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
+                <p style="text-align: center; color: #64748B;">إطار مؤشر الجاهزية الذكية المركب (AACRI)</p>
+                <hr>
+                <h3>1. ريادة الأداء العام:</h3>
+                <p>تتصدر القائمة الدولة: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
+                <p><b>الإطار الإقليمي:</b> {region_info}</p>
+                <hr>
+                <h3>2. ملخص نتائج التشخيص والمحاكي ودعم القرار:</h3>
+                <p>يعكس هذا التقرير مخرجات دراسة تطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي.</p>
+                <hr>
+                <h3>3. إطار نقاط الرفع لدونيلا ميدوز:</h3>
+                <ul>
+                    <li>المعلمات والميزانيات (Parameters)</li>
+                    <li>تدفق المعلومات (Information Flows)</li>
+                    <li>القواعد والحوكمة (Rules)</li>
+                    <li>أهداف النظام (Goals)</li>
+                    <li>النماذج الفكرية (Paradigms)</li>
+                </ul>
+                <p style="text-align: center; font-weight: bold; margin-top: 40px;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+            </body>
+            </html>
+            """
+            
+            # زر التحميل الفعال والآمن 100%
+            st.download_button(
+                label="📥 تحميل التقرير التنفيذي في ملف مستند (Word / HTML متوافق)",
+                data=word_content.encode("utf-8-sig"),
+                file_name="التقرير_التنفيذي_للسياسات_الثقافية.doc",
+                mime="application/msword",
+                use_container_width=True
+            )
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
