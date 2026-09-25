@@ -255,7 +255,6 @@ def describe_cd(val):
         return f"هشاشة واضحة في المحددات الثقافية الهوياتية (%{val}) تستوجب تفعيل دروع الأمن الثقافي الرقمي."
 
 def get_region_and_features(country_name):
-    """تصنيف انسيابي مرن للدول حسب الأبعاد الجغرافية، الإقليمية، التاريخية، والديموغرافية."""
     gulf_countries = ["دولة قطر", "المملكة العربية السعودية", "دولة الإمارات العربية المتحدة", "سلطنة عمان", "مملكة البحرين", "دولة الكويت"]
     nile_valley = ["جمهورية مصر العربية", "جمهورية السودان"]
     north_africa = ["المملكة المغربية", "الجمهورية التونسية", "الجمهورية الجزائرية الديمقراطية الشعبية", "ليبيا", "الجمهورية الإسلامية الموريتانية"]
@@ -268,7 +267,7 @@ def get_region_and_features(country_name):
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
-        return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وششبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
+        return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
         return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
@@ -579,7 +578,7 @@ with tab2:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الثالث: لوحة دعم اتخاذ القرار (منع ظهور </div> نهائياً)
+# التبويب الثالث: لوحة دعم اتخاذ القرار (توجيه كافة التحليلات من اليمين لليسار بدقة)
 # ------------------------------------------------------------------------------
 with tab3:
     st.markdown("""
@@ -660,13 +659,16 @@ with tab3:
 
         if st.session_state.decision_results_dict:
             for item in st.session_state.decision_results_dict.values():
-                st.markdown(f"### 🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})")
+                st.markdown(f"""
+                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 20px; border-radius: 10px; border: 1px solid #CBD5E1; margin-bottom: 15px;">
+                    <h3 style="color: {CBE_NAVY}; margin-top: 0;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                """, unsafe_allow_html=True)
                 for r in item["recs"]:
                     st.markdown(f"* {r}")
                 st.markdown("---")
                 st.markdown("**💡 إضافات تحليلية استراتيجية عميقة ومخصصة:**")
                 st.markdown(item["deep"])
-                st.markdown("---")
+                st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -678,7 +680,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (تطعيم انسيابي مرن للتصنيف الجغرافي والديموغرافي والتاريخي)
+# التبويب الرابع: التقرير التنفيذي الموحد
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -733,7 +735,7 @@ with tab4:
                 st.markdown(summary_card, unsafe_allow_html=True)
 
             st.markdown(f"""
-            <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
+            <div style="background: {CBE_FDF4 if 'CBE_FDF4' in locals() else '#F0FDF4'}; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
                   يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
