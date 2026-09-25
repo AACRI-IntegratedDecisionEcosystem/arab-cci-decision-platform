@@ -45,6 +45,17 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
+/* ضبط محاذاة الجداول لتكون من اليمين لليسار */
+table {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
+th, td {{
+    text-align: right !important;
+    direction: rtl !important;
+}}
+
 .header-center {{
     text-align: center !important;
     background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(120, 53, 15, 0.90) 100%),
@@ -218,7 +229,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------
-# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه المحاذاة والنصوص
+# التبويب الأول: تشخيص مؤشر الجاهزية (AACRI) مع ضبط اتجاه المحاذاة والنصوص للجدول
 # ------------------------------------------------------------------------------
 with tab1:
     st.markdown("""
@@ -314,7 +325,11 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.index = df_history.index + 1  # تبدأ من 1 بدلاً من 0
+        
+        # عرض الجدول مع ضمان اتجاه المحاذاة من اليمين لليسار
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
         st.dataframe(df_history, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
