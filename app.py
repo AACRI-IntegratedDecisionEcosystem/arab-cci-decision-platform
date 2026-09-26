@@ -83,7 +83,7 @@ div[data-baseweb="select"], div[data-baseweb="select"] * {{
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
-    border-radius: 8px !important;
+    border-radius: 50px !important;
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700 !important;
 }}
