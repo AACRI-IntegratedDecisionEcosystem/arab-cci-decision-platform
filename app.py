@@ -449,7 +449,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # الترتيب المطلوب: العمود الأول من اليمين هو (م)، ثم (الدولة)، ثم باقي المؤشرات تباعاً
+        # الترتيب المطلوب: (م) أول عمود من اليمين، ثم (الدولة)، ثم باقي الأعمدة والمؤشرات تباعاً
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -851,30 +851,28 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # توليد استجابات متمايزة وعميقة لكل دولة مدخلة بناءً على الأقسام 1 و 2 و 3
+            # توليد استجابات متمايزة وعميقة ومخصصة لكل دولة بناءً على الأقسام 1 و 2 و 3
             dynamic_summary_bullets = ""
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
                 c_diag = row['التقييم المنظومي']
                 
-                # استرجاع بيانات المحاور الخاصة بالدولة من السجل
                 t_val = row['البنية التقنية (20%)']
                 e_val = row['الديناميكيات الاقتصادية (15%)']
                 h_val = row['رأس المال البشري (30%)']
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # فحص ما إذا كان لدولة سيناريو مسجل في المحاكي أو توصيات في لوحة القرار لدمجها وتحقيق التكامل التام
                 sim_notes = ""
                 for s_key, s_val in st.session_state.simulated_results_dict.items():
                     if s_key.startswith(c_name):
-                        sim_notes = f" | <b>مؤشر المحاكي المرتبط:</b> تم اختبار السيناريو الاستراتيجي الخاص بها."
+                        sim_notes = f" | <b>محاكي السياسات:</b> تم اختبار السيناريو الاستراتيجي الخاص بها."
                         break
                 
                 dec_notes = ""
                 if c_name in st.session_state.decision_results_dict:
-                    dec_notes = f" | <b>لوحة القرار:</b> تمت مراجعة توصيات التطعيم الثقافي وحوكمة السيادة الرقمية."
+                    dec_notes = f" | <b>لوحة القرار:</b> تمت مراجعة حوكمة السيادة الرقمية والتطعيم الثقافي."
 
                 dynamic_summary_bullets += f"""
                 <li style="margin-bottom: 12px;">
