@@ -55,15 +55,17 @@ div[role="option"] {{
 }}
 
 /* -------------------------------------------------------------------------- */
-/* الحل الجذري لتمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي */
+/* الحل الجذري والنهائي لتمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي */
 /* -------------------------------------------------------------------------- */
-.stTabs {{
+div.stTabs {{
     width: 100% !important;
+    max-width: 100% !important;
     direction: rtl !important;
 }}
 
 .stTabs [data-baseweb="tab-list"] {{
     display: flex !important;
+    flex-direction: row-reverse !important;
     width: 100% !important;
     max-width: 100% !important;
     gap: 8px !important;
@@ -79,6 +81,7 @@ div[role="option"] {{
 .stTabs [data-baseweb="tab"] {{
     flex: 1 1 0% !important;
     width: 100% !important;
+    max-width: none !important;
     background-color: rgba(120, 53, 15, 0.8) !important;
     color: #FFFFFF !important;
     border-radius: 8px !important;
@@ -300,7 +303,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي والحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
