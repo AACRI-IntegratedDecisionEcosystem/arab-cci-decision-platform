@@ -45,16 +45,6 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص القوائم المنسدلة لتكون باتجاه اليمين بالكامل */
-div[data-baseweb="select"] {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-div[data-baseweb="select"] * {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-
 /* تخصيص التبويبات (Tabs) بألوان قاتمة وعند التحديد أو المرور تصبح برتقالية */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 8px;
@@ -281,6 +271,26 @@ def get_region_and_features(country_name):
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
         return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+
+# دالة مساعدة لتوليد ملف Word (.docx)
+def create_docx_report(title, content_dict):
+    doc = Document()
+    doc.add_heading(title, 0)
+    for key, val in content_dict.items():
+        doc.add_heading(key, level=1)
+        doc.add_paragraph(str(val))
+    
+    # إضافة جملة التنبيه في فوتر التقرير بلون مميز
+    doc.add_paragraph("\n--------------------------------------------------")
+    p_alert = doc.add_paragraph()
+    run_alert = p_alert.add_run("تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية")
+    run_alert.font.color.rgb = rgb_color = docx.shared.RGBColor(180, 83, 9) if 'docx' in globals() else None
+    run_alert.bold = True
+
+    bio = io.BytesIO()
+    doc.save(bio)
+    bio.seek(0)
+    return bio
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -586,20 +596,7 @@ with tab2:
                 </div>
                 """
                 sim_key = f"{sim_country_sel} - {scenario_dropdown}"
-                st.session_state.simulated_results_dict[sim_key] = {
-                    "html": box_html, 
-                    "deep": deep_analysis,
-                    "country": sim_country_sel,
-                    "scenario": scenario_dropdown,
-                    "expected_score": score_str_plain,
-                    "analysis": analysis_text,
-                    "action": action_plan,
-                    "t": describe_ti(t_val),
-                    "e": describe_ed(e_val),
-                    "h": describe_hc(h_val),
-                    "r": describe_rf(r_val),
-                    "c": describe_cd(c_val)
-                }
+                st.session_state.simulated_results_dict[sim_key] = {"html": box_html, "deep": deep_analysis}
 
         if st.session_state.simulated_results_dict:
             st.markdown("---")
@@ -609,32 +606,10 @@ with tab2:
                 st.markdown(item["deep"], unsafe_allow_html=True)
                 st.markdown("---")
             
-            # زر تصدير تقرير محاكي السياسات بصيغة Word
-            doc_sim = Document()
-            doc_sim.add_heading("تقرير محاكي السياسات الاستشرافي والمقارنة التراكمية", 0)
-            for item in st.session_state.simulated_results_dict.values():
-                doc_sim.add_heading(f"دولة: {item['country']} - السيناريو: {item['scenario']}", level=1)
-                doc_sim.add_paragraph(f"القيمة المتوقعة للمؤشر: {item['expected_score']}")
-                doc_sim.add_paragraph(f"التحليل القياسي: {item['analysis']}")
-                doc_sim.add_paragraph(f"خطة التحرك: {item['action']}")
-                doc_sim.add_paragraph("التشخيص القياسي المخصص:")
-                doc_sim.add_paragraph(f"- {item['t']}")
-                doc_sim.add_paragraph(f"- {item['e']}")
-                doc_sim.add_paragraph(f"- {item['h']}")
-                doc_sim.add_paragraph(f"- {item['r']}")
-                doc_sim.add_paragraph(f"- {item['c']}")
-                doc_sim.add_paragraph("--------------------------------------------------")
-            
-            sim_io = io.BytesIO()
-            doc_sim.save(sim_io)
-            sim_io.seek(0)
-            st.download_button(
-                label="📥 تحميل تقرير محاكي السياسات (Word)",
-                data=sim_io,
-                file_name="Policy_Simulator_Report.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                use_container_width=True
-            )
+            # زر تصدير التقرير بصيغة Word للقسم الثاني
+            sim_docx = create_docx_report("تقرير محاكي السياسات الاستشرافي", {k: v["html"] for k, v in st.session_state.simulated_results_dict.items()})
+            st.download_button("📥 تحميل تقرير محاكي السياسات (Word)", data=sim_docx, file_name="Policy_Simulator_Report.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
+            st.markdown('<p style="color: #B45309; text-align: center; font-size: 13.5px; font-weight: bold; margin-top: 5px;">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>', unsafe_allow_html=True)
         else:
             st.info("📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا بغرض المقارنة.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -743,28 +718,10 @@ with tab3:
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
             
-            # زر تصدير تقرير لوحة القرار بصيغة Word
-            doc_dec = Document()
-            doc_dec.add_heading("تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي", 0)
-            for item in st.session_state.decision_results_dict.values():
-                doc_dec.add_heading(f"تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})", level=1)
-                doc_dec.add_paragraph("التوصيات الاستراتيجية الموجهة:")
-                doc_dec.add_paragraph(f"- {item['recs'][0]}")
-                doc_dec.add_paragraph(f"- {item['recs'][1]}")
-                doc_dec.add_paragraph("إضافات تحليلية استراتيجية عميقة ومخصصة:")
-                doc_dec.add_paragraph(item['deep'])
-                doc_dec.add_paragraph("--------------------------------------------------")
-            
-            dec_io = io.BytesIO()
-            doc_dec.save(dec_io)
-            dec_io.seek(0)
-            st.download_button(
-                label="📥 تحميل تقرير لوحة دعم القرار (Word)",
-                data=dec_io,
-                file_name="Decision_Support_Report.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                use_container_width=True
-            )
+            # زر تصدير التقرير بصيغة Word للقسم الثالث
+            dec_docx = create_docx_report("تقرير لوحة دعم اتخاذ القرار والتوصيات الاستراتيجية", {k: v["country"] for k, v in st.session_state.decision_results_dict.items()})
+            st.download_button("📥 تحميل تقرير لوحة القرار والتوصيات (Word)", data=dec_docx, file_name="Decision_Support_Report.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
+            st.markdown('<p style="color: #B45309; text-align: center; font-size: 13.5px; font-weight: bold; margin-top: 5px;">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>', unsafe_allow_html=True)
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -862,38 +819,10 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
             
-            # زر تصدير التقرير التنفيذي الموحد بصيغة Word
-            doc_exec = Document()
-            doc_exec.add_heading("التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية", 0)
-            doc_exec.add_heading("مؤشرات الأداء العام والريادة الإقليمية", level=1)
-            doc_exec.add_paragraph(f"الدولة المتصدرة: {top_country} بقيمة مركبة تبلغ {top_score}")
-            doc_exec.add_paragraph(f"الإطار الإقليمي: {region_info}")
-            doc_exec.add_paragraph(f"إجمالي الدول الخاضعة للتشخيص: {len(df_rep)}")
-            
-            doc_exec.add_heading("ترتيب الملخص التراكمي للدول", level=1)
-            for idx, row in df_rep.iterrows():
-                doc_exec.add_paragraph(f"المركز ({idx + 1}): {row['الدولة']} - المؤشر المركب: {row['المؤشر المركب (AACRI)']} - التقييم: {row['التقييم المنظومي']}")
-            
-            doc_exec.add_heading("ملخص النتائج التحليلية التراكمية", level=1)
-            doc_exec.add_paragraph("يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية.")
-            
-            doc_exec.add_heading("إطار شجرة قرارات نقاط الرفع المنظومي", level=1)
-            doc_exec.add_paragraph("1. المعلمات والميزانيات (Parameters)")
-            doc_exec.add_paragraph("2. تدفق المعلومات (Information Flows)")
-            doc_exec.add_paragraph("3. القواعد والحوكمة (Rules)")
-            doc_exec.add_paragraph("4. أهداف النظام (Goals)")
-            doc_exec.add_paragraph("5. النماذج الفكرية (Paradigms)")
-            
-            exec_io = io.BytesIO()
-            doc_exec.save(exec_io)
-            exec_io.seek(0)
-            st.download_button(
-                label="📥 تحميل التقرير التنفيذي الموحد (Word)",
-                data=exec_io,
-                file_name="Executive_Summary_Report.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                use_container_width=True
-            )
+            # زر تصدير التقرير بصيغة Word للقسم الرابع (التقرير التنفيذي الموحد)
+            exec_docx = create_docx_report("التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية", {"الملخص التنفيذي": top_country, "عدد الدول": len(df_rep)})
+            st.download_button("📥 تحميل التقرير التنفيذي الموحد (Word)", data=exec_docx, file_name="Executive_Summary_Report.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
+            st.markdown('<p style="color: #B45309; text-align: center; font-size: 13.5px; font-weight: bold; margin-top: 5px;">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
