@@ -112,7 +112,7 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً */
+/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً مع هيدر بلون هادئ */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
@@ -129,11 +129,11 @@ div.stTabs {{
 }}
 
 .custom-rtl-table th {{
-    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    color: #FBBF24 !important;
+    background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
+    color: #F8FAFC !important;
     padding: 14px 12px !important;
-    font-weight: 800 !important;
-    border: 1px solid #1E293B !important;
+    font-weight: 700 !important;
+    border: 1px solid #475569 !important;
     text-align: right !important;
     font-size: 14px !important;
     white-space: nowrap !important;
@@ -343,7 +343,7 @@ def get_region_and_features(country_name):
     levant = ["المملكة الأردنية الهاشمية", "الجمهورية اللبنانية", "الجمهورية العربية السورية", "دولة فلسطين"]
     
     if country_name in gulf_countries:
-        return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واواعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
+        return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
         return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
@@ -490,7 +490,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # بناء جدول HTML مخصص يضمن اتجاه اليمين تماماً (RTL) ويبدأ بعمود 'م' في أقصى اليمين بعرض الشاشة الكامل
+        # جدول HTML مخصص باللون الهادئ وخالٍ تماماً من أي أكواد خام
         table_html = """
         <div dir="rtl" style="width: 100%; overflow-x: auto;">
         <table class="custom-rtl-table">
@@ -929,7 +929,7 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # تجميع بطاقات النتائج التحليلية المعمقة والمستقلة لكل دولة بناءً على مخرجات الأقسام 1 و2 و3 (تنسيق HTML رصين وخالٍ تماماً من الأكواد الخام)
+            # تجميع بطاقات النتائج التحليلية المعمقة والمستقلة لكل دولة بناءً على مخرجات الأقسام 1 و2 و3 (بدون ظهور أي أكواد خام)
             cards_html_list = []
             word_blocks_html = ""
 
@@ -944,14 +944,12 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # ربط نتائج المحاكي
                 sim_detail = "لم يتم تسجيل سيناريو محاكاة استشرافي خاص بهذه الدولة حتى الآن."
-                for s_key, s_val_dict in st.session_state.simulated_results_dict.items():
+                for s_key in st.session_state.simulated_results_dict.keys():
                     if s_key.startswith(c_name):
                         sim_detail = f"أظهرت المحاكاة الاستشرافية لـ ({s_key}) نتائج ممتازة في توجيه سعات التحفيز واستشراف صافي النمو المستقبلي للمؤشر."
                         break
                 
-                # ربط نتائج لوحة دعم القرار
                 dec_detail = "تستوجب القراءة المنظومية متابعة حوكمة الحقوق الفكرية وتحديث تشريعات الاقتصاد البرتقالي."
                 if c_name in st.session_state.decision_results_dict:
                     dec_detail = "أوصت لوحة اتخاذ القرار بتفعيل دروع 'التطعيم الثقافي' (Cultural Grafting) وإنشاء المجالس السيادية لدعم المبدع المعزز."
@@ -1015,7 +1013,7 @@ with tab4:
                 </p>
             """, unsafe_allow_html=True)
 
-            # حقن بطاقات التحليل المعمق مباشرة لمنع ظهور أي أكواد برمجية على الشاشة
+            # عرض البطاقات المستقلة والمعمقة لكل دولة بشكل منظم وآمن
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
@@ -1060,7 +1058,7 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h3>
                 {word_blocks_html}
                 <hr>
                 <h3>🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
