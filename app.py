@@ -1,8 +1,10 @@
+import io
 import random
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+from docx import Document
 
 # ==============================================================================
 # إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL)
@@ -43,8 +45,12 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص القوائم المنسدلة والعناصر لتتوافق مع اليمين */
-div[data-baseweb="select"] > div {{
+/* تخصيص القوائم المنسدلة لتكون باتجاه اليمين بالكامل */
+div[data-baseweb="select"] {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+div[data-baseweb="select"] * {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -413,23 +419,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
-        
-        # ترتيب أعمدة الجدول وعكسها لتتطابق تماماً مع الاتجاه العربي (من اليمين لليسار) وتضييق الأعمدة لضمان الوضوح
-        columns_order_arabic = [
-            "التقييم المنظومي",
-            "المحددات الثقافية والهوياتية (15%)",
-            "البيئة التنظيمية والتشريعية (20%)",
-            "رأس المال البشري (30%)",
-            "الديناميكيات الاقتصادية (15%)",
-            "البنية التقنية (20%)",
-            "المؤشر المركب (AACRI)",
-            "الدولة",
-            "م"
-        ]
-        df_history_rtl = df_history[[col for col in columns_order_arabic if col in df_history.columns]]
-        
-        # عرض الجدول بشكل أنيق ومضغوط يناسب العرض الكامل للشاشة
-        st.dataframe(df_history_rtl, use_container_width=True, hide_index=True)
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -458,23 +448,18 @@ with tab1:
         </ul>
         </div>
         """, unsafe_allow_html=True)
-        
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        # تحويل الرسم البياني للأوزان إلى دائرة مقسمة (Pie Chart) توضح الأقسام الخمسة حسب الأوزان النسبية
-        fig_pie = px.pie(
-            names=axes_names, 
-            values=weights_vals, 
-            title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP",
-            hole=0.4
-        )
-        fig_pie.update_layout(
+        fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'})
+        fig_bar.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
+            xaxis=dict(title="المحاور الرئيسة", categoryorder='array', categoryarray=axes_names),
+            yaxis=dict(title="الوزن النسبي (%)"),
             paper_bgcolor="#FFFFFF",
             font=dict(family="Cairo", size=13)
         )
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.plotly_chart(fig_bar, use_container_width=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -601,7 +586,20 @@ with tab2:
                 </div>
                 """
                 sim_key = f"{sim_country_sel} - {scenario_dropdown}"
-                st.session_state.simulated_results_dict[sim_key] = {"html": box_html, "deep": deep_analysis}
+                st.session_state.simulated_results_dict[sim_key] = {
+                    "html": box_html, 
+                    "deep": deep_analysis,
+                    "country": sim_country_sel,
+                    "scenario": scenario_dropdown,
+                    "expected_score": score_str_plain,
+                    "analysis": analysis_text,
+                    "action": action_plan,
+                    "t": describe_ti(t_val),
+                    "e": describe_ed(e_val),
+                    "h": describe_hc(h_val),
+                    "r": describe_rf(r_val),
+                    "c": describe_cd(c_val)
+                }
 
         if st.session_state.simulated_results_dict:
             st.markdown("---")
@@ -610,6 +608,33 @@ with tab2:
                 st.markdown(item["html"], unsafe_allow_html=True)
                 st.markdown(item["deep"], unsafe_allow_html=True)
                 st.markdown("---")
+            
+            # زر تصدير تقرير محاكي السياسات بصيغة Word
+            doc_sim = Document()
+            doc_sim.add_heading("تقرير محاكي السياسات الاستشرافي والمقارنة التراكمية", 0)
+            for item in st.session_state.simulated_results_dict.values():
+                doc_sim.add_heading(f"دولة: {item['country']} - السيناريو: {item['scenario']}", level=1)
+                doc_sim.add_paragraph(f"القيمة المتوقعة للمؤشر: {item['expected_score']}")
+                doc_sim.add_paragraph(f"التحليل القياسي: {item['analysis']}")
+                doc_sim.add_paragraph(f"خطة التحرك: {item['action']}")
+                doc_sim.add_paragraph("التشخيص القياسي المخصص:")
+                doc_sim.add_paragraph(f"- {item['t']}")
+                doc_sim.add_paragraph(f"- {item['e']}")
+                doc_sim.add_paragraph(f"- {item['h']}")
+                doc_sim.add_paragraph(f"- {item['r']}")
+                doc_sim.add_paragraph(f"- {item['c']}")
+                doc_sim.add_paragraph("--------------------------------------------------")
+            
+            sim_io = io.BytesIO()
+            doc_sim.save(sim_io)
+            sim_io.seek(0)
+            st.download_button(
+                label="📥 تحميل تقرير محاكي السياسات (Word)",
+                data=sim_io,
+                file_name="Policy_Simulator_Report.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
+            )
         else:
             st.info("📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا بغرض المقارنة.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -717,6 +742,29 @@ with tab3:
                 </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
+            
+            # زر تصدير تقرير لوحة القرار بصيغة Word
+            doc_dec = Document()
+            doc_dec.add_heading("تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي", 0)
+            for item in st.session_state.decision_results_dict.values():
+                doc_dec.add_heading(f"تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})", level=1)
+                doc_dec.add_paragraph("التوصيات الاستراتيجية الموجهة:")
+                doc_dec.add_paragraph(f"- {item['recs'][0]}")
+                doc_dec.add_paragraph(f"- {item['recs'][1]}")
+                doc_dec.add_paragraph("إضافات تحليلية استراتيجية عميقة ومخصصة:")
+                doc_dec.add_paragraph(item['deep'])
+                doc_dec.add_paragraph("--------------------------------------------------")
+            
+            dec_io = io.BytesIO()
+            doc_dec.save(dec_io)
+            dec_io.seek(0)
+            st.download_button(
+                label="📥 تحميل تقرير لوحة دعم القرار (Word)",
+                data=dec_io,
+                file_name="Decision_Support_Report.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
+            )
         else:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -748,17 +796,6 @@ with tab4:
             top_score = top_row["المؤشر المركب (AACRI)"]
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
-
-            # بناء ملخص تحليلي متغاير ومتمايز ديناميكياً بناءً على بيانات الدول المسجلة والترتيب الحالي
-            total_countries_count = len(df_rep)
-            avg_composite_score = round(df_rep["المؤشر المركب (AACRI)"].mean(), 2)
-            
-            if top_score >= 80:
-                dynamic_summary_text = f"تتصدّر المشهد الإقليمي دولة **{top_country}** بمؤشر مركب بلغ {top_score_str}، مما يضعها في مرتبة الريادة الرقمية والسيادة التقنية المتقدمة. يبلغ متوسط أداء الدول المسجلة حالياً ({total_countries_count} دولة) نحو ({avg_composite_score}%)، وهو ما يعكس تفاوتاً هيكلياً يستوجب نقل الخبرات وتأسيس تحالفات إقليمية مشتركة تدعم الاقتصاد البرتقالي وتقي المهن الثقافية من مخاطر الاستلاب الخوارزمي."
-            elif top_score >= 51:
-                dynamic_summary_text = f"تسجل دولة **{top_country}** أعلى مؤشر مركب في القائمة الحالية بقيمة {top_score_str} ضمن نطاق الأداء المتوسط. بمتوسط عام يبلغ ({avg_composite_score}%) لـ ({total_countries_count}) دولة مسجلة، تبرز حاجة ماسة لتفعيل حزم برامج إعادة التأهيل السريع (Upskilling)، سد الفجوات الذكية في رأس المال البشري، وتعزيز أطر التشريعات الناظمة للوسم المائي وحماية الملكية الفكرية."
-            else:
-                dynamic_summary_text = f"تعكس قراءة المؤشرات لدولة **{top_country}** (المؤشر المركب: {top_score_str}) وجود تحديات وهياكل حرجة تتطلب تدخلاً طارئاً. في ظل متوسط عام يبلغ ({avg_composite_score}%) لعدد ({total_countries_count}) دولة مسجلة، تتحتم استدامة الخطط الاستثمارية العاجلة لتطوير البنية التقنية الأساسية ودعم الاستدامة الهيكلية للاقتصاد الإبداعي."
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -794,7 +831,7 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  {dynamic_summary_text}
+                  يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
                 </p>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
                   <b>1. التشخيص القياسي والترتيب التراكمي (القسم الأول):</b> أظهرت نتائج تقييم المحاور الخمسة (البنية التقنية، الديناميكيات الاقتصادية، رأس المال البشري، البيئة التشريعية، المحددات الثقافية) تفاوتات هيكلية تستوجب سياسات تفصيلية مخصصة لكل بيئة إقليمية على حدة لتقليص الفجوات الذكية.
@@ -824,6 +861,39 @@ with tab4:
             </div>
             </div>
             """, unsafe_allow_html=True)
+            
+            # زر تصدير التقرير التنفيذي الموحد بصيغة Word
+            doc_exec = Document()
+            doc_exec.add_heading("التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية", 0)
+            doc_exec.add_heading("مؤشرات الأداء العام والريادة الإقليمية", level=1)
+            doc_exec.add_paragraph(f"الدولة المتصدرة: {top_country} بقيمة مركبة تبلغ {top_score}")
+            doc_exec.add_paragraph(f"الإطار الإقليمي: {region_info}")
+            doc_exec.add_paragraph(f"إجمالي الدول الخاضعة للتشخيص: {len(df_rep)}")
+            
+            doc_exec.add_heading("ترتيب الملخص التراكمي للدول", level=1)
+            for idx, row in df_rep.iterrows():
+                doc_exec.add_paragraph(f"المركز ({idx + 1}): {row['الدولة']} - المؤشر المركب: {row['المؤشر المركب (AACRI)']} - التقييم: {row['التقييم المنظومي']}")
+            
+            doc_exec.add_heading("ملخص النتائج التحليلية التراكمية", level=1)
+            doc_exec.add_paragraph("يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية.")
+            
+            doc_exec.add_heading("إطار شجرة قرارات نقاط الرفع المنظومي", level=1)
+            doc_exec.add_paragraph("1. المعلمات والميزانيات (Parameters)")
+            doc_exec.add_paragraph("2. تدفق المعلومات (Information Flows)")
+            doc_exec.add_paragraph("3. القواعد والحوكمة (Rules)")
+            doc_exec.add_paragraph("4. أهداف النظام (Goals)")
+            doc_exec.add_paragraph("5. النماذج الفكرية (Paradigms)")
+            
+            exec_io = io.BytesIO()
+            doc_exec.save(exec_io)
+            exec_io.seek(0)
+            st.download_button(
+                label="📥 تحميل التقرير التنفيذي الموحد (Word)",
+                data=exec_io,
+                file_name="Executive_Summary_Report.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
+            )
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
