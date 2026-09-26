@@ -44,6 +44,12 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
+/* تخصيص القوائم المنسدلة (Selectbox) لتكون باتجاه اليمين وتنسيق متناسق */
+div[data-baseweb="select"] {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
 /* تخصيص التبويبات (Tabs) بألوان قاتمة وعند التحديد أو المرور تصبح برتقالية */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 8px;
@@ -408,6 +414,11 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
+        
+        # تغيير ترتيب الأعمدة من اليمين لليسار وتصغير وتنسيق الجدول ليكون بعرض الشاشة
+        cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
+        df_history = df_history[cols_order]
+        
         st.dataframe(df_history, use_container_width=True, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
@@ -440,15 +451,14 @@ with tab1:
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'})
-        fig_bar.update_layout(
+        # تحويل الرسم البياني إلى رسم دائري حلقي (Donut Chart) أفضل وأكثر جمالية لتوزيع الأوزان النسبية
+        fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
+        fig_pie.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
-            xaxis=dict(title="المحاور الرئيسة", categoryorder='array', categoryarray=axes_names),
-            yaxis=dict(title="الوزن النسبي (%)"),
             paper_bgcolor="#FFFFFF",
             font=dict(family="Cairo", size=13)
         )
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_pie, use_container_width=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -490,7 +500,6 @@ with tab2:
             st.success("✅ تم مسح جميع سيناريوهات المحاكي بنجاح.")
             st.rerun()
 
-        # زر تحميل تقرير محاكي السياسات في ملف Word متضمن كافة البيانات المطلوبة
         sim_word_html = f"""
         <html dir="rtl">
         <head><meta charset="utf-8"><title>تقرير محاكي السياسات</title></head>
@@ -656,7 +665,6 @@ with tab3:
             st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
             st.rerun()
 
-        # زر تحميل تقرير لوحة دعم القرار في ملف Word متضمن كافة التفاصيل المطلوبة
         dec_word_html = f"""
         <html dir="rtl">
         <head><meta charset="utf-8"><title>تقرير لوحة دعم القرار</title></head>
@@ -875,7 +883,6 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-            # إعداد وتجهيز ملف Word متضمن كافة بيانات التقرير التنفيذي الموحد المطلوبة بدقة
             word_content = f"""
             <html dir="rtl">
             <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
