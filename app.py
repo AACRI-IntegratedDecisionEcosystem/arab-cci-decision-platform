@@ -44,7 +44,7 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص دقيق للقوائم المنسدلة (Selectbox) لتكون باتجاه اليمين تماماً */
+/* محاذاة وتنسيق القوائم المنسدلة باتجاه اليمين تماماً */
 div[data-baseweb="select"], div[data-baseweb="select"] * {{
     direction: rtl !important;
     text-align: right !important;
@@ -415,7 +415,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # إعادة ترتيب الأعمدة لتبدأ من اليمين (الدولة ثم المؤشر ثم باقي المحاور) وتكون متناسقة بعرض الشاشة
+        # تغيير ترتيب الأعمدة لتبدأ من اليمين (الرتبة ثم الدولة ثم المؤشر ثم باقي المحاور) وتكون متناسقة بعرض الشاشة
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -769,7 +769,7 @@ with tab3:
                 card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
                     <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
-                    <div style="background: #F8FAFC; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
                         <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
                             <li>{item['recs'][0]}</li>
@@ -817,13 +817,24 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # بناء تفصيلي ومخصص لملخص النتائج التحليلية استناداً إلى الدول المسجلة فعلياً
+            # بناء تفصيلي ومخصص لملخص النتائج التحليلية استناداً إلى الدول المسجلة والتحليلات الخاصة بها
             dynamic_summary_bullets = ""
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
                 c_diag = row['التقييم المنظومي']
-                dynamic_summary_bullets += f"<li><b>دولة {c_name} (المؤشر: {c_score}%):</b> {c_diag} استناداً إلى تحليل المحاور الخمسة وسلاسل القيمة البرتقالية.</li>"
+                sim_notes = ""
+                # دمج نتائج المحاكي إن وجدت
+                for sk, sv in st.session_state.simulated_results_dict.items():
+                    if c_name in sk:
+                        sim_notes = " (مع رصد السيناريوهات الاستشرافية المرتبطة)"
+                
+                # دمج نتائج لوحة القرار إن وجدت
+                dec_notes = ""
+                if c_name in st.session_state.decision_results_dict:
+                    dec_notes = " (وتفعيل حزم لوحة التطعيم الثقافي ودعم القرار)"
+
+                dynamic_summary_bullets += f"<li><b>دولة {c_name} (المؤشر المركب: {c_score}%):</b> {c_diag}{sim_notes}{dec_notes}.</li>"
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -857,9 +868,9 @@ with tab4:
 
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h4>
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (قراءة تحليلية مخصصة للدول المسجلة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا القسم قراءة تحليلية مفصلة ومستندة مباشرة إلى الدول المسجلة في المنصة، عاكساً رؤية استشرافية لدعم سياسات الصناعات الثقافية والإبداعية العربية:
+                  استناداً إلى التشخيص القياسي، مخرجات محاكي السياسات، وتوصيات لوحة دعم القرار للأقسام (1، 2، 3)، يعكس هذا الملخص قراءة تحليلية مفصلة ومستندة مباشرة إلى الدول المسجلة في المنصة:
                 </p>
                 <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.9;">
                   {dynamic_summary_bullets}
@@ -904,7 +915,7 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h3>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (قراءة تحليلية مخصصة):</h3>
                 <ul>
                     {dynamic_summary_bullets}
                 </ul>
