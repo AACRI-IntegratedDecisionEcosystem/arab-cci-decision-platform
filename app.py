@@ -54,7 +54,7 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* تمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي */
+/* تمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي وتنسيق الألوان */
 div.stTabs {{
     width: 100% !important;
     max-width: 100% !important;
@@ -80,7 +80,7 @@ div.stTabs {{
     flex: 1 1 0% !important;
     width: 100% !important;
     max-width: none !important;
-    background-color: rgba(120, 53, 15, 0.8) !important;
+    background-color: rgba(120, 53, 15, 0.85) !important;
     color: #FFFFFF !important;
     border-radius: 8px !important;
     padding: 12px 8px !important;
@@ -447,7 +447,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # الترتيب الدقيق للأعمدة بحيث تبدأ من اليمين: (م، الدولة، المؤشر المركب، ثم باقي المحاور تباعاً)
+        # الترتيب الدقيق للأعمدة لتبدأ من اليمين تماماً: (م، الدولة، المؤشر المركب، ثم باقي المحاور تباعاً)
         cols_order = [
             "م", 
             "الدولة", 
@@ -791,7 +791,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -859,8 +859,8 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # بناء قائمة النتائج بشكل نظيف وواضح تماماً
-            dynamic_summary_bullets = []
+            # توليد استجابات تحليلية مفصلة وغير موجزة، ومتمايزة لكل دولة على حدة (بدون أي أكواد خامة)
+            detailed_analysis_blocks = []
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -872,18 +872,26 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                sim_notes = ""
-                for s_key in st.session_state.simulated_results_dict.keys():
+                # فحص الارتباط بالمحاكي
+                sim_detail = "لم يتم تسجيل سيناريو استشرافي خاص بالمحاكي لهذه الدولة حتى الآن، ويُوصى بإخضاعها لاختبارات الإحلال والتنبؤ القياسي."
+                for s_key, s_val_dict in st.session_state.simulated_results_dict.items():
                     if s_key.startswith(c_name):
-                        sim_notes = " وفي ضوء محاكاة السيناريوهات الاستشرافية، تم تسجيل آفاق إيجابية للتدخلات."
+                        sim_detail = f"أظهرت نتائج محاكي السياسات (السيناريو المرتبط: {s_key}) آفاقاً واعدة للتدخلات الاستثمارية وتحقيق نسب نمو مستهدفة في المؤشر المركب."
                         break
                 
-                dec_notes = ""
+                # فحص الارتباط بلوحة القرار
+                dec_detail = "تتطلب لوحة دعم اتخاذ القرار مزيداً من تفعيل آليات التطعيم الثقافي (Cultural Grafting) وحماية المصنفات الرقمية."
                 if c_name in st.session_state.decision_results_dict:
-                    dec_notes = " وأظهرت لوحة القرار أهمية تفعيل دروع التطعيم الثقافي."
+                    dec_detail = "أكدت لوحة دعم اتخاذ القرار على ضرورة إنشاء المجالس السيادية وتفعيل أطر حوكمة الذكاء الاصطناعي وتأمين التدفقات الإبداعية."
 
-                bullet_text = f"دولة {c_name} (المؤشر المركب: {c_score}%): {c_diag} - تفصيل المحاور: البنية التقنية ({t_val}%)، رأس المال البشري ({h_val}%)، البيئة التنظيمية ({r_val}%)، الاقتصاد البرتقالي ({e_val}%)، والمحددات الهوياتية ({c_val}%).{sim_notes}{dec_notes}"
-                dynamic_summary_bullets.append(bullet_text)
+                block_text = f"""
+                تحليل تفصيلي شامل لدولة {c_name}:
+                • القيمة المركبة لمؤشر الجاهزية الذكية بلغت {c_score}%، مما يعكس تصنيفاً منظومياً يتمثل في: ({c_diag}).
+                • قراءة المحاور الخمسة الأساسية: البنية التقنية سجلت ({t_val}%)، رأس المال البشري بلغ ({h_val}%)، البيئة التشريعية والتنظيمية قدرت بـ ({r_val}%)، الديناميكيات الاقتصادية للاقتصاد البرتقالي سجلت ({e_val}%)، والمحددات الثقافية والهوياتية بلغت ({c_val}%).
+                • مخرجات محاكي السياسات: {sim_detail}
+                • مخرجات لوحة دعم القرار والتطعيم الثقافي: {dec_detail}
+                """
+                detailed_analysis_blocks.append(block_text)
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -915,17 +923,17 @@ with tab4:
                 """
                 st.markdown(summary_card, unsafe_allow_html=True)
 
-            # عرض النتائج المعمقة بشكل آمن ومنظم عبر مكونات Streamlit لضمان عدم ظهور أي أكواد خامة
+            # عرض النتائج المعمقة والمفصلة لكل دولة عبر عناصر Streamlit المنظمة بشكل آمن ونظيف
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  استناداً إلى التحليلات المجمعة واستجابات الدول عبر الأقسام (1 التشخيص، 2 المحاكي، و3 لوحة القرار)، يبرز الملخص التنفيذي العميق التالي:
+                <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
+                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
+                  يعرض هذا البند قراءة تحليلية تفصيلية ومستقلة لكل دولة مسجلة، جامعاً مخرجات التشخيص (القسم 1)، محاكي السياسات (القسم 2)، ولوحة دعم القرار (القسم 3):
                 </p>
             """, unsafe_allow_html=True)
 
-            for b in dynamic_summary_bullets:
-                st.markdown(f"- {b}")
+            for block in detailed_analysis_blocks:
+                st.info(block)
 
             st.markdown("""
             </div>
@@ -933,7 +941,7 @@ with tab4:
 
             st.markdown(f"""
             <div style="background: #FFFBEB; padding: 22px; border-radius: 12px; border: 1.5px solid #FCD34D; margin-bottom: 15px;" dir="rtl">
-                <h4 style="color: #92400E; margin-top: 0; font-size: 17px;">🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h4>
+                <h4 style="color: {CBE_ORANGE_DARK}; margin-top: 0; font-size: 17px;">🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h4>
                 <ul style="margin: 0; padding-right: 20px; line-height: 1.9; color: #78350F;">
                   <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب وإعادة التأهيل.</li>
                   <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية ومؤشرات قياس آنية.</li>
@@ -945,9 +953,9 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-            word_bullets_html = ""
-            for b in dynamic_summary_bullets:
-                word_bullets_html += f"<li>{b}</li>"
+            word_blocks_html = ""
+            for block in detailed_analysis_blocks:
+                word_blocks_html += f"<div style='border: 1px solid #CBD5E1; padding: 12px; margin-bottom: 10px; border-radius: 6px;'><p>{block.replace(chr(10), '<br>')}</p></div>"
 
             word_content = f"""
             <html dir="rtl">
@@ -973,9 +981,7 @@ with tab4:
                 </ul>
                 <hr>
                 <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-                <ul>
-                    {word_bullets_html}
-                </ul>
+                {word_blocks_html}
                 <hr>
                 <h3>🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
                 <ul>
