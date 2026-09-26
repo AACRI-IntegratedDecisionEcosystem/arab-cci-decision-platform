@@ -395,13 +395,12 @@ with tab1:
                     detailed_diag = f"🔴 **فجوة ذكية هيكلية حرجة:** إجمالي المؤشر المركب {score_str_plain}. توضح القراءة الحالية وجود اختناقات عميقة في البنية التحتية والبيئة التشريعية ورأس المال البشري، مما يستوجب تفعيل محاكي السياسات ولوحة التطعيم الثقافي لدعم 'المبدع المعزز' وتفادي الاستلاب الخوارزمي."
 
                 entry = {
-                    "م": 0, # سيتم إعادة ترقيتها ديناميكياً
                     "الدولة": country_sel,
                     "المؤشر المركب (AACRI)": final_score,
-                    "رأس المال البشري (30%)": hc_slider,
                     "البنية التقنية (20%)": ti_slider,
-                    "البيئة التنظيمية والتشريعية (20%)": rf_slider,
                     "الديناميكيات الاقتصادية (15%)": ed_slider,
+                    "رأس المال البشري (30%)": hc_slider,
+                    "البيئة التنظيمية والتشريعية (20%)": rf_slider,
                     "المحددات الثقافية والهوياتية (15%)": cd_slider,
                     "التقييم المنظومي": diagnosis
                 }
@@ -446,12 +445,9 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
+        df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # إعادة تعيين وترتيب عمود الترقيم (م) ليبدأ من اليمين تماماً بجانب اسم الدولة
-        for i in range(len(df_history)):
-            df_history.loc[i, "م"] = i + 1
-        
-        # الترتيب الدقيق للأعمدة ليبدأ من اليمين: (م، الدولة، المؤشر المركب، ثم باقي المؤشرات تباعاً)
+        # الترتيب الدقيق للأعمدة ليبدأ العمود الأول من اليمين تماماً: (م، الدولة، المؤشر المركب، وباقي المحاور تباعاً)
         cols_order = [
             "م", 
             "الدولة", 
@@ -465,8 +461,46 @@ with tab1:
         ]
         df_history = df_history[cols_order]
         
-        # عرض الجدول بكامل عرض الشاشة باستخدام st.dataframe مع إخفاء الفهارس الافتراضية
-        st.dataframe(df_history, use_container_width=True, hide_index=True)
+        # استخدام st.table مع تفعيل CSS مخصص لضمان بدء الجدول من اليمين (م ثم الدولة) بكامل عرض الشاشة
+        table_html = df_history.to_html(classes="styled-table", index=False, escape=False)
+        st.markdown(f"""
+        <style>
+        .styled-table {{
+            width: 100% !important;
+            border-collapse: collapse !important;
+            direction: rtl !important;
+            text-align: right !important;
+            font-family: 'Cairo', sans-serif !important;
+            background-color: #FFFFFF !important;
+            border-radius: 10px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+            margin-bottom: 20px !important;
+        }}
+        .styled-table th {{
+            background-color: {CBE_NAVY} !important;
+            color: #FBBF24 !important;
+            padding: 12px 15px !important;
+            text-align: right !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            border-bottom: 2px solid {CBE_ORANGE_MID} !important;
+        }}
+        .styled-table td {{
+            padding: 10px 15px !important;
+            text-align: right !important;
+            color: #1E293B !important;
+            font-size: 13.5px !important;
+            border-bottom: 1px solid #E2E8F0 !important;
+        }}
+        .styled-table tr:hover {{
+            background-color: #F1F5F9 !important;
+        }}
+        </style>
+        <div style="width: 100%; overflow-x: auto;" dir="rtl">
+            {table_html}
+        </div>
+        """, unsafe_allow_html=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -796,7 +830,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -864,7 +898,7 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # توليد استجابات تحليلية مفصلة وغير موجزة، ومتمايزة لكل دولة على حدة (بدون أي أكواد خامة)
+            # توليد استجابات تحليلية مفصلة وغير موجزة، ومتمايزة لكل دولة على حدة بشكل نظيف تماماً
             detailed_analysis_blocks = []
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
@@ -877,24 +911,22 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # فحص الارتباط بالمحاكي
                 sim_detail = "لم يتم تسجيل سيناريو استشرافي خاص بالمحاكي لهذه الدولة حتى الآن، ويُوصى بإخضاعها لاختبارات الإحلال والتنبؤ القياسي."
                 for s_key in st.session_state.simulated_results_dict.keys():
                     if s_key.startswith(c_name):
                         sim_detail = f"أظهرت نتائج محاكي السياسات (السيناريو المرتبط: {s_key}) آفاقاً واعدة للتدخلات الاستثمارية وتحقيق نسب نمو مستهدفة في المؤشر المركب."
                         break
                 
-                # فحص الارتباط بلوحة القرار
                 dec_detail = "تتطلب لوحة دعم اتخاذ القرار مزيداً من تفعيل آليات التطعيم الثقافي (Cultural Grafting) وحماية المصنفات الرقمية."
                 if c_name in st.session_state.decision_results_dict:
                     dec_detail = "أكدت لوحة دعم اتخاذ القرار على ضرورة إنشاء المجالس السيادية وتفعيل أطر حوكمة الذكاء الاصطناعي وتأمين التدفقات الإبداعية."
 
                 block_text = f"""
-                تحليل تفصيلي شامل لدولة {c_name}:
-                • القيمة المركبة لمؤشر الجاهزية الذكية بلغت {c_score}%، مما يعكس تصنيفاً منظومياً يتمثل في: ({c_diag}).
-                • قراءة المحاور الخمسة الأساسية: البنية التقنية سجلت ({t_val}%)، رأس المال البشري بلغ ({h_val}%)، البيئة التشريعية والتنظيمية قدرت بـ ({r_val}%)، الديناميكيات الاقتصادية للاقتصاد البرتقالي سجلت ({e_val}%)، والمحددات الثقافية والهوياتية بلغت ({c_val}%).
-                • مخرجات محاكي السياسات: {sim_detail}
-                • مخرجات لوحة دعم القرار والتطعيم الثقافي: {dec_detail}
+تحليل تفصيلي شامل لدولة {c_name}:
+• القيمة المركبة لمؤشر الجاهزية الذكية بلغت {c_score}%، مما يعكس تصنيفاً منظومياً يتمثل في: ({c_diag}).
+• قراءة المحاور الخمسة الأساسية: البنية التقنية سجلت ({t_val}%)، رأس المال البشري بلغ ({h_val}%)، البيئة التشريعية والتنظيمية قدرت بـ ({r_val}%)، الديناميكيات الاقتصادية للاقتصاد البرتقالي سجلت ({e_val}%)، والمحددات الثقافية والهوياتية بلغت ({c_val}%).
+• مخرجات محاكي السياسات: {sim_detail}
+• مخرجات لوحة دعم القرار والتطعيم الثقافي: {dec_detail}
                 """
                 detailed_analysis_blocks.append(block_text)
 
@@ -928,7 +960,6 @@ with tab4:
                 """
                 st.markdown(summary_card, unsafe_allow_html=True)
 
-            # عرض النتائج المعمقة والمفصلة لكل دولة عبر عناصر Streamlit المنظمة بشكل آمن ونظيف
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
