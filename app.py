@@ -44,7 +44,7 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* فرض محاذاة اليمن على كافة عناصر القوائم المنسدلة والقوائم المنبثقة لجذر المتصفح */
+/* فرض محاذاة اليمين على كافة عناصر القوائم المنسدلة والقوائم المنبثقة */
 div[data-baseweb="select"] *, 
 div[data-baseweb="popover"] *, 
 ul[data-baseweb="menu"] *, 
@@ -54,49 +54,49 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* تخصيص حاوية التبويبات (Tabs) الرئيسية لتكون بعرض الشاشة وخلفية متدرجة */
-.stTabs {{
-    width: 100% !important;
-    direction: rtl !important;
-}}
-
+/* -------------------------------------------------------------------------- */
+/* تخصيص حاوية التبويبات (Tabs) لتكون بعرض الشاشة بخلفية متدرجة وإطار أبيض */
+/* -------------------------------------------------------------------------- */
 .stTabs [data-baseweb="tab-list"] {{
-    width: 100% !important;
     display: flex !important;
-    justify-content: space-between !important;
-    gap: 10px !important;
-    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_MID} 100%) !important;
-    padding: 14px 18px !important;
-    border-radius: 14px !important;
+    width: 100% !important;
+    gap: 6px !important;
+    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
+    border: 2px solid #FFFFFF !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
     direction: rtl !important;
 }}
 
 .stTabs [data-baseweb="tab"] {{
     flex: 1 !important;
-    background-color: rgba(120, 53, 15, 0.65) !important;
+    background-color: rgba(120, 53, 15, 0.75) !important;
     color: #FFFFFF !important;
-    border-radius: 10px !important;
-    padding: 12px 15px !important;
+    border-radius: 8px !important;
+    padding: 12px 10px !important;
     font-weight: 700 !important;
-    font-size: 15px !important;
     font-family: 'Cairo', sans-serif !important;
+    font-size: 14.5px !important;
     border: 1px solid rgba(255,255,255,0.2) !important;
     text-align: center !important;
+    justify-content: center !important;
     transition: all 0.3s ease !important;
 }}
 
 .stTabs [data-baseweb="tab"]:hover {{
-    background-color: {CBE_ORANGE_LIGHT} !important;
+    background-color: {CBE_ORANGE_MID} !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4) !important;
+    border-color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
 }}
 
 .stTabs [aria-selected="true"] {{
-    background-color: {CBE_ORANGE_LIGHT} !important;
-    color: #FEF3C7 !important;
-    border: 2px solid #FBBF24 !important;
-    box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4) !important;
+    background: linear-gradient(135deg, {CBE_ORANGE_MID} 0%, {CBE_ORANGE_LIGHT} 100%) !important;
+    color: #FBBF24 !important;
+    border: 2px solid #FFFFFF !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
@@ -767,7 +767,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
