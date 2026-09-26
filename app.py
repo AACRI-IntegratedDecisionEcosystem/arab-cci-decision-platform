@@ -112,6 +112,50 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
+/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً */
+.custom-rtl-table {{
+    width: 100% !important;
+    border-collapse: collapse !important;
+    direction: rtl !important;
+    text-align: right !important;
+    margin-top: 15px !important;
+    margin-bottom: 25px !important;
+    font-family: 'Cairo', sans-serif !important;
+    background-color: #FFFFFF !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important;
+    border: 1px solid #CBD5E1 !important;
+}}
+
+.custom-rtl-table th {{
+    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
+    color: #FBBF24 !important;
+    padding: 14px 12px !important;
+    font-weight: 800 !important;
+    border: 1px solid #1E293B !important;
+    text-align: right !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+}}
+
+.custom-rtl-table td {{
+    padding: 12px 12px !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    text-align: right !important;
+    line-height: 1.6 !important;
+}}
+
+.custom-rtl-table tr:nth-child(even) {{
+    background-color: #F8FAFC !important;
+}}
+
+.custom-rtl-table tr:hover {{
+    background-color: #FEF3C7 !important;
+}}
+
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
@@ -299,7 +343,7 @@ def get_region_and_features(country_name):
     levant = ["المملكة الأردنية الهاشمية", "الجمهورية اللبنانية", "الجمهورية العربية السورية", "دولة فلسطين"]
     
     if country_name in gulf_countries:
-        return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
+        return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واواعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
         return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
@@ -445,24 +489,49 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
-        df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # الترتيب الدقيق للأعمدة ليبدأ العمود الأول من اليمين تماماً: (م، الدولة، المؤشر المركب، ثم باقي المحاور تباعاً)
-        cols_order = [
-            "م", 
-            "الدولة", 
-            "المؤشر المركب (AACRI)", 
-            "رأس المال البشري (30%)", 
-            "البنية التقنية (20%)", 
-            "البيئة التنظيمية والتشريعية (20%)", 
-            "الديناميكيات الاقتصادية (15%)", 
-            "المحددات الثقافية والهوياتية (15%)", 
-            "التقييم المنظومي"
-        ]
-        df_history = df_history[cols_order]
+        # بناء جدول HTML مخصص يضمن اتجاه اليمين تماماً (RTL) ويبدأ بعمود 'م' في أقصى اليمين بعرض الشاشة الكامل
+        table_html = """
+        <div dir="rtl" style="width: 100%; overflow-x: auto;">
+        <table class="custom-rtl-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px; text-align: center;">م</th>
+                    <th>الدولة</th>
+                    <th>المؤشر المركب (AACRI)</th>
+                    <th>رأس المال البشري (30%)</th>
+                    <th>البنية التقنية (20%)</th>
+                    <th>البيئة التنظيمية والتشريعية (20%)</th>
+                    <th>الديناميكيات الاقتصادية (15%)</th>
+                    <th>المحددات الثقافية والهوياتية (15%)</th>
+                    <th>التقييم المنظومي</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
         
-        # استخدام st.dataframe مع خصائص عرض الشاشة بالكامل واتجاه اليمين
-        st.dataframe(df_history, use_container_width=True, hide_index=True)
+        for idx, row in df_history.iterrows():
+            table_html += f"""
+            <tr>
+                <td style="text-align: center; font-weight: bold;">{idx + 1}</td>
+                <td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
+                <td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
+                <td>{row['رأس المال البشري (30%)']}%</td>
+                <td>{row['البنية التقنية (20%)']}%</td>
+                <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
+                <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
+                <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
+                <td style="font-size: 12.5px;">{row['التقييم المنظومي']}</td>
+            </tr>
+            """
+            
+        table_html += """
+            </tbody>
+        </table>
+        </div>
+        """
+        
+        st.markdown(table_html, unsafe_allow_html=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -860,8 +929,10 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # توليد استجابات تحليلية مفصلة وغير موجزة، ومتمايزة لكل دولة على حدة (بدون أي أكواد خامة)
-            detailed_analysis_blocks = []
+            # تجميع بطاقات النتائج التحليلية المعمقة والمستقلة لكل دولة بناءً على مخرجات الأقسام 1 و2 و3 (تنسيق HTML رصين وخالٍ تماماً من الأكواد الخام)
+            cards_html_list = []
+            word_blocks_html = ""
+
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -873,26 +944,38 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # فحص الارتباط بالمحاكي
-                sim_detail = "لم يتم تسجيل سيناريو استشرافي خاص بالمحاكي لهذه الدولة حتى الآن، ويُوصى بإخضاعها لاختبارات الإحلال والتنبؤ القياسي."
+                # ربط نتائج المحاكي
+                sim_detail = "لم يتم تسجيل سيناريو محاكاة استشرافي خاص بهذه الدولة حتى الآن."
                 for s_key, s_val_dict in st.session_state.simulated_results_dict.items():
                     if s_key.startswith(c_name):
-                        sim_detail = f"أظهرت نتائج محاكي السياسات (السيناريو المرتبط: {s_key}) آفاقاً واعدة للتدخلات الاستثمارية وتحقيق نسب نمو مستهدفة في المؤشر المركب."
+                        sim_detail = f"أظهرت المحاكاة الاستشرافية لـ ({s_key}) نتائج ممتازة في توجيه سعات التحفيز واستشراف صافي النمو المستقبلي للمؤشر."
                         break
                 
-                # فحص الارتباط بلوحة القرار
-                dec_detail = "تتطلب لوحة دعم اتخاذ القرار مزيداً من تفعيل آليات التطعيم الثقافي (Cultural Grafting) وحماية المصنفات الرقمية."
+                # ربط نتائج لوحة دعم القرار
+                dec_detail = "تستوجب القراءة المنظومية متابعة حوكمة الحقوق الفكرية وتحديث تشريعات الاقتصاد البرتقالي."
                 if c_name in st.session_state.decision_results_dict:
-                    dec_detail = "أكدت لوحة دعم اتخاذ القرار على ضرورة إنشاء المجالس السيادية وتفعيل أطر حوكمة الذكاء الاصطناعي وتأمين التدفقات الإبداعية."
+                    dec_detail = "أوصت لوحة اتخاذ القرار بتفعيل دروع 'التطعيم الثقافي' (Cultural Grafting) وإنشاء المجالس السيادية لدعم المبدع المعزز."
 
-                block_text = f"""
-                تحليل تفصيلي شامل لدولة {c_name}:
-                • القيمة المركبة لمؤشر الجاهزية الذكية بلغت {c_score}%، مما يعكس تصنيفاً منظومياً يتمثل في: ({c_diag}).
-                • قراءة المحاور الخمسة الأساسية: البنية التقنية سجلت ({t_val}%)، رأس المال البشري بلغ ({h_val}%)، البيئة التشريعية والتنظيمية قدرت بـ ({r_val}%)، الديناميكيات الاقتصادية للاقتصاد البرتقالي سجلت ({e_val}%)، والمحددات الثقافية والهوياتية بلغت ({c_val}%).
-                • مخرجات محاكي السياسات: {sim_detail}
-                • مخرجات لوحة دعم القرار والتطعيم الثقافي: {dec_detail}
+                single_card_html = f"""
+                <div style="background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
+                    <h4 style="color: {CBE_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16px;">
+                        📌 التشخيص المنظومي والنتائج المعمقة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
+                    </h4>
+                    <p style="margin-bottom: 8px; color: #334155; font-size: 14px;"><b>التقييم التشخيصي الشامل:</b> {c_diag}</p>
+                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid {CBE_ORANGE_MID};">
+                        <p style="margin: 0 0 6px 0; font-weight: bold; color: {CBE_NAVY}; font-size: 13.5px;">• القراءة المباشرة لمحاور الجاهزية الذكية:</p>
+                        <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.7;">
+                            البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية (%{c_val})
+                        </p>
+                    </div>
+                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
+                        <li><b>مخرجات محاكي السياسات:</b> {sim_detail}</li>
+                        <li><b>مخرجات لوحة دعم اتخاذ القرار:</b> {dec_detail}</li>
+                    </ul>
+                </div>
                 """
-                detailed_analysis_blocks.append(block_text)
+                cards_html_list.append(single_card_html)
+                word_blocks_html += single_card_html
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -924,17 +1007,17 @@ with tab4:
                 """
                 st.markdown(summary_card, unsafe_allow_html=True)
 
-            # عرض النتائج المعمقة والمفصلة لكل دولة عبر عناصر Streamlit المنظمة بشكل آمن ونظيف
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
+                <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  يعرض هذا البند قراءة تحليلية تفصيلية ومستقلة لكل دولة مسجلة، جامعاً مخرجات التشخيص (القسم 1)، محاكي السياسات (القسم 2)، ولوحة دعم القرار (القسم 3):
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة:
                 </p>
             """, unsafe_allow_html=True)
 
-            for block in detailed_analysis_blocks:
-                st.info(block)
+            # حقن بطاقات التحليل المعمق مباشرة لمنع ظهور أي أكواد برمجية على الشاشة
+            for card_code in cards_html_list:
+                st.markdown(card_code, unsafe_allow_html=True)
 
             st.markdown("""
             </div>
@@ -953,10 +1036,6 @@ with tab4:
             </div>
             </div>
             """, unsafe_allow_html=True)
-
-            word_blocks_html = ""
-            for block in detailed_analysis_blocks:
-                word_blocks_html += f"<div style='border: 1px solid #CBD5E1; padding: 12px; margin-bottom: 10px; border-radius: 6px;'><p>{block.replace(chr(10), '<br>')}</p></div>"
 
             word_content = f"""
             <html dir="rtl">
