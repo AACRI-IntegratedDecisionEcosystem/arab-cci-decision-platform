@@ -59,7 +59,7 @@ div[role="option"] {{
 /* -------------------------------------------------------------------------- */
 .stTabs [data-baseweb="tab-list"] {{
     display: flex !important;
-    width: 100% !important;
+    width: 200% !important;
     gap: 6px !important;
     background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
     padding: 10px !important;
