@@ -112,50 +112,6 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً مع هيدر بلون هادئ وخالٍ من الأكواد */
-.custom-rtl-table {{
-    width: 100% !important;
-    border-collapse: collapse !important;
-    direction: rtl !important;
-    text-align: right !important;
-    margin-top: 15px !important;
-    margin-bottom: 25px !important;
-    font-family: 'Cairo', sans-serif !important;
-    background-color: #FFFFFF !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important;
-    border: 1px solid #CBD5E1 !important;
-}}
-
-.custom-rtl-table th {{
-    background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
-    color: #F8FAFC !important;
-    padding: 14px 12px !important;
-    font-weight: 700 !important;
-    border: 1px solid #475569 !important;
-    text-align: right !important;
-    font-size: 14px !important;
-    white-space: nowrap !important;
-}}
-
-.custom-rtl-table td {{
-    padding: 12px 12px !important;
-    border: 1px solid #E2E8F0 !important;
-    color: #1E293B !important;
-    font-size: 13.5px !important;
-    text-align: right !important;
-    line-height: 1.6 !important;
-}}
-
-.custom-rtl-table tr:nth-child(even) {{
-    background-color: #F8FAFC !important;
-}}
-
-.custom-rtl-table tr:hover {{
-    background-color: #FEF3C7 !important;
-}}
-
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
@@ -489,49 +445,10 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
+        df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # جدول HTML مخصص باللون الهادئ وخالٍ تماماً من أي أكواد خام
-        table_html = """
-        <div dir="rtl" style="width: 100%; overflow-x: auto;">
-        <table class="custom-rtl-table">
-            <thead>
-                <tr>
-                    <th style="width: 40px; text-align: center;">م</th>
-                    <th>الدولة</th>
-                    <th>المؤشر المركب (AACRI)</th>
-                    <th>رأس المال البشري (30%)</th>
-                    <th>البنية التقنية (20%)</th>
-                    <th>البيئة التنظيمية والتشريعية (20%)</th>
-                    <th>الديناميكيات الاقتصادية (15%)</th>
-                    <th>المحددات الثقافية والهوياتية (15%)</th>
-                    <th>التقييم المنظومي</th>
-                </tr>
-            </thead>
-            <tbody>
-        """
-        
-        for idx, row in df_history.iterrows():
-            table_html += f"""
-            <tr>
-                <td style="text-align: center; font-weight: bold;">{idx + 1}</td>
-                <td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
-                <td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
-                <td>{row['رأس المال البشري (30%)']}%</td>
-                <td>{row['البنية التقنية (20%)']}%</td>
-                <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
-                <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
-                <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-                <td style="font-size: 12.5px;">{row['التقييم المنظومي']}</td>
-            </tr>
-            """
-            
-        table_html += """
-            </tbody>
-        </table>
-        </div>
-        """
-        
-        st.markdown(table_html, unsafe_allow_html=True)
+        # استخدام st.dataframe القياسي لمنع ظهور أي أكواد خام في الواجهة بشكل نهائي
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -861,7 +778,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -929,10 +846,10 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # معالجة فريدة ومستقلة لكل دولة تماماً لمنع التكرار وضمان تنوع النتائج والتشخيصات المعمقة
             cards_html_list = []
             word_blocks_html = ""
 
+            # توليد بطاقات تحليلية مستقلة وفريدة لكل دولة على حدة (بدون أي تكرار أو نسخ نصوص متطابقة)
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -944,31 +861,25 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # صياغة متمايزة تماماً لدولة معينة بناءً على درجتها الفردية
-                if c_score >= 80:
-                    specific_strat = f"تتمتع دولة ({c_name}) بسيادة رقمية رائدة تؤهلها لتصدير النماذج الثقافية الموطنة وقيادة التحالفات التقنية الإقليمية."
-                elif c_score >= 51:
-                    specific_strat = f"تتطلب دولة ({c_name}) تفعيل برامج ردم الفجوات الهيكلية في سلاسل القيمة الإبداعية ودعم مهارات المبدع المعزز."
-                else:
-                    specific_strat = f"تفرض دولة ({c_name}) ضرورة عاجلة لإعلان طوارئ استثمارية وتطوير البنية التشريعية لحماية الأمن الثقافي."
-
-                sim_detail = f"لم يتم تثبيت سيناريو محاكاة سابق لـ ({c_name}). يوصى باختبار مرونة السياسات عبر محاكي السياسات."
+                # جلب محاكاة السياسات الخاصة حصرياً بهذه الدولة
+                sim_detail = "لم يتم تسجيل سيناريو محاكاة استشرافي خاص بهذه الدولة حتى الآن."
                 for s_key, s_val in st.session_state.simulated_results_dict.items():
                     if s_key.startswith(c_name):
-                        sim_detail = f"أثبتت محاكاة السيناريو المرصودة لـ ({c_name}) قدرة فائقة على تحقيق نمو صافٍ وإداري فعال للمؤشر."
+                        sim_detail = f"السيناريو المرصود ({s_key}) يعكس توقعاً بمدى تأثير سياسات التحفيز الموجهة بنسب نمو صافية للمؤشر."
                         break
                 
-                dec_detail = f"تستوجب القراءة التنفيذية لـ ({c_name}) متابعة أطر الملكية الفكرية ودمج الأنشطة البرتقالية الناشئة."
+                # جلب توصيات لوحة القرار الخاصة حصرياً بهذه الدولة
+                dec_detail = "تستوجب القراءة المنظومية متابعة حوكمة الحقوق الفكرية وتحديث تشريعات الاقتصاد البرتقالي."
                 if c_name in st.session_state.decision_results_dict:
-                    dec_detail = f"تضمنت توصيات لوحة القرار الخاصة بـ ({c_name}) تفعيل دروع 'التطعيم الثقافي' وإنشاء المجالس العليا لدعم الكوادر."
+                    d_item = st.session_state.decision_results_dict[c_name]
+                    dec_detail = f"تم تفعيل التوصيات الاستراتيجية ودروع التطعيم الثقافي الخاصة بدولة {c_name} لدعم المبدع المعزز."
 
                 single_card_html = f"""
-                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
+                <div style="background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
                     <h4 style="color: {CBE_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16px;">
                         📌 التشخيص المنظومي والنتائج المعمقة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
                     </h4>
                     <p style="margin-bottom: 8px; color: #334155; font-size: 14px;"><b>التقييم التشخيصي الشامل:</b> {c_diag}</p>
-                    <p style="margin-bottom: 8px; color: {CBE_ORANGE_DARK}; font-size: 13.5px;"><b>💡 الرؤية الاستراتيجية المخصصة:</b> {specific_strat}</p>
                     <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid {CBE_ORANGE_MID};">
                         <p style="margin: 0 0 6px 0; font-weight: bold; color: {CBE_NAVY}; font-size: 13.5px;">• القراءة المباشرة لمحاور الجاهزية الذكية:</p>
                         <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.7;">
@@ -1018,11 +929,10 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة بصورة مستقلة وغير مكررة:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة:
                 </p>
             """, unsafe_allow_html=True)
 
-            # عرض البطاقات المستقلة تماماً لكل دولة
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
