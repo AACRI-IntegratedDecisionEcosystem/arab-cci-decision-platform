@@ -492,44 +492,44 @@ with tab1:
         
         # جدول HTML مخصص ونظيف بالكامل لمنع ظهور أي أكواد خام
         table_html = """
-        <div dir="rtl" style="width: 100%; overflow-x: auto;">
-        <table class="custom-rtl-table">
-            <thead>
-                <tr>
-                    <th style="width: 40px; text-align: center;">م</th>
-                    <th>الدولة</th>
-                    <th>المؤشر المركب (AACRI)</th>
-                    <th>رأس المال البشري (30%)</th>
-                    <th>البنية التقنية (20%)</th>
-                    <th>البيئة التنظيمية والتشريعية (20%)</th>
-                    <th>الديناميكيات الاقتصادية (15%)</th>
-                    <th>المحددات الثقافية والهوياتية (15%)</th>
-                    <th>التقييم المنظومي</th>
-                </tr>
-            </thead>
-            <tbody>
-        """
+<div dir="rtl" style="width: 100%; overflow-x: auto;">
+<table class="custom-rtl-table">
+<thead>
+<tr>
+<th style="width: 40px; text-align: center;">م</th>
+<th>الدولة</th>
+<th>المؤشر المركب (AACRI)</th>
+<th>رأس المال البشري (30%)</th>
+<th>البنية التقنية (20%)</th>
+<th>البيئة التنظيمية والتشريعية (20%)</th>
+<th>الديناميكيات الاقتصادية (15%)</th>
+<th>المحددات الثقافية والهوياتية (15%)</th>
+<th>التقييم المنظومي</th>
+</tr>
+</thead>
+<tbody>
+"""
         
         for idx, row in df_history.iterrows():
             table_html += f"""
-            <tr>
-                <td style="text-align: center; font-weight: bold;">{idx + 1}</td>
-                <td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
-                <td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
-                <td>{row['رأس المال البشري (30%)']}%</td>
-                <td>{row['البنية التقنية (20%)']}%</td>
-                <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
-                <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
-                <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-                <td style="font-size: 12.5px;">{row['التقييم المنظومي']}</td>
-            </tr>
-            """
+<tr>
+<td style="text-align: center; font-weight: bold;">{idx + 1}</td>
+<td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
+<td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
+<td>{row['رأس المال البشري (30%)']}%</td>
+<td>{row['البنية التقنية (20%)']}%</td>
+<td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
+<td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
+<td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
+<td style="font-size: 12.5px;">{row['التقييم المنظومي']}</td>
+</tr>
+"""
             
         table_html += """
-            </tbody>
-        </table>
-        </div>
-        """
+</tbody>
+</table>
+</div>
+"""
         
         st.markdown(table_html, unsafe_allow_html=True)
 
