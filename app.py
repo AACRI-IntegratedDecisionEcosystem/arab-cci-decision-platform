@@ -55,34 +55,45 @@ div[role="option"] {{
 }}
 
 /* -------------------------------------------------------------------------- */
-/* الحل الجذري للتبويبات: عكس الاتجاه وجعلها تبدأ من اليمين تماماً بعرض الشاشة */
+/* الحل الجذري لتمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي */
 /* -------------------------------------------------------------------------- */
+.stTabs {{
+    width: 100% !important;
+    direction: rtl !important;
+}}
+
 .stTabs [data-baseweb="tab-list"] {{
     display: flex !important;
-    flex-direction: row-reverse !important;
     width: 100% !important;
-    gap: 6px !important;
+    max-width: 100% !important;
+    gap: 8px !important;
     background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    padding: 10px !important;
+    padding: 12px !important;
     border-radius: 12px !important;
     border: 2px solid #FFFFFF !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
     direction: rtl !important;
+    box-sizing: border-box !important;
 }}
 
 .stTabs [data-baseweb="tab"] {{
-    flex: 1 !important;
-    background-color: rgba(120, 53, 15, 0.75) !important;
+    flex: 1 1 0% !important;
+    width: 100% !important;
+    background-color: rgba(120, 53, 15, 0.8) !important;
     color: #FFFFFF !important;
     border-radius: 8px !important;
-    padding: 12px 10px !important;
+    padding: 12px 8px !important;
     font-weight: 700 !important;
     font-family: 'Cairo', sans-serif !important;
-    font-size: 14.5px !important;
+    font-size: 14px !important;
     border: 1px solid rgba(255,255,255,0.2) !important;
     text-align: center !important;
     justify-content: center !important;
+    align-items: center !important;
     transition: all 0.3s ease !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }}
 
 .stTabs [data-baseweb="tab"]:hover {{
