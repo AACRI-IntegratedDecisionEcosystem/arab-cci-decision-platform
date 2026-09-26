@@ -44,14 +44,8 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص القوائم المنسدلة (Selectbox) وتوجيه النصوص وخيارات القائمة جهة اليمين بدقة */
-div[data-baseweb="select"], div[data-baseweb="popover"], ul[role="listbox"], li[role="option"] {{
-    direction: rtl !important;
-    text-align: right !important;
-    font-family: 'Cairo', sans-serif !important;
-}}
-
-div[data-baseweb="select"] > div {{
+/* تخصيص دقيق للقوائم المنسدلة (Selectbox) لتكون باتجاه اليمين تماماً */
+div[data-baseweb="select"], div[data-baseweb="select"] * {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -421,18 +415,8 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # إعادة ترتيب الأعمدة لتبدأ بالمسلسل ثم الدولة ثم المؤشر المركب ثم بقية المحاور من اليمين إلى اليسار
-        cols_order = [
-            "م", 
-            "الدولة", 
-            "المؤشر المركب (AACRI)", 
-            "رأس المال البشري (30%)", 
-            "البنية التقنية (20%)", 
-            "البيئة التنظيمية والتشريعية (20%)", 
-            "الديناميكيات الاقتصادية (15%)", 
-            "المحددات الثقافية والهوياتية (15%)", 
-            "التقييم المنظومي"
-        ]
+        # إعادة ترتيب الأعمدة لتبدأ من اليمين (الدولة ثم المؤشر ثم باقي المحاور) وتكون متناسقة بعرض الشاشة
+        cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
         st.dataframe(df_history, use_container_width=True, hide_index=True)
@@ -467,7 +451,7 @@ with tab1:
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
+        fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4)
         fig_pie.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
             paper_bgcolor="#FFFFFF",
@@ -522,7 +506,7 @@ with tab2:
             <h1 style="color: #0A192F; text-align: center;">تقرير محاكي السياسات الاستشرافي والمتابعة التراكمية</h1>
             <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
             <hr>
-            <h3>📋 مقارنة السيناريوهات المثبتة للدول (المختارة):</h3>
+            <h3>📋 مقارنة السيناريوهات المثبتة للدول:</h3>
         """
         if st.session_state.simulated_results_dict:
             for k, v in st.session_state.simulated_results_dict.items():
@@ -785,7 +769,7 @@ with tab3:
                 card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
                     <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
-                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                    <div style="background: #F8FAFC; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
                         <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
                             <li>{item['recs'][0]}</li>
@@ -833,6 +817,14 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
+            # بناء تفصيلي ومخصص لملخص النتائج التحليلية استناداً إلى الدول المسجلة فعلياً
+            dynamic_summary_bullets = ""
+            for idx, row in df_rep.iterrows():
+                c_name = row['الدولة']
+                c_score = row['المؤشر المركب (AACRI)']
+                c_diag = row['التقييم المنظومي']
+                dynamic_summary_bullets += f"<li><b>دولة {c_name} (المؤشر: {c_score}%):</b> {c_diag} استناداً إلى تحليل المحاور الخمسة وسلاسل القيمة البرتقالية.</li>"
+
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
               <div style="text-align: center; border-bottom: 2px solid {CBE_ORANGE_MID}; padding-bottom: 15px; margin-bottom: 25px;">
@@ -865,22 +857,13 @@ with tab4:
 
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
+                  يقدم هذا القسم قراءة تحليلية مفصلة ومستندة مباشرة إلى الدول المسجلة في المنصة، عاكساً رؤية استشرافية لدعم سياسات الصناعات الثقافية والإبداعية العربية:
                 </p>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  <b>1. التشخيص القياسي والترتيب التراكمي (القسم الأول):</b> أظهرت نتائج تقييم المحاور الخمسة (البنية التقنية، الديناميكيات الاقتصادية، رأس المال البشري، البيئة التشريعية، المحددات الثقافية) تفاوتات هيكلية تستوجب سياسات تفصيلية مخصصة لكل بيئة إقليمية على حدة لتقليص الفجوات الذكية.
-                </p>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  <b>2. استشراف السياسات وبدائل السيناريوهات (القسم الثاني):</b> بينت مخرجات المحاكي أن التحفيز الموجه نحو برامج إعادة التأهيل (Reskilling) وتطوير البنية التحتية يرفع بفاعلية من القيمة المركبة للمؤشر ويقي الاقتصادات صدمات البطالة التكنولوجية والإحلال الخوارزمي للمهن الثقافية.
-                </p>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  <b>3. لوحة دعم القرار والتطعيم الثقافي (القسم الثالث):</b> عززت التوصيات المخصصة والديناميكية ضرورة إرساء مجالس عليا للسيادة الرقمية وتفعيل حاضنات الأنشطة الإبداعية المشتركة بما يصون الأمن الثقافي القومي.
-                </p>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin: 0;">
-                  <b>4. الخلاصة الاستراتيجية:</b> إن تضافر هذه المخرجات يضع بين أيدي صانعي القرار خارطة طريق إجرائية متكاملة لترسيخ ركائز الاقتصاد البرتقالي وتعظيم العائد التنموي في المنطقة العربية.
-                </p>
+                <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.9;">
+                  {dynamic_summary_bullets}
+                </ul>
             </div>
             """, unsafe_allow_html=True)
 
@@ -921,8 +904,10 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-                <p>يقدم هذا التقرير تجميعاً تحليلياً متكاملاً لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي.</p>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h3>
+                <ul>
+                    {dynamic_summary_bullets}
+                </ul>
                 <hr>
                 <h3>🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
                 <ul>
