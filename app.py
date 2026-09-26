@@ -112,7 +112,7 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص ومصغر (Compact Table) */
+/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
@@ -124,14 +124,14 @@ div.stTabs {{
     background-color: #FFFFFF !important;
     border-radius: 8px !important;
     overflow: hidden !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05) !important;
     border: 1px solid #CBD5E1 !important;
 }}
 
 .custom-rtl-table th {{
-    background: linear-gradient(135deg, {CBE_NAVY} 100%, #1E293B 100%) !important;
+    background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
     color: #F8FAFC !important;
-    padding: 8px 10px !important;
+    padding: 10px 8px !important;
     font-weight: 700 !important;
     border: 1px solid #475569 !important;
     text-align: right !important;
@@ -140,7 +140,7 @@ div.stTabs {{
 }}
 
 .custom-rtl-table td {{
-    padding: 7px 10px !important;
+    padding: 8px 8px !important;
     border: 1px solid #E2E8F0 !important;
     color: #1E293B !important;
     font-size: 12.5px !important;
@@ -473,24 +473,8 @@ with tab1:
                 categories = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
                 scores_list = [ti_slider, ed_slider, hc_slider, rf_slider, cd_slider]
                 fig = go.Figure()
-                fig.add_trace(go.Scatterpolar(
-                    r=scores_list, 
-                    theta=categories, 
-                    fill='toself', 
-                    name=country_sel, 
-                    line=dict(color=CBE_ORANGE_MID, width=2.5),
-                    fillcolor="rgba(180, 83, 9, 0.2)"
-                ))
-                fig.update_layout(
-                    polar=dict(
-                        radialaxis=dict(visible=True, range=[0, 100], color=CBE_NAVY, gridcolor="#E2E8F0"),
-                        angularaxis=dict(color=CBE_NAVY, gridcolor="#E2E8F0")
-                    ), 
-                    paper_bgcolor="#FFFFFF", 
-                    plot_bgcolor="#FFFFFF",
-                    font=dict(family="Cairo", size=13, color=CBE_NAVY),
-                    margin=dict(t=30, b=30, l=30, r=30)
-                )
+                fig.add_trace(go.Scatterpolar(r=scores_list, theta=categories, fill='toself', name=country_sel, line_color=CBE_ORANGE_MID))
+                fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), paper_bgcolor="#FFFFFF", font=dict(family="Cairo", size=13))
                 st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("📊 يرجى اختيار الدولة وضبط درجات المحاور ثم الضغط على زر الحساب لعرض النتائج والتمثيل الراداري.")
@@ -506,55 +490,55 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مصغر ومدمج (Compact Table)
+        # جدول HTML مخصص ومصغر (Compact)
         table_html = """
-        <div dir="rtl" style="width: 100%; overflow-x: auto;">
-        <table class="custom-rtl-table">
-            <thead>
-                <tr>
-                    <th style="width: 35px; text-align: center;">م</th>
-                    <th>الدولة</th>
-                    <th>المؤشر المركب</th>
-                    <th>رأس المال البشري</th>
-                    <th>البنية التقنية</th>
-                    <th>البيئة التنظيمية</th>
-                    <th>الديناميكيات الاقتصادية</th>
-                    <th>المحددات الثقافية</th>
-                    <th>التقييم المنظومي</th>
-                </tr>
-            </thead>
-            <tbody>
-        """
+<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 350px;">
+<table class="custom-rtl-table">
+<thead>
+<tr>
+<th style="width: 35px; text-align: center;">م</th>
+<th>الدولة</th>
+<th>المؤشر المركب (AACRI)</th>
+<th>رأس المال البشري (30%)</th>
+<th>البنية التقنية (20%)</th>
+<th>البيئة التنظيمية (20%)</th>
+<th>الديناميكيات الاقتصادية (15%)</th>
+<th>المحددات الثقافية (15%)</th>
+<th>التقييم المنظومي</th>
+</tr>
+</thead>
+<tbody>
+"""
         
         for idx, row in df_history.iterrows():
             table_html += f"""
-            <tr>
-                <td style="text-align: center; font-weight: bold;">{idx + 1}</td>
-                <td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
-                <td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
-                <td>{row['رأس المال البشري (30%)']}%</td>
-                <td>{row['البنية التقنية (20%)']}%</td>
-                <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
-                <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
-                <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-                <td style="font-size: 11.5px;">{row['التقييم المنظومي']}</td>
-            </tr>
-            """
+<tr>
+<td style="text-align: center; font-weight: bold;">{idx + 1}</td>
+<td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
+<td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
+<td>{row['رأس المال البشري (30%)']}%</td>
+<td>{row['البنية التقنية (20%)']}%</td>
+<td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
+<td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
+<td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
+<td style="font-size: 11.5px;">{row['التقييم المنظومي']}</td>
+</tr>
+"""
             
         table_html += """
-            </tbody>
-        </table>
-        </div>
-        """
+</tbody>
+</table>
+</div>
+"""
         
         st.markdown(table_html, unsafe_allow_html=True)
 
-        # زر تحميل جدول السجل بصيغة CSV/Excel وقت اللزوم
+        # زر تحميل جدول الدول العربية المسجلة بصيغة Excel (CSV)
         csv_data = df_history.to_csv(index=False).encode('utf-8-sig')
         st.download_button(
-            label="📥 تحميل جدول ترتيب الدول المسجلة (Excel/CSV)",
+            label="📥 تحميل جدول ترتيب الدول العربية المسجلة (Excel/CSV)",
             data=csv_data,
-            file_name="قائمة_ترتيب_الدول_العربية_AACRI.csv",
+            file_name="ترتيب_الدول_العربية_AACRI.csv",
             mime="text/csv",
             use_container_width=True
         )
@@ -589,11 +573,14 @@ with tab1:
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
+        # ألوان الرسم البياني الدائري متوافقة تماماً مع الهوية البصرية للمنصة
+        custom_pie_colors = [CBE_NAVY, CBE_ORANGE_DARK, CBE_ORANGE_MID, CBE_ORANGE_LIGHT, "#334155"]
+        
+        fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", color=axes_names, color_discrete_map=dict(zip(axes_names, custom_pie_colors)))
         fig_pie.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
             paper_bgcolor="#FFFFFF",
-            font=dict(family="Cairo", size=13, color=CBE_NAVY)
+            font=dict(family="Cairo", size=13)
         )
         st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -931,7 +918,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (تم تطوير وعزل النتائج والمخرجات لتكون مخصصة ومستقلة لكل دولة تماماً)
+# التبويب الرابع: التقرير التنفيذي الموحد (تم تطوير وعزل نصوص فريدة ومستقلة تماماً لكل دولة بناءً على بياناتها وحالتها)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -955,10 +942,10 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # معالجة وتطوير عزل فريد ومستقل لنتائج ومعطيات كل دولة على حدة (متمايزة ومتغيرة بالكامل على كافة البنود)
             cards_html_list = []
             word_blocks_html = ""
 
+            # تطوير عزل النتائج والمخرجات لتكون متمايزة ومتغيرة لكل دولة بناءً على طبيعة بياناتها ومستواها
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -970,58 +957,46 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # توليد توصيات تحليلية متمايزة ومخصصة بالكامل لكل دولة بناءً على قيم محاورها الفعلية
+                # صياغة مخصصة فريدة بناءً على الشريحة الأداءية للدولة (أداء مرتفع، متوسط، أو فجوة)
                 if c_score >= 80:
-                    country_specific_insights = f"""
-                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
-                        <li><b>جاهزية البنية التحتية والتقنية:</b> تفوق ملحوظ في سعات تدفق البيانات وتوطين النماذج ({t_val}%)، مما يؤهل {c_name} لتكون مركزاً إقليمياً لقيادة الابتكار.</li>
-                        <li><b>دعم المبدع المعزز ورأس المال:</b> استثمار الكوادر البشرية ({h_val}%) لإنتاج محتوى إبداعي محمي بمعايير وسم مائي متقدمة.</li>
-                        <li><b>الاقتصاد البرتقالي:</b> مساهمة واعدة للصناعات الإبداعية في الناتج المحلي مدعومة بديناميكيات ({e_val}%).</li>
-                    </ul>
-                    """
+                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بموقف تفوق استراتيجي بفضل جاهزيتها المتقدمة. يركز التوجه التنفيذي هنا على تعظيم العوائد التصديرية للنماذج الثقافية، قيادة الشراكات الإقليمية، وتوظيف البنية التقنية ({t_val}%) في حماية السيادة الرقمية."
+                    specific_policy_action = f"تفعيل ميثاق السيادة التقنية، وتأسيس تحالفات إقليمية عابرة للحدود بالاستفادة من رأس المال البشري ({h_val}%)."
                 elif c_score >= 51:
-                    country_specific_insights = f"""
-                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
-                        <li><b>المعالجة الهيكلية للبنود:</b> تواجه {c_name} تحديات متوسطة في البنية التقنية ({t_val}%) والبيئة التشريعية ({r_val}%).</li>
-                        <li><b>برامج إعادة التأهيل المستهدف:</b> ضرورة تفعيل برامج (Upskilling) لرأس المال البشري المقدر بـ ({h_val}%) لسد الفجوات الرقمية.</li>
-                        <li><b>تعزيز الاقتصاد البرتقالي:</b> توجيه خطط التحفيز المالي لدعم الصادرات الثقافية والإبداعية في ظل ({e_val}%).</li>
-                    </ul>
-                    """
+                    specific_strategic_angle = f"تواجه دولة ({c_name}) توازناً هيكلياً يتطلب تدخلات دقيقة. يعتمد التشخيص على معالجة الاختناقات في سلاسل القيمة الإبداعية، ورفع كفاءة التشريعات التنظيمية ({r_val}%) لدمج مهارات 'المبدع المعزز'."
+                    specific_policy_action = f"إطلاق حزم إعادة تأهيل مكثفة (Upskilling) ودعم تدفقات الاقتصاد البرتقالي ({e_val}%) لتقليص الفجوات التقنية."
                 else:
-                    country_specific_insights = f"""
-                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
-                        <li><b>طوارئ البنية الذكية:</b> وجود اختناقات حرجة تتطلب تدخلاً عاجلاً لرفع كفاءة البنية التقنية ({t_val}%) والتشريعات ({r_val}%).</li>
-                        <li><b>دعم المهن الثقافية:</b> حماية الكوادر الوطنية من الاستلاب الخوارزمي في ظل قصور رأس المال البشري ({h_val}%).</li>
-                        <li><b>التكامل الوظيفي الإقليمي:</b> الاستفادة من المحددات الثقافية ({c_val}%) عبر عقد شراكات تكاملية مع الدول الرائدة.</li>
-                    </ul>
-                    """
+                    specific_strategic_angle = f"تسجل دولة ({c_name}) حرجة هيكلية تستوجب تدخلاً استباقياً عاجلاً. تركز الاستراتيجية على معالجة الضعف في البنية التقنية ({t_val}%) وحماية حقوق المبدعين في مواجهة الاستلاب الخوارزمي."
+                    specific_policy_action = f"تفعيل خطط طوارئ استثمارية ومساندة فنية إقليمية لتعويض فجوات البنية التحتية ورفع كفاءة البيئة التشريعية ({r_val}%)."
 
-                # التحقق من وجود سيناريوهات سابقة في المحاكي أو لوحة القرار لتخصيص النص تماماً
+                # فحص السيناريوهات المسجلة خصيصاً لهذه الدولة في محاكي السياسات
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
-                sim_text_info = f"تم رصد ({len(matched_sims)}) محاكاة استشرافية نشطة." if matched_sims else "تعتمد قراءة المحاكاة على النموذج الافتراضي القياسي للمحاور."
-
-                if c_name in st.session_state.decision_results_dict:
-                    dec_text_info = f"التوجيه التنفيذي المعتمد: {st.session_state.decision_results_dict[c_name]['recs'][0]}"
+                if matched_sims:
+                    sim_detail = f"أظهر محاكي السياسات للسيناريو الأخير ({matched_sims[-1]}) قدرة قياسية على توليد نمو إيجابي مستهدف وتحقيق حماية هوياتية متقدمة."
                 else:
-                    dec_text_info = "يوصى بتفعيل لوحة التطعيم الثقافي ومجلس السيادة الرقمية."
+                    sim_detail = "موصى بتفعيل محاكي السياسات لاختبار مسارات التحفيز المخصصة لهذه الدولة."
+                
+                # فحص توصيات لوحة القرار المسجلة خصيصاً لهذه الدولة
+                if c_name in st.session_state.decision_results_dict:
+                    dec_item = st.session_state.decision_results_dict[c_name]
+                    dec_detail = f"تم اعتماد لوحة القرار: {dec_item['recs'][0]}"
+                else:
+                    dec_detail = "موصى باعتماد حزم التطعيم الثقافي الخاصة بلوحة القرار."
 
                 single_card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
                     <h4 style="color: {CBE_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16.5px;">
-                        📌 التشخيص المنظومي والنتائج المعمقة المستقلة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
+                        📌 التشخيص المنظومي والنتائج الاستراتيجية المستقلة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
                     </h4>
                     <p style="margin-bottom: 8px; color: #334155; font-size: 14px;"><b>التقييم التشخيصي الشامل:</b> {c_diag}</p>
                     <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid {CBE_ORANGE_MID};">
-                        <p style="margin: 0 0 6px 0; font-weight: bold; color: {CBE_NAVY}; font-size: 13.5px;">• القراءة المباشرة لمحاور الجاهزية الذكية المخصصة:</p>
-                        <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.7;">
-                            البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية (%{c_val})
-                        </p>
+                        <p style="margin: 0 0 6px 0; font-weight: bold; color: {CBE_NAVY}; font-size: 13.5px;">• زاوية التحليل الاستراتيجي المتميزة:</p>
+                        <p style="margin: 0; color: #1E293B; font-size: 13.5px; line-height: 1.7;">{specific_strategic_angle}</p>
                     </div>
-                    <div style="margin-top: 10px; margin-bottom: 8px;">
-                        <b>تحليل الأداء المعمق والمتمايز:</b>
-                        {country_specific_insights}
-                    </div>
-                    <p style="font-size: 13px; color: #475569; margin-top: 8px; margin-bottom: 0;"><b>إضاءات السياسات:</b> {sim_text_info} | {dec_text_info}</p>
+                    <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
+                        <li><b>محاور الجاهزية الذكية المرصودة:</b> البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية ({c_val}%)</li>
+                        <li><b>المسار التنفيذي الموصى به:</b> {specific_policy_action}</li>
+                        <li><b>مخرجات المحاكاة والدعم:</b> {sim_detail} | {dec_detail}</li>
+                    </ul>
                 </div>
                 """
                 cards_html_list.append(single_card_html)
@@ -1061,11 +1036,11 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام، يبرز التقرير التنفيذي المفصل والمستقل ببنود متمايزة تماماً لكل دولة مسجلة:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل والمستقل تماماً لكل دولة مسجلة بناءً على معطياتها الفعلية:
                 </p>
             """, unsafe_allow_html=True)
 
-            # عرض البطاقات المستقلة والفريدة والمزودة بمعطيات متمايزة لكل دولة
+            # عرض البطاقات المستقلة والفريدة لكل دولة بدون أي تكرار
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
