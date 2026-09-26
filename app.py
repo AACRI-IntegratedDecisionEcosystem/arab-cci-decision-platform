@@ -112,7 +112,7 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً مع هيدر بلون هادئ */
+/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً مع هيدر بلون هادئ وخالٍ من الأكواد */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
@@ -861,7 +861,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -929,7 +929,7 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # تجميع بطاقات النتائج التحليلية المعمقة والمستقلة لكل دولة بناءً على مخرجات الأقسام 1 و2 و3 (بدون ظهور أي أكواد خام)
+            # معالجة فريدة ومستقلة لكل دولة تماماً لمنع التكرار وضمان تنوع النتائج والتشخيصات المعمقة
             cards_html_list = []
             word_blocks_html = ""
 
@@ -944,22 +944,31 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                sim_detail = "لم يتم تسجيل سيناريو محاكاة استشرافي خاص بهذه الدولة حتى الآن."
-                for s_key in st.session_state.simulated_results_dict.keys():
+                # صياغة متمايزة تماماً لدولة معينة بناءً على درجتها الفردية
+                if c_score >= 80:
+                    specific_strat = f"تتمتع دولة ({c_name}) بسيادة رقمية رائدة تؤهلها لتصدير النماذج الثقافية الموطنة وقيادة التحالفات التقنية الإقليمية."
+                elif c_score >= 51:
+                    specific_strat = f"تتطلب دولة ({c_name}) تفعيل برامج ردم الفجوات الهيكلية في سلاسل القيمة الإبداعية ودعم مهارات المبدع المعزز."
+                else:
+                    specific_strat = f"تفرض دولة ({c_name}) ضرورة عاجلة لإعلان طوارئ استثمارية وتطوير البنية التشريعية لحماية الأمن الثقافي."
+
+                sim_detail = f"لم يتم تثبيت سيناريو محاكاة سابق لـ ({c_name}). يوصى باختبار مرونة السياسات عبر محاكي السياسات."
+                for s_key, s_val in st.session_state.simulated_results_dict.items():
                     if s_key.startswith(c_name):
-                        sim_detail = f"أظهرت المحاكاة الاستشرافية لـ ({s_key}) نتائج ممتازة في توجيه سعات التحفيز واستشراف صافي النمو المستقبلي للمؤشر."
+                        sim_detail = f"أثبتت محاكاة السيناريو المرصودة لـ ({c_name}) قدرة فائقة على تحقيق نمو صافٍ وإداري فعال للمؤشر."
                         break
                 
-                dec_detail = "تستوجب القراءة المنظومية متابعة حوكمة الحقوق الفكرية وتحديث تشريعات الاقتصاد البرتقالي."
+                dec_detail = f"تستوجب القراءة التنفيذية لـ ({c_name}) متابعة أطر الملكية الفكرية ودمج الأنشطة البرتقالية الناشئة."
                 if c_name in st.session_state.decision_results_dict:
-                    dec_detail = "أوصت لوحة اتخاذ القرار بتفعيل دروع 'التطعيم الثقافي' (Cultural Grafting) وإنشاء المجالس السيادية لدعم المبدع المعزز."
+                    dec_detail = f"تضمنت توصيات لوحة القرار الخاصة بـ ({c_name}) تفعيل دروع 'التطعيم الثقافي' وإنشاء المجالس العليا لدعم الكوادر."
 
                 single_card_html = f"""
-                <div style="background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
+                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
                     <h4 style="color: {CBE_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16px;">
                         📌 التشخيص المنظومي والنتائج المعمقة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
                     </h4>
                     <p style="margin-bottom: 8px; color: #334155; font-size: 14px;"><b>التقييم التشخيصي الشامل:</b> {c_diag}</p>
+                    <p style="margin-bottom: 8px; color: {CBE_ORANGE_DARK}; font-size: 13.5px;"><b>💡 الرؤية الاستراتيجية المخصصة:</b> {specific_strat}</p>
                     <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid {CBE_ORANGE_MID};">
                         <p style="margin: 0 0 6px 0; font-weight: bold; color: {CBE_NAVY}; font-size: 13.5px;">• القراءة المباشرة لمحاور الجاهزية الذكية:</p>
                         <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.7;">
@@ -1009,11 +1018,11 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة بصورة مستقلة وغير مكررة:
                 </p>
             """, unsafe_allow_html=True)
 
-            # عرض البطاقات المستقلة والمعمقة لكل دولة بشكل منظم وآمن
+            # عرض البطاقات المستقلة تماماً لكل دولة
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
