@@ -44,13 +44,8 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص القوائم المنسدلة (Selectbox) لتكون باتجاه اليمين وتنسيق متناسق */
-div[data-baseweb="select"] {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-
-div[data-baseweb="select"] * {{
+/* محاذاة القوائم المنسدلة (Selectbox) لليمين في كافة الأقسام */
+div[data-baseweb="select"], div[data-baseweb="select"] * {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -274,7 +269,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي والحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
@@ -420,7 +415,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # الترتيب الجديد للأعمدة ليبدأ العمود الأول من اليمين بـ (م، الدولة، ثم باقي المؤشرات)
+        # التأكد التام من ترتيب الأعمدة من اليمين (م, الدولة, المؤشر المركب, وباقي المحاور تباعاً)
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -528,7 +523,7 @@ with tab2:
         sim_word_html += f"""
             <hr>
             <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-            <p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار بناءً على تفاعل البيانات الوطنية والقطاعية.</p>
+            <p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار.</p>
             <hr>
             <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
             <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
@@ -642,6 +637,7 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -793,6 +789,7 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -819,6 +816,14 @@ with tab4:
             top_score = top_row["المؤشر المركب (AACRI)"]
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
+
+            # توليد ملخص تحليلي متمايز ومخصص مبني على الدول المسجلة فعلياً
+            dynamic_summary_bullets = ""
+            for idx, row in df_rep.iterrows():
+                c_name = row['الدولة']
+                c_score = row['المؤشر المركب (AACRI)']
+                c_diag = row['التقييم المنظومي']
+                dynamic_summary_bullets += f"<li><b>دولة {c_name} (المؤشر المركب: {c_score}%):</b> {c_diag} استناداً إلى تحليل المحاور الخمسة وسلاسل القيمة البرتقالية.</li>"
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -850,27 +855,15 @@ with tab4:
                 """
                 st.markdown(summary_card, unsafe_allow_html=True)
 
-            # تجميع ديناميكي للنتائج التحليلية بناءً على الدول المسجلة فعلياً لضمان التمايز وغياب الأكواد
-            dynamic_summary_blocks = ""
-            for idx, row in df_rep.iterrows():
-                c_name = row['الدولة']
-                c_score = row['المؤشر المركب (AACRI)']
-                dynamic_summary_blocks += f"""
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 10px;">
-                    • <b>{c_name} (المؤشر: {c_score}%):</b> أظهرت قراءات التحليل المنظومي تفاعلاً واضحاً بين محاور البنية التقنية والمحددات الثقافية، حيث تتطلب الدولة برامج مستهدفة لتعزيز ركائز 'المبدع المعزز' وترسيخ أطر الأمان الرقمي وحماية المصنفات الإبداعية من التحديات الخوارزمية المعاصرة.
-                </p>
-                """
-
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا التقرير تجميعاً تحليلياً متكاملاً ومخصصاً لمخرجات أقسام المنصة استناداً إلى استجابات الدول المختارة:
+                  يقدم هذا القسم قراءة تحليلية مفصلة ومستندة مباشرة إلى الدول المسجلة في المنصة، عاكساً رؤية استشرافية لدعم سياسات الصناعات الثقافية والإبداعية العربية:
                 </p>
-                {dynamic_summary_blocks}
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-top: 12px; margin-bottom: 0;">
-                  <b>الخلاصة الإستراتيجية الكلية:</b> يؤكد التلاحم بين مخرجات التشخيص والمحاكي ولوحة القرار أن بناء اقتصاد برتقالي مستدام يرتكز أساساً على ردم الفجوات الهيكلية عبر أدوات التفكير المنظومي.
-                </p>
+                <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.9;">
+                  {dynamic_summary_bullets}
+                </ul>
             </div>
             """, unsafe_allow_html=True)
 
@@ -895,7 +888,7 @@ with tab4:
                 <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
                 <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)</p>
                 <hr>
-                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية:</h3>
+                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h3>
                 <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
                 <p>إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
@@ -911,8 +904,10 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-                <p>يقدم هذا التقرير تجميعاً تحليلياً متكاملاً ومخصصاً لمخرجات أقسام المنصة استناداً إلى استجابات الدول المختارة لتعزيز سياسات الاقتصاد البرتقالي والسيادة الرقمية.</p>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h3>
+                <ul>
+                    {dynamic_summary_bullets}
+                </ul>
                 <hr>
                 <h3>🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
                 <ul>
@@ -938,4 +933,5 @@ with tab4:
             )
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
