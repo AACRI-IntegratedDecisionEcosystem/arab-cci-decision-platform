@@ -43,6 +43,12 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
+/* ضمان محاذاة القوائم المنسدلة وخياراتها نحو اليمين تماماً */
+div[data-baseweb="select"] > div, div[role="listbox"] div {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+
 /* تخصيص التبويبات (Tabs) بألوان قاتمة وعند التحديد أو المرور تصبح برتقالية */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 8px;
@@ -268,7 +274,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -407,7 +413,23 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
-        st.dataframe(df_history, use_container_width=True, hide_index=True)
+        
+        # ترتيب أعمدة الجدول وعكسها لتتطابق مع الاتجاه العربي (من اليمين لليسار) وتقليل العرض لضمان السلاسة وعدم التداخل
+        arabic_ordered_columns = [
+            "التقييم المنظومي",
+            "المحددات الثقافية والهوياتية (15%)",
+            "البيئة التنظيمية والتشريعية (20%)",
+            "رأس المال البشري (30%)",
+            "الديناميكيات الاقتصادية (15%)",
+            "البنية التقنية (20%)",
+            "المؤشر المركب (AACRI)",
+            "الدولة",
+            "م"
+        ]
+        existing_cols = [col for col in arabic_ordered_columns if col in df_history.columns]
+        df_history_rtl = df_history[existing_cols]
+
+        st.dataframe(df_history_rtl, use_container_width=False, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
