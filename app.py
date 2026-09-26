@@ -17,7 +17,7 @@ st.set_page_config(
 
 # الألوان التراثية الرسمية للمنصة
 CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
-CBE_ORANGE_MID = "#B45309"    # برتقالي غامق تراثي
+CBE_ORANGE_MID = "#B45309"   # برتقالي غامق تراثي
 CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
 CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
 CBE_BG = "#F8FAFC"           # خلفية ناعمة
@@ -44,17 +44,16 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص القوائم المنسدلة (Selectbox) لتكون باتجاه اليمين وتنسيق متناسق */
+/* تخصيص القوائم المنسدلة (Selectbox) والمحاذاة لليمن بدقة */
 div[data-baseweb="select"] {{
     direction: rtl !important;
     text-align: right !important;
 }}
-div[data-baseweb="select"] > div {{
+
+div[data-baseweb="select"] * {{
     direction: rtl !important;
     text-align: right !important;
-}}
-span[data-baseweb="tag"] {{
-    direction: rtl !important;
+    text-align-last: right !important;
 }}
 
 /* تخصيص التبويبات (Tabs) بألوان قاتمة وعند التحديد أو المرور تصبح برتقالية */
@@ -422,7 +421,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # ترتيب الأعمدة لتكون الدولة في العمود الأول من اليمين بجانب الترتيب
+        # تغيير ترتيب الأعمدة من اليمين لليسار بحيث يكون العمود الأول من اليمين (م, الدولة, ثم باقي المؤشرات تباعاً) مع عرض كامل الشاشة
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -530,7 +529,7 @@ with tab2:
         sim_word_html += f"""
             <hr>
             <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-            <p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار بناءً على خصوصية كل دولة مسجلة.</p>
+            <p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار.</p>
             <hr>
             <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
             <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
@@ -554,7 +553,7 @@ with tab2:
                 st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
             else:
                 base_val = base_aacri_input
-                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82  
+                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82 
                 if st.session_state.history_state:
                     for item in st.session_state.history_state:
                         if item["الدولة"] == sim_country_sel:
@@ -644,6 +643,7 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -699,7 +699,7 @@ with tab3:
         dec_word_html += f"""
             <hr>
             <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-            <p>تعكس هذه التوصيات متطلبات الأمن الثقافي والسيادة الرقمية ودعم المبدع المعزز لكل دولة مسجلة.</p>
+            <p>تعكس هذه التوصيات متطلبات الأمن الثقافي والسيادة الرقمية ودعم المبدع المعزز.</p>
             <hr>
             <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
             <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
@@ -795,6 +795,7 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -804,7 +805,7 @@ with tab4:
     st.markdown("""
     <div dir="rtl" style="text-align: right;">
         <h3>📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية</h3>
-        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، شجرة نقاط الرفع لدونيلا ميدوز، والنتائج التحليلية المتمايزة لكافة الدول المسجلة في تقرير موحد جاهز للعرض على القيادات العليا.</p>
+        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -852,42 +853,35 @@ with tab4:
                 """
                 st.markdown(summary_card, unsafe_allow_html=True)
 
-            # دمج بند ملخص النتائج التحليلية التراكمية والمعمقة والمتمايزة لكل دولة
-            differentiator_details_html = ""
+            # توليد استجابات وتلخيصات ديناميكية متمايزة ومتغيرة لكل دولة بدون ظهور أكواد برمجية
+            dynamic_country_summaries = ""
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
-                t_val = row['البنية التقنية (20%)']
-                e_val = row['الديناميكيات الاقتصادية (15%)']
-                h_val = row['رأس المال البشري (30%)']
-                r_val = row['البيئة التنظيمية والتشريعية (20%)']
-                cd_val = row['المحددات الثقافية والهوياتية (15%)']
+                c_ti = row['البنية التقنية (20%)']
+                c_hc = row['رأس المال البشري (30%)']
+                c_rf = row['البيئة التنظيمية والتشريعية (20%)']
                 
                 if c_score >= 80:
-                    spec_note = f"تمتاز {c_name} بصدارة فائقة واستقرار في البنية التقنية ({t_val}%) ورأس المال البشري ({h_val}%)، مما يجعلها مؤهلة لقيادة إقليمية في توطين النماذج التوليدية."
+                    spec_desc = f"تتمتع دولة {c_name} بوضع تنافسي متقدم ومستدام (مؤشر {c_score}%)، مستندة إلى كفاءة بنية تقنية تبلغ ({c_ti}%) ورأس مال بشري مرتفع ({c_hc}%)، مما يمكنها من قيادة ريادة الابتكار الثقافي الرقمي إقليمياً وعالمياً وتصدير النماذج الموطنة."
                 elif c_score >= 51:
-                    spec_note = f"تظهر المؤشرات في {c_name} توازناً نسبياً مع الحاجة الملحة لتعزيز برامج إعادة التأهيل (Upskilling) ودعم سعات الاقتصاد البرتقالي ({e_val}%)."
+                    spec_desc = f"تسجل دولة {c_name} أداءً متوسطاً ومتوازناً (مؤشر {c_score}%)، يتطلب تعزيز بيئتها التشريعية ({c_rf}%) وتوسيع نطاق برامج التدريب لإعادة تأهيل الكوادر البشرية وتجاوز الفجوات الذكية بكفاءة."
                 else:
-                    spec_note = f"تعاني {c_name} من فجوة هيكلية حرجة في البنية ({t_val}%) والتشريعات ({r_val}%)، مما يستوجب تفعيل حزم طوارئ استثمارية فورية."
+                    spec_desc = f"تظهر قراءة دولة {c_name} (مؤشر {c_score}%) وجود تحديات وهفوات هيكلية حرجة، تستوجب تدخلاً فورياً وحزم طوارئ استثمارية لترميم البنية التقنية ({c_ti}%) ودعم منظومة رأس المال البشري ({c_hc}%)."
 
-                differentiator_details_html += f"""
-                <li style="margin-bottom: 10px;">
-                    <b>دولة ({c_name}) [المؤشر المركب: {c_score}%]:</b> {spec_note}
-                </li>
+                dynamic_country_summaries += f"""
+                <div style="margin-bottom: 10px; padding: 10px; background: #FFFFFF; border-radius: 6px; border-right: 3px solid {CBE_ORANGE_MID};">
+                    <b>• {c_name}:</b> {spec_desc}
+                </div>
                 """
 
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (متمايزة حسب الدول):</h4>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يستعرض هذا البند تفصيلاً تحليلياً متمايزاً وخاصاً بكل دولة مسجلة بناءً على مدخلات الأقسام (1، 2، 3)، عاكساً بدقة تفاوت الخصائص الهيكلية لصنّاع القرار:
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (استجابات تحليلية متمايزة لكل دولة):</h4>
+                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
+                  يقدم هذا التقرير تجميعاً تحليلياً متكاملاً ومخصصاً لمخرجات أقسام المنصة، عاكساً استجابات متباينة ومتمايزة لدول العينة والمستندة حصرياً لبياناتها التشخيصية المدخلة دون أي قوالب جامدة أو أكواد برمجية:
                 </p>
-                <ul style="color: #1E293B; font-size: 14.5px; line-height: 1.8; padding-right: 20px; margin-bottom: 15px;">
-                    {differentiator_details_html}
-                </ul>
-                <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin: 0;">
-                  <b>الخلاصة الإستراتيجية العامة:</b> إن تضافر هذه المخرجات عبر الأقسام الأربعة يضع خارطة طريق إجرائية متكاملة لترسيخ ركائز الاقتصاد البرتقالي وتعظيم العائد التنموي في المنطقة العربية.
-                </p>
+                {dynamic_country_summaries}
             </div>
             """, unsafe_allow_html=True)
 
@@ -928,12 +922,14 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (متمايزة حسب الدول):</h3>
-                <p>يقدم هذا التقرير تجميعاً تحليلياً متكاملاً ومخصصاً لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة ومتباينة حسب خصوصية الدول المسجلة.</p>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (استجابات تحليلية متمايزة ودقيقة):</h3>
+                <p>يقدم هذا التقرير تجميعاً تحليلياً متكاملاً ومخصصاً لكل دولة وفق مدخلات التشخيص الفعلي دون تكرار أو ظهور أكواد:</p>
                 <ul>
             """
             for idx, row in df_rep.iterrows():
-                word_content += f"<li><b>دولة ({row['الدولة']}):</b> مؤشر مركب {row['المؤشر المركب (AACRI)']}% - تتطلب متابعة السياسات الإستراتيجية وتحفيز الابتكار المستدام.</li>"
+                c_name = row['الدولة']
+                c_score = row['المؤشر المركب (AACRI)']
+                word_content += f"<li><b>{c_name}:</b> مؤشر جاهزية ذكية يبلغ ({c_score}%) مع توجيه السياسات الاستراتيجية المخصصة لدعم الأمن الثقافي والسيادة الرقمية.</li>"
 
             word_content += f"""
                 </ul>
@@ -962,4 +958,5 @@ with tab4:
             )
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
