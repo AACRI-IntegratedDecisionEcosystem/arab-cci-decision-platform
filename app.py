@@ -54,9 +54,7 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* -------------------------------------------------------------------------- */
 /* الحل الجذري والنهائي لتمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي */
-/* -------------------------------------------------------------------------- */
 div.stTabs {{
     width: 100% !important;
     max-width: 100% !important;
@@ -449,7 +447,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # الترتيب المطلوب: (م) أول عمود من اليمين، ثم (الدولة)، ثم باقي الأعمدة والمؤشرات تباعاً
+        # الترتيب المطلوب: العمود الأول من اليمين هو (م)، ثم (الدولة)، ثم باقي المؤشرات تباعاً
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -851,7 +849,7 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # توليد استجابات متمايزة وعميقة ومخصصة لكل دولة بناءً على الأقسام 1 و 2 و 3
+            # توليد استجابات متمايزة وعميقة لكل دولة مدخلة بناءً على الأقسام 1 و 2 و 3 بدون أكواد
             dynamic_summary_bullets = ""
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
@@ -867,19 +865,17 @@ with tab4:
                 sim_notes = ""
                 for s_key, s_val in st.session_state.simulated_results_dict.items():
                     if s_key.startswith(c_name):
-                        sim_notes = f" | <b>محاكي السياسات:</b> تم اختبار السيناريو الاستراتيجي الخاص بها."
+                        sim_notes = f" وفي ضوء اختبار السيناريوهات الاستشرافية للمحاكي، تم رصد آفاق إيجابية للتدخلات التنموية."
                         break
                 
                 dec_notes = ""
                 if c_name in st.session_state.decision_results_dict:
-                    dec_notes = f" | <b>لوحة القرار:</b> تمت مراجعة حوكمة السيادة الرقمية والتطعيم الثقافي."
+                    dec_notes = f" كما أظهرت لوحة القرار ضرورة تفعيل آليات التطعيم الثقافي لتعزيز السيادة الرقمية."
 
                 dynamic_summary_bullets += f"""
-                <li style="margin-bottom: 12px;">
-                    <b>دولة {c_name} (المؤشر المركب: {c_score}%):</b> {c_diag}<br>
-                    <span style="font-size: 13.5px; color: #334155;">
-                        <b>• التشخيص التفصيلي لمحاور القوة والفجوات:</b> البنية التقنية ({t_val}%)، رأس المال البشري ({h_val}%)، البيئة التشريعية ({r_val}%)، الاقتصاد البرتقالي ({e_val}%)، والمحددات الهوياتية ({c_val}%). {sim_notes} {dec_notes}
-                    </span>
+                <li style="margin-bottom: 12px; line-height: 1.8;">
+                    <b>دولة {c_name} (المؤشر المركب: {c_score}%):</b> {c_diag} 
+                    ويعكس تفصيل المحاور المسجلة مستويات أداء بالبنية التقنية ({t_val}%)، رأس المال البشري ({h_val}%)، البيئة التنظيمية ({r_val}%)، الاقتصاد البرتقالي ({e_val}%)، والمحددات الهوياتية ({c_val}%).{sim_notes}{dec_notes}
                 </li>
                 """
 
@@ -915,9 +911,9 @@ with tab4:
 
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على تحليل مخرجات الأقسام 1، 2، و3 للدول المختارة):</h4>
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا القسم قراءة تحليلية مفصلة ومستندة مباشرة إلى التقاطعات القياسية لمحاور الجاهزية والسيناريوهات ولوحة اتخاذ القرار لكل دولة مسجلة:
+                  استناداً إلى التحليلات المجمعة واستجابات الدول عبر الأقسام (1 التشخيص، 2 المحاكي، و3 لوحة القرار)، يبرز الملخص التنفيذي العميق التالي:
                 </p>
                 <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.9;">
                   {dynamic_summary_bullets}
@@ -946,7 +942,7 @@ with tab4:
                 <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
                 <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)</p>
                 <hr>
-                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h3>
+                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية:</h3>
                 <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
                 <p>إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
@@ -962,7 +958,7 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على تحليل مخرجات الأقسام 1، 2، و3 للدول المختارة):</h3>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
                 <ul>
                     {dynamic_summary_bullets}
                 </ul>
@@ -991,5 +987,4 @@ with tab4:
             )
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
