@@ -54,34 +54,49 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* تخصيص التبويبات (Tabs) بألوان قاتمة وعند التحديد أو المرور تصبح برتقالية */
+/* تخصيص حاوية التبويبات (Tabs) الرئيسية لتكون بعرض الشاشة وخلفية متدرجة */
+.stTabs {{
+    width: 100% !important;
+    direction: rtl !important;
+}}
+
 .stTabs [data-baseweb="tab-list"] {{
-    gap: 8px;
-    background-color: {CBE_NAVY};
-    padding: 10px;
-    border-radius: 12px;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_MID} 100%) !important;
+    padding: 14px 18px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
     direction: rtl !important;
 }}
 
 .stTabs [data-baseweb="tab"] {{
-    background-color: {CBE_ORANGE_DARK} !important;
+    flex: 1 !important;
+    background-color: rgba(120, 53, 15, 0.65) !important;
     color: #FFFFFF !important;
-    border-radius: 8px !important;
-    padding: 10px 20px !important;
+    border-radius: 10px !important;
+    padding: 12px 15px !important;
     font-weight: 700 !important;
+    font-size: 15px !important;
     font-family: 'Cairo', sans-serif !important;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
 }}
 
 .stTabs [data-baseweb="tab"]:hover {{
-    background-color: {CBE_ORANGE_MID} !important;
+    background-color: {CBE_ORANGE_LIGHT} !important;
     color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4) !important;
 }}
 
 .stTabs [aria-selected="true"] {{
-    background-color: {CBE_ORANGE_MID} !important;
-    color: #FBBF24 !important;
+    background-color: {CBE_ORANGE_LIGHT} !important;
+    color: #FEF3C7 !important;
     border: 2px solid #FBBF24 !important;
+    box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4) !important;
 }}
 
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
@@ -312,7 +327,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى 4 تبويبات (Tabs)
+# التقسيم الرئيسي إلى 4 تبويبات (Tabs) بعرض الشاشة
 # ==============================================================================
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 تشخيص مؤشر الجاهزية (AACRI)", 
@@ -419,7 +434,6 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # ترتيب الأعمدة من اليمين لليسار وتصغير وتنسيق الجدول ليكون بعرض الشاشة
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -753,7 +767,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -821,7 +835,6 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # توليد ملخص تحليلي متمايز ومخصص مبني على الدول المسجلة فعلياً
             dynamic_summary_bullets = ""
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
