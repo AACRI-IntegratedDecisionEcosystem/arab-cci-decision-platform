@@ -1,4 +1,5 @@
 import random
+import io
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -73,12 +74,6 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     border: 2px solid #FBBF24 !important;
 }}
 
-/* محاذاة القوائم المنسدلة والعناصر لاتجاه اليمين بدقة */
-div[data-baseweb="select"] > div {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
@@ -150,20 +145,6 @@ div[data-baseweb="select"] > div {{
 @keyframes marquee-infinite {{
     0% {{ transform: translate(-100%, 0); }}
     100% {{ transform: translate(100%, 0); }}
-}}
-
-.warning-footer {{
-    background-color: #FEF3C7;
-    border: 1px solid #F59E0B;
-    color: #92400E;
-    padding: 12px 18px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 14px;
-    text-align: right;
-    margin-top: 20px;
-    margin-bottom: 15px;
-    direction: rtl !important;
 }}
 
 .footer-copyright {{
@@ -469,7 +450,6 @@ with tab1:
         )
         st.plotly_chart(fig_bar, use_container_width=True)
 
-    st.markdown('<div class="warning-footer">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية قبل اعتماد المخرجات التنفيذية.</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -509,6 +489,46 @@ with tab2:
             st.session_state.simulated_results_dict = {}
             st.success("✅ تم مسح جميع سيناريوهات المحاكي بنجاح.")
             st.rerun()
+
+        # زر تحميل تقرير محاكي السياسات في ملف Word متضمن كافة البيانات المطلوبة
+        sim_word_html = f"""
+        <html dir="rtl">
+        <head><meta charset="utf-8"><title>تقرير محاكي السياسات</title></head>
+        <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+            <h1 style="color: #0A192F; text-align: center;">تقرير محاكي السياسات الاستشرافي والمتابعة التراكمية</h1>
+            <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
+            <hr>
+            <h3>📋 مقارنة السيناريوهات المثبتة للدول (المختارة):</h3>
+        """
+        if st.session_state.simulated_results_dict:
+            for k, v in st.session_state.simulated_results_dict.items():
+                sim_word_html += f"""
+                <div style="border: 1px solid #CBD5E1; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                    <h4>السيناريو: {k}</h4>
+                    <div>{v['html']}</div>
+                    <div style="margin-top: 10px;">{v['deep']}</div>
+                </div>
+                """
+        else:
+            sim_word_html += "<p>لا توجد سيناريوهات مسجلة حالياً.</p>"
+            
+        sim_word_html += f"""
+            <hr>
+            <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
+            <p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار.</p>
+            <hr>
+            <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+            <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+        </body>
+        </html>
+        """
+        st.download_button(
+            label="📥 تحميل تقرير محاكي السياسات (Word)",
+            data=sim_word_html.encode("utf-8-sig"),
+            file_name="تقرير_محاكي_السياسات.doc",
+            mime="application/msword",
+            use_container_width=True
+        )
             
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -608,7 +628,8 @@ with tab2:
             st.info("📈 قم بضبط الدولة والسيناريو ومتغيرات التحفيز واضغط على زر الإضافة لتثبيت ومتابعة السيناريوهات هنا بغرض المقارنة.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="warning-footer">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية قبل اعتماد المخرجات التنفيذية.</div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -634,6 +655,51 @@ with tab3:
             st.session_state.decision_results_dict = {}
             st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
             st.rerun()
+
+        # زر تحميل تقرير لوحة دعم القرار في ملف Word متضمن كافة التفاصيل المطلوبة
+        dec_word_html = f"""
+        <html dir="rtl">
+        <head><meta charset="utf-8"><title>تقرير لوحة دعم القرار</title></head>
+        <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+            <h1 style="color: #0A192F; text-align: center;">تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي</h1>
+            <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
+            <hr>
+            <h3>🛡️ تقرير وتوصيات الدول المسجلة:</h3>
+        """
+        if st.session_state.decision_results_dict:
+            for k, v in st.session_state.decision_results_dict.items():
+                dec_word_html += f"""
+                <div style="border: 1px solid #CBD5E1; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                    <h3>تقرير وتوصيات دولة: {v['country']} (المؤشر المركب: {v['score_str']})</h3>
+                    <p><b>🎯 التوصيات الاستراتيجية الموجهة:</b></p>
+                    <ul>
+                        <li>{v['recs'][0]}</li>
+                        <li>{v['recs'][1]}</li>
+                    </ul>
+                    <p><b>💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</b></p>
+                    <div>{v['deep']}</div>
+                </div>
+                """
+        else:
+            dec_word_html += "<p>لا توجد توصيات مسجلة حالياً.</p>"
+            
+        dec_word_html += f"""
+            <hr>
+            <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
+            <p>تعكس هذه التوصيات متطلبات الأمن الثقافي والسيادة الرقمية ودعم المبدع المعزز.</p>
+            <hr>
+            <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+            <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+        </body>
+        </html>
+        """
+        st.download_button(
+            label="📥 تحميل تقرير لوحة دعم القرار (Word)",
+            data=dec_word_html.encode("utf-8-sig"),
+            file_name="تقرير_لوحة_دعم_القرار.doc",
+            mime="application/msword",
+            use_container_width=True
+        )
             
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -715,7 +781,8 @@ with tab3:
             st.info("🛡️ يرجى اختيار الدولة المسجلة والضغط على زر الإضافة لتثبيت التوصيات هنا.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="warning-footer">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية قبل اعتماد المخرجات التنفيذية.</div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -808,5 +875,56 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown('<div class="warning-footer">⚠️ تنبيه هامة: يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية قبل اعتماد المخرجات التنفيذية.</div>', unsafe_allow_html=True)
+            # إعداد وتجهيز ملف Word متضمن كافة بيانات التقرير التنفيذي الموحد المطلوبة بدقة
+            word_content = f"""
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
+            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+                <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
+                <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)</p>
+                <hr>
+                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h3>
+                <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
+                <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
+                <p>إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
+                <hr>
+                <h3>📋 ترتيب الملخص التراكمي للدول:</h3>
+                <ul>
+            """
+            for idx, row in df_rep.iterrows():
+                s = row['المؤشر المركب (AACRI)']
+                s_str = get_colored_score_html(s)
+                word_content += f"<li><b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {s_str} | البنية التقنية: {row['البنية التقنية (20%)']}% | رأس المال البشري: {row['رأس المال البشري (30%)']}%</li>"
+            
+            word_content += f"""
+                </ul>
+                <hr>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
+                <p>يقدم هذا التقرير تجميعاً تحليلياً متكاملاً لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي.</p>
+                <hr>
+                <h3>🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
+                <ul>
+                    <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب وإعادة التأهيل.</li>
+                    <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية ومؤشرات قياس آنية.</li>
+                    <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة ومعايير الوسم المائي لحماية الحقوق.</li>
+                    <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي القومي.</li>
+                    <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة أساسية للتنمية المستدامة في عصر الذكاء الاصطناعي.</li>
+                </ul>
+                <hr>
+                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+            </body>
+            </html>
+            """
+            
+            st.download_button(
+                label="📥 تحميل التقرير التنفيذي في ملف مستند (Word)",
+                data=word_content.encode("utf-8-sig"),
+                file_name="التقرير_التنفيذي_للسياسات_الثقافية.doc",
+                mime="application/msword",
+                use_container_width=True
+            )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
