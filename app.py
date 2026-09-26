@@ -44,7 +44,6 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* فرض محاذاة اليمين على كافة عناصر القوائم المنسدلة والقوائم المنبثقة */
 div[data-baseweb="select"] *, 
 div[data-baseweb="popover"] *, 
 ul[data-baseweb="menu"] *, 
@@ -54,7 +53,6 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* تمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي وتنسيق الألوان */
 div.stTabs {{
     width: 100% !important;
     max-width: 100% !important;
@@ -112,7 +110,6 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً مع هيدر بلون هادئ */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
@@ -156,7 +153,6 @@ div.stTabs {{
     background-color: #FEF3C7 !important;
 }}
 
-/* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
     border-radius: 50px !important;
@@ -195,7 +191,6 @@ div.stTabs {{
     margin-bottom: 0px !important;
 }}
 
-/* شريط الأخبار المتحرك */
 .ticker-wrap {{
     width: 100%;
     background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%);
@@ -351,7 +346,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -734,7 +729,14 @@ with tab2:
                 </div>
                 """
                 sim_key = f"{sim_country_sel} - {scenario_dropdown}"
-                st.session_state.simulated_results_dict[sim_key] = {"html": box_html, "deep": deep_analysis}
+                st.session_state.simulated_results_dict[sim_key] = {
+                    "country": sim_country_sel,
+                    "scenario": scenario_dropdown,
+                    "simulated_val": simulated_val,
+                    "delta": delta,
+                    "html": box_html, 
+                    "deep": deep_analysis
+                }
 
         if st.session_state.simulated_results_dict:
             st.markdown("---")
@@ -860,7 +862,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -904,7 +906,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد
+# التبويب الرابع: التقرير التنفيذي الموحد (معالجة عدم التكرار والتخصيص المستقل لكل دولة)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -942,17 +944,20 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # جلب محاكاة السياسات المرتبطة بهذه الدولة تحديداً لمنع التكرار
-                sim_detail = "لم يتم تسجيل سيناريو محاكاة استشرافي خاص بهذه الدولة حتى الآن."
+                # جلب مخرجات محاكي السياسات الخاص بهذه الدولة حصراً ودون تكرار
+                sim_detail = f"لم يتم رصد سيناريو محاكاة استشرافي مفعل لدولة ({c_name}) في التبويب الثاني حتى الآن؛ ويُوصى باختبار سيناريو استراتيجي لها."
                 for s_key, s_val in st.session_state.simulated_results_dict.items():
-                    if s_key.startswith(c_name):
-                        sim_detail = f"أظهرت المحاكاة الاستشرافية ({s_key}) نجاحاً في اختبار مرونة السياسات ورفع القيمة المتوقعة للمؤشر."
+                    if s_val.get("country") == c_name:
+                        sim_detail = f"أظهرت المحاكاة للسيناريو ({s_val.get('scenario')}) استهداف قيمة متوقعة للمؤشر بلغت ({s_val.get('simulated_val')}%) بصافي تغير ({s_val.get('delta'):+.2f}) مع توجيه حزم استثمارية دقيقة لمعالجة فجوات المحاور."
                         break
                 
-                # جلب توصيات لوحة القرار المرتبطة بهذه الدولة تحديداً
-                dec_detail = "تستوجب القراءة المنظومية متابعة حوكمة الحقوق الرقمية وتحديث تشريعات الاقتصاد البرتقالي."
+                # جلب مخرجات لوحة دعم اتخاذ القرار الخاصة بهذه الدولة حصراً ودون تكرار
+                dec_detail = f"تتطلب القراءة القياسية لدولة ({c_name}) تفعيل التوصيات الاستراتيجية المباشرة عبر لوحة القرار (التبويب الثالث) لحماية حقوق المبدعين."
                 if c_name in st.session_state.decision_results_dict:
-                    dec_detail = f"أوصت لوحة القرار الخاصة بدولة {c_name} بتفعيل دروع 'التطعيم الثقافي' وإنشاء المجالس السيادية لدعم 'المبدع المعزز'."
+                    d_item = st.session_state.decision_results_dict[c_name]
+                    rec_text_1 = d_item['recs'][0].replace('<b>', '').replace('</b>', '')
+                    rec_text_2 = d_item['recs'][1].replace('<b>', '').replace('</b>', '')
+                    dec_detail = f"التوصيات المعتمدة للوحة القرار: • {rec_text_1} • {rec_text_2}"
 
                 single_card_html = f"""
                 <div style="background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
@@ -1009,11 +1014,10 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل والمستقل لكل دولة مسجلة:
                 </p>
             """, unsafe_allow_html=True)
 
-            # عرض البطاقات المستقلة والمعمقة لكل دولة بشكل منظم وآمن
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
