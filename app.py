@@ -1,5 +1,4 @@
 import random
-import io
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -40,12 +39,6 @@ html, body, [class*="css"] {{
 }}
 
 div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.stTable {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-
-/* محاذاة القوائم المنسدلة والعناصر لليمين */
-div[data-baseweb="select"] > div {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -275,7 +268,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -414,24 +407,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
-        
-        # إعادة ترتيب أعمدة الجدول وعكسها لتتوافق تماماً مع الاتجاه العربي (من اليمين لليسار) وحفظ مساحة العرض
-        arabic_ordered_columns = [
-            "التقييم المنظومي",
-            "المحددات الثقافية والهوياتية (15%)",
-            "البيئة التنظيمية والتشريعية (20%)",
-            "رأس المال البشري (30%)",
-            "الديناميكيات الاقتصادية (15%)",
-            "البنية التقنية (20%)",
-            "المؤشر المركب (AACRI)",
-            "الدولة",
-            "م"
-        ]
-        # التأكد من وجود الأعمدة بالكامل
-        available_cols = [col for col in arabic_ordered_columns if col in df_history.columns]
-        df_history_rtl = df_history[available_cols]
-
-        st.dataframe(df_history_rtl, use_container_width=True, hide_index=True)
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -512,37 +488,6 @@ with tab2:
             st.session_state.simulated_results_dict = {}
             st.success("✅ تم مسح جميع سيناريوهات المحاكي بنجاح.")
             st.rerun()
-
-        # زر تحميل تقرير محاكي السياسات في ملف Word
-        sim_word_html = f"""
-        <html dir="rtl">
-        <head><meta charset="utf-8"><title>تقرير محاكي السياسات والاستشراف</title></head>
-        <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right; line-height: 1.8;">
-            <h1 style="color: #0A192F; text-align: center;">تقرير محاكي السياسات الاستشرافي</h1>
-            <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
-            <hr>
-            <h3>سجلات ومقارنات السيناريوهات المثبتة:</h3>
-        """
-        if st.session_state.simulated_results_dict:
-            for k, v in st.session_state.simulated_results_dict.items():
-                sim_word_html += f"<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'><h4>{k}</h4>{v['deep']}</div>"
-        else:
-            sim_word_html += "<p>لا توجد سيناريوهات مسجلة حالياً في المحاكي.</p>"
-            
-        sim_word_html += f"""
-            <hr>
-            <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
-            <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
-        </body>
-        </html>
-        """
-        st.download_button(
-            label="📥 تحميل تقرير محاكي السياسات (Word)",
-            data=sim_word_html.encode("utf-8-sig"),
-            file_name="تقرير_محاكي_السياسات.doc",
-            mime="application/msword",
-            use_container_width=True
-        )
             
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -669,37 +614,6 @@ with tab3:
             st.session_state.decision_results_dict = {}
             st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
             st.rerun()
-
-        # زر تحميل تقرير لوحة دعم القرار في ملف Word
-        dec_word_html = f"""
-        <html dir="rtl">
-        <head><meta charset="utf-8"><title>تقرير لوحة دعم القرار</title></head>
-        <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right; line-height: 1.8;">
-            <h1 style="color: #0A192F; text-align: center;">تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي</h1>
-            <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
-            <hr>
-            <h3>التوصيات الاستراتيجية المثبتة:</h3>
-        """
-        if st.session_state.decision_results_dict:
-            for k, v in st.session_state.decision_results_dict.items():
-                dec_word_html += f"<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'><h3>دولة: {k} (المؤشر المركب: {v['score_str']})</h3><ul><li>{v['recs'][0]}</li><li>{v['recs'][1]}</li></ul>{v['deep']}</div>"
-        else:
-            dec_word_html += "<p>لا توجد توصيات مسجلة حالياً في لوحة القرار.</p>"
-            
-        dec_word_html += f"""
-            <hr>
-            <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
-            <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
-        </body>
-        </html>
-        """
-        st.download_button(
-            label="📥 تحميل تقرير لوحة دعم القرار (Word)",
-            data=dec_word_html.encode("utf-8-sig"),
-            file_name="تقرير_لوحة_دعم_القرار.doc",
-            mime="application/msword",
-            use_container_width=True
-        )
             
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -810,14 +724,6 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
-            # تخصيص وتضمين النتائج التحليلية المتعمقة والمترابطة بناءً على الدولة المتصدرة ومستواها
-            if top_score >= 80:
-                dynamic_analysis_details = f"تؤكد قراءة أداء ({top_country}) تفوقاً ريادياً مستداماً في البنية التقنية والكوادر المؤهلة، مما يتيح قيادة التحالفات الإقليمية وتوطين النماذج اللغوية الثقافية بكفاءة عالية بما يضمن صون الأمن الرقمي والثقافي."
-            elif top_score >= 51:
-                dynamic_analysis_details = f"تعكس قراءة أداء ({top_country}) توازناً استراتيجياً يواجه بعض الاختناقات الهيكلية في سلاسل القيمة، مما يستوجب حزم تحفيزية وبرامج إعادة تأهيل مستمرة لردم الفجوات القائمة وتفادي صدمات الإحلال التكنولوجي."
-            else:
-                dynamic_analysis_details = f"توضح قراءة أداء ({top_country}) وجود فجوات هيكلية حرجة في البنية التحتية والتشريعات، مما يستوجب تدخلاً استباقياً عاجلاً وتفعيل خطط الطوارئ الاستثمارية لحماية المهن الثقافية."
-
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
               <div style="text-align: center; border-bottom: 2px solid {CBE_ORANGE_MID}; padding-bottom: 15px; margin-bottom: 25px;">
@@ -831,8 +737,7 @@ with tab4:
                 <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h4>
                 <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CBE_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p style="margin-bottom: 8px; line-height: 1.8;"><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
-                <p style="margin-bottom: 0; line-height: 1.8;"><b>التحليل المتعمق المخصص للحالة المتصدرة:</b> {dynamic_analysis_details}</p>
-                <p style="margin-top: 8px; margin-bottom: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
+                <p style="margin: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -883,45 +788,6 @@ with tab4:
             </div>
             </div>
             """, unsafe_allow_html=True)
-
-            # تجهيز وتفعيل مستند Word المتكامل للتقرير التنفيذي الموحد
-            exec_word_html = f"""
-            <html dir="rtl">
-            <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
-            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right; line-height: 1.9;">
-                <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
-                <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار - بناءً على إطار المؤشر المركب (AACRI)</p>
-                <hr>
-                <h2>1. مؤشرات الأداء العام والريادة الإقليمية:</h2>
-                <p>تتصدّر قائمة الجاهزية الذكية دولة: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
-                <p><b>الإطار الإقليمي والأبعاد الديموغرافية:</b> {region_info}</p>
-                <p><b>التحليل المتعمق للحالة المتصدرة:</b> {dynamic_analysis_details}</p>
-                <hr>
-                <h2>2. ملخص النتائج التحليلية التراكمية والمعمقة:</h2>
-                <p>يغطي هذا التقرير مخرجات التشخيص القياسي، محاكي السياسات الاستشرافي، ولوحة دعم اتخاذ القرار، موضحاً الحاجة الماسة لتكامل المحاور الخمسة (البنية التقنية، الاقتصاد البرتقالي، رأس المال البشري، التشريعات، والمحددات الثقافية).</p>
-                <hr>
-                <h2>3. إطار شجرة قرارات نقاط الرفع لدونيلا ميدوز:</h2>
-                <ul>
-                    <li><b>المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات التدريب.</li>
-                    <li><b>تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية.</li>
-                    <li><b>القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة ومعايير الوسم المائي.</li>
-                    <li><b>أهداف النظام (Goals):</b> تحقيق السيادة الرقمية وصون الأمن الثقافي القومي.</li>
-                    <li><b>النماذج الفكرية (Paradigms):</b> ترسيخ الاقتصاد البرتقالي كركيزة للتنمية المستدامة.</li>
-                </ul>
-                <hr>
-                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية واعتماد التوصيات التنفيذية</p>
-                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
-            </body>
-            </html>
-            """
-            
-            st.download_button(
-                label="📥 تحميل التقرير التنفيذي الموحد في مستند Word متكامل",
-                data=exec_word_html.encode("utf-8-sig"),
-                file_name="التقرير_التنفيذي_الموحد_للسياسات_الثقافية.doc",
-                mime="application/msword",
-                use_container_width=True
-            )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
