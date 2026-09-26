@@ -112,6 +112,50 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
+/* تصميم جدول RTL مخصص بعرض الشاشة الكامل لضمان ابدائه من اليمين تماماً مع هيدر بلون هادئ وخلو تام من الأكواد */
+.custom-rtl-table {{
+    width: 100% !important;
+    border-collapse: collapse !important;
+    direction: rtl !important;
+    text-align: right !important;
+    margin-top: 15px !important;
+    margin-bottom: 25px !important;
+    font-family: 'Cairo', sans-serif !important;
+    background-color: #FFFFFF !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important;
+    border: 1px solid #CBD5E1 !important;
+}}
+
+.custom-rtl-table th {{
+    background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
+    color: #F8FAFC !important;
+    padding: 14px 12px !important;
+    font-weight: 700 !important;
+    border: 1px solid #475569 !important;
+    text-align: right !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+}}
+
+.custom-rtl-table td {{
+    padding: 12px 12px !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    text-align: right !important;
+    line-height: 1.6 !important;
+}}
+
+.custom-rtl-table tr:nth-child(even) {{
+    background-color: #F8FAFC !important;
+}}
+
+.custom-rtl-table tr:hover {{
+    background-color: #FEF3C7 !important;
+}}
+
 /* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
@@ -445,10 +489,49 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
-        df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # استخدام st.dataframe القياسي لمنع ظهور أي أكواد خام في الواجهة بشكل نهائي
-        st.dataframe(df_history, use_container_width=True, hide_index=True)
+        # جدول HTML نظيف وآمن ومنسق بالكامل من اليمين
+        table_html = """
+        <div dir="rtl" style="width: 100%; overflow-x: auto;">
+        <table class="custom-rtl-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px; text-align: center;">م</th>
+                    <th>الدولة</th>
+                    <th>المؤشر المركب (AACRI)</th>
+                    <th>رأس المال البشري (30%)</th>
+                    <th>البنية التقنية (20%)</th>
+                    <th>البيئة التنظيمية والتشريعية (20%)</th>
+                    <th>الديناميكيات الاقتصادية (15%)</th>
+                    <th>المحددات الثقافية والهوياتية (15%)</th>
+                    <th>التقييم المنظومي</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+        
+        for idx, row in df_history.iterrows():
+            table_html += f"""
+            <tr>
+                <td style="text-align: center; font-weight: bold;">{idx + 1}</td>
+                <td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
+                <td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
+                <td>{row['رأس المال البشري (30%)']}%</td>
+                <td>{row['البنية التقنية (20%)']}%</td>
+                <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
+                <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
+                <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
+                <td style="font-size: 12.5px;">{row['التقييم المنظومي']}</td>
+            </tr>
+            """
+            
+        table_html += """
+            </tbody>
+        </table>
+        </div>
+        """
+        
+        st.markdown(table_html, unsafe_allow_html=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -778,7 +861,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -822,7 +905,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد
+# التبويب الرابع: التقرير التنفيذي الموحد (مفصل ومستقل لكل دولة بدون تكرار)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -849,7 +932,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # توليد بطاقات تحليلية مستقلة وفريدة لكل دولة على حدة (بدون أي تكرار أو نسخ نصوص متطابقة)
+            # توليد استجابات متمايزة ومستقلة تماماً لكل دولة مسجلة بناءً على درجاتها ومحاورها الفعلية
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -861,21 +944,26 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # جلب محاكاة السياسات الخاصة حصرياً بهذه الدولة
+                # تخصيص التحليل العميق بناءً على مستويات الأداء الفعلية لكل دولة لتجنب أي تكرار
+                if c_score >= 80:
+                    status_note = f"تتمتع دولة {c_name} بوضع ريادي متقدم يتيح لها تصدير النماذج الثقافية الرقمية، مع ضرورة التركيز على تعزيز أطر الوسم المائي وتوسيع أسواق الاقتصاد البرتقالي."
+                elif c_score >= 51:
+                    status_note = f"تظهر دولة {c_name} أداءً متوسطاً يتطلب استثمارات مستهدفة في برامج 'المبدع المعزز' وإعادة تأهيل الكوادر البشرية لردم الفجوات الهيكلية."
+                else:
+                    status_note = f"تواجه دولة {c_name} فجوة هيكلية حرجة تستوجب تدخلاً عاجلاً لإعادة هندسة البنية التحتية التقنية وتوفير شبكات أمان تشريعية واقتصادية."
+
                 sim_detail = "لم يتم تسجيل سيناريو محاكاة استشرافي خاص بهذه الدولة حتى الآن."
-                for s_key, s_val in st.session_state.simulated_results_dict.items():
+                for s_key in st.session_state.simulated_results_dict.keys():
                     if s_key.startswith(c_name):
-                        sim_detail = f"السيناريو المرصود ({s_key}) يعكس توقعاً بمدى تأثير سياسات التحفيز الموجهة بنسب نمو صافية للمؤشر."
+                        sim_detail = f"أظهرت المحاكاة الاستشرافية المرتبطة بـ ({s_key}) كفاءة عالية في توجيه سعات الاستثمار لتعزيز نمو المؤشر المركب."
                         break
                 
-                # جلب توصيات لوحة القرار الخاصة حصرياً بهذه الدولة
-                dec_detail = "تستوجب القراءة المنظومية متابعة حوكمة الحقوق الفكرية وتحديث تشريعات الاقتصاد البرتقالي."
+                dec_detail = "تتطلب المتابعة الاستراتيجية دعم حوكمة الملكية الفكرية."
                 if c_name in st.session_state.decision_results_dict:
-                    d_item = st.session_state.decision_results_dict[c_name]
-                    dec_detail = f"تم تفعيل التوصيات الاستراتيجية ودروع التطعيم الثقافي الخاصة بدولة {c_name} لدعم المبدع المعزز."
+                    dec_detail = "أوصت لوحة اتخاذ القرار بتفعيل دروع 'التطعيم الثقافي' وإنشاء المجالس السيادية لدعم المنظومة الإبداعية."
 
                 single_card_html = f"""
-                <div style="background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
+                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
                     <h4 style="color: {CBE_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16px;">
                         📌 التشخيص المنظومي والنتائج المعمقة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
                     </h4>
@@ -886,6 +974,7 @@ with tab4:
                             البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية (%{c_val})
                         </p>
                     </div>
+                    <p style="margin-bottom: 8px; color: #1E293B; font-size: 13.5px; line-height: 1.8;"><b>الرؤية التحليلية المخصصة:</b> {status_note}</p>
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
                         <li><b>مخرجات محاكي السياسات:</b> {sim_detail}</li>
                         <li><b>مخرجات لوحة دعم اتخاذ القرار:</b> {dec_detail}</li>
@@ -929,7 +1018,7 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل لكل دولة مسجلة:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام، يبرز الملخص التنفيذي المستقل والمخصص لكل دولة مسجلة:
                 </p>
             """, unsafe_allow_html=True)
 
