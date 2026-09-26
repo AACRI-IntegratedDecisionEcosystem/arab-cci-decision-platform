@@ -18,7 +18,7 @@ st.set_page_config(
 # الألوان التراثية الرسمية للمنصة
 CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
 CBE_ORANGE_MID = "#B45309"   # برتقالي غامق تراثي
-CBE_ORANGE_LIGHT = "#BC0202" # برتقالي أفتح نسبياً عند التحديد
+CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
 CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
 CBE_BG = "#F8FAFC"           # خلفية ناعمة
 
@@ -303,7 +303,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي والحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
@@ -449,6 +449,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
+        # الترتيب المطلوب: العمود الأول من اليمين هو (م)، ثم (الدولة)، ثم باقي المؤشرات تباعاً
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -850,12 +851,39 @@ with tab4:
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
 
+            # توليد استجابات متمايزة وعميقة لكل دولة مدخلة بناءً على الأقسام 1 و 2 و 3
             dynamic_summary_bullets = ""
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
                 c_diag = row['التقييم المنظومي']
-                dynamic_summary_bullets += f"<li><b>دولة {c_name} (المؤشر المركب: {c_score}%):</b> {c_diag} استناداً إلى تحليل المحاور الخمسة وسلاسل القيمة البرتقالية.</li>"
+                
+                # استرجاع بيانات المحاور الخاصة بالدولة من السجل
+                t_val = row['البنية التقنية (20%)']
+                e_val = row['الديناميكيات الاقتصادية (15%)']
+                h_val = row['رأس المال البشري (30%)']
+                r_val = row['البيئة التنظيمية والتشريعية (20%)']
+                c_val = row['المحددات الثقافية والهوياتية (15%)']
+                
+                # فحص ما إذا كان لدولة سيناريو مسجل في المحاكي أو توصيات في لوحة القرار لدمجها وتحقيق التكامل التام
+                sim_notes = ""
+                for s_key, s_val in st.session_state.simulated_results_dict.items():
+                    if s_key.startswith(c_name):
+                        sim_notes = f" | <b>مؤشر المحاكي المرتبط:</b> تم اختبار السيناريو الاستراتيجي الخاص بها."
+                        break
+                
+                dec_notes = ""
+                if c_name in st.session_state.decision_results_dict:
+                    dec_notes = f" | <b>لوحة القرار:</b> تمت مراجعة توصيات التطعيم الثقافي وحوكمة السيادة الرقمية."
+
+                dynamic_summary_bullets += f"""
+                <li style="margin-bottom: 12px;">
+                    <b>دولة {c_name} (المؤشر المركب: {c_score}%):</b> {c_diag}<br>
+                    <span style="font-size: 13.5px; color: #334155;">
+                        <b>• التشخيص التفصيلي لمحاور القوة والفجوات:</b> البنية التقنية ({t_val}%)، رأس المال البشري ({h_val}%)، البيئة التشريعية ({r_val}%)، الاقتصاد البرتقالي ({e_val}%)، والمحددات الهوياتية ({c_val}%). {sim_notes} {dec_notes}
+                    </span>
+                </li>
+                """
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -889,9 +917,9 @@ with tab4:
 
             st.markdown(f"""
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h4>
+                <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على تحليل مخرجات الأقسام 1، 2، و3 للدول المختارة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا القسم قراءة تحليلية مفصلة ومستندة مباشرة إلى الدول المسجلة في المنصة، عاكساً رؤية استشرافية لدعم سياسات الصناعات الثقافية والإبداعية العربية:
+                  يقدم هذا القسم قراءة تحليلية مفصلة ومستندة مباشرة إلى التقاطعات القياسية لمحاور الجاهزية والسيناريوهات ولوحة اتخاذ القرار لكل دولة مسجلة:
                 </p>
                 <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.9;">
                   {dynamic_summary_bullets}
@@ -936,7 +964,7 @@ with tab4:
             word_content += f"""
                 </ul>
                 <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على الدول المختارة):</h3>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مبني على تحليل مخرجات الأقسام 1، 2، و3 للدول المختارة):</h3>
                 <ul>
                     {dynamic_summary_bullets}
                 </ul>
