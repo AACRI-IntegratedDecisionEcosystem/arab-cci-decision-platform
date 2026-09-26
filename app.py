@@ -44,8 +44,14 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* محاذاة القوائم المنسدلة (Selectbox) واتجاهها لليمين تماماً */
-div[data-baseweb="select"], div[data-baseweb="select"] > div {{
+/* تخصيص القوائم المنسدلة (Selectbox) وتوجيه النصوص وخيارات القائمة جهة اليمين بدقة */
+div[data-baseweb="select"], div[data-baseweb="popover"], ul[role="listbox"], li[role="option"] {{
+    direction: rtl !important;
+    text-align: right !important;
+    font-family: 'Cairo', sans-serif !important;
+}}
+
+div[data-baseweb="select"] > div {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -254,7 +260,7 @@ def describe_rf(val):
 
 def describe_cd(val):
     if val >= 80:
-        return f"محددات ثقافية والهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
+        return f"محددات ثقافية وهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
     elif val >= 50:
         return f"محددات ثقافية متوازنة (%{val}) تتطلب تعزيز المحتوى الرقمي الثقافي والتراثي المتاح بالعربية."
     else:
@@ -415,8 +421,18 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # إعادة ترتيب أعمدة الجدول لتبدأ من اليمين (م, الدولة, المؤشر المركب, المحاور, التقييم) وتصغيره ليكون منسقاً بعرض الشاشة
-        cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
+        # إعادة ترتيب الأعمدة لتبدأ بالمسلسل ثم الدولة ثم المؤشر المركب ثم بقية المحاور من اليمين إلى اليسار
+        cols_order = [
+            "م", 
+            "الدولة", 
+            "المؤشر المركب (AACRI)", 
+            "رأس المال البشري (30%)", 
+            "البنية التقنية (20%)", 
+            "البيئة التنظيمية والتشريعية (20%)", 
+            "الديناميكيات الاقتصادية (15%)", 
+            "المحددات الثقافية والهوياتية (15%)", 
+            "التقييم المنظومي"
+        ]
         df_history = df_history[cols_order]
         
         st.dataframe(df_history, use_container_width=True, hide_index=True)
