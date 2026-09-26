@@ -44,20 +44,12 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* محاذاة شاملة وتامة لجميع عناصر القوائم المنسدلة (Selectbox) ونصوصها لليمين في كافة أقسام المنصة */
-div[data-baseweb="select"], div[data-baseweb="select"] *, div.stSelectbox div[data-baseweb="select"] > div {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-div[id*="baseui-select"] {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-ul[id*="baseui-menu"] {{
-    direction: rtl !important;
-    text-align: right !important;
-}}
-ul[id*="baseui-menu"] li {{
+/* محاذاة تامة لأسماء الدول في القوائم المنسدلة والعناصر المنبثقة لليمين */
+div[data-baseweb="select"] > div, 
+div[data-baseweb="select"] span, 
+div[data-baseweb="popover"] div, 
+ul[data-baseweb="menu"] li,
+div[id*="metric"] {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -287,7 +279,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
@@ -427,7 +419,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # التأكد التام من ترتيب الأعمدة من اليمين (م, الدولة, المؤشر المركب, وباقي المحاور تباعاً)
+        # ترتيب الأعمدة من اليمين لليسار وتصغير وتنسيق الجدول ليكون بعرض الشاشة
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
