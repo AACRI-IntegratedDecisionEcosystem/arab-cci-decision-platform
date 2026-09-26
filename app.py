@@ -44,8 +44,8 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* تخصيص القوائم المنسدلة (Selectbox) لتكون باتجاه اليمين وتنسيق متناسق */
-div[data-baseweb="select"] {{
+/* محاذاة القوائم المنسدلة (Selectbox) واتجاهها لليمين تماماً */
+div[data-baseweb="select"], div[data-baseweb="select"] > div {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -254,7 +254,7 @@ def describe_rf(val):
 
 def describe_cd(val):
     if val >= 80:
-        return f"محددات ثقافية وهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
+        return f"محددات ثقافية والهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
     elif val >= 50:
         return f"محددات ثقافية متوازنة (%{val}) تتطلب تعزيز المحتوى الرقمي الثقافي والتراثي المتاح بالعربية."
     else:
@@ -415,7 +415,7 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # تغيير ترتيب الأعمدة من اليمين لليسار وتصغير وتنسيق الجدول ليكون بعرض الشاشة
+        # إعادة ترتيب أعمدة الجدول لتبدأ من اليمين (م, الدولة, المؤشر المركب, المحاور, التقييم) وتصغيره ليكون منسقاً بعرض الشاشة
         cols_order = ["م", "الدولة", "المؤشر المركب (AACRI)", "رأس المال البشري (30%)", "البنية التقنية (20%)", "البيئة التنظيمية والتشريعية (20%)", "الديناميكيات الاقتصادية (15%)", "المحددات الثقافية والهوياتية (15%)", "التقييم المنظومي"]
         df_history = df_history[cols_order]
         
@@ -451,7 +451,6 @@ with tab1:
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        # تحويل الرسم البياني إلى رسم دائري حلقي (Donut Chart) أفضل وأكثر جمالية لتوزيع الأوزان النسبية
         fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP")
         fig_pie.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
