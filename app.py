@@ -43,8 +43,8 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* ضمان محاذاة القوائم المنسدلة وخياراتها نحو اليمين تماماً */
-div[data-baseweb="select"] > div, div[role="listbox"] div {{
+/* تخصيص القوائم المنسدلة والعناصر لتتوافق مع اليمين */
+div[data-baseweb="select"] > div {{
     direction: rtl !important;
     text-align: right !important;
 }}
@@ -414,8 +414,8 @@ with tab1:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         df_history.insert(0, "م", range(1, len(df_history) + 1))
         
-        # ترتيب أعمدة الجدول وعكسها لتتطابق مع الاتجاه العربي (من اليمين لليسار) وتقليل العرض لضمان السلاسة وعدم التداخل
-        arabic_ordered_columns = [
+        # ترتيب أعمدة الجدول وعكسها لتتطابق تماماً مع الاتجاه العربي (من اليمين لليسار) وتضييق الأعمدة لضمان الوضوح
+        columns_order_arabic = [
             "التقييم المنظومي",
             "المحددات الثقافية والهوياتية (15%)",
             "البيئة التنظيمية والتشريعية (20%)",
@@ -426,10 +426,10 @@ with tab1:
             "الدولة",
             "م"
         ]
-        existing_cols = [col for col in arabic_ordered_columns if col in df_history.columns]
-        df_history_rtl = df_history[existing_cols]
-
-        st.dataframe(df_history_rtl, use_container_width=False, hide_index=True)
+        df_history_rtl = df_history[[col for col in columns_order_arabic if col in df_history.columns]]
+        
+        # عرض الجدول بشكل أنيق ومضغوط يناسب العرض الكامل للشاشة
+        st.dataframe(df_history_rtl, use_container_width=True, hide_index=True)
 
         col_del1, col_del2 = st.columns([2, 1])
         with col_del1:
@@ -458,18 +458,23 @@ with tab1:
         </ul>
         </div>
         """, unsafe_allow_html=True)
+        
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        fig_bar = px.bar(x=axes_names, y=weights_vals, text=weights_vals, labels={'x': 'المحاور', 'y': 'الوزن (%)'})
-        fig_bar.update_layout(
+        # تحويل الرسم البياني للأوزان إلى دائرة مقسمة (Pie Chart) توضح الأقسام الخمسة حسب الأوزان النسبية
+        fig_pie = px.pie(
+            names=axes_names, 
+            values=weights_vals, 
+            title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP",
+            hole=0.4
+        )
+        fig_pie.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
-            xaxis=dict(title="المحاور الرئيسة", categoryorder='array', categoryarray=axes_names),
-            yaxis=dict(title="الوزن النسبي (%)"),
             paper_bgcolor="#FFFFFF",
             font=dict(family="Cairo", size=13)
         )
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_pie, use_container_width=True)
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
@@ -610,7 +615,6 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -718,7 +722,6 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -745,6 +748,17 @@ with tab4:
             top_score = top_row["المؤشر المركب (AACRI)"]
             top_score_str = get_colored_score_html(top_score)
             region_info = get_region_and_features(top_country)
+
+            # بناء ملخص تحليلي متغاير ومتمايز ديناميكياً بناءً على بيانات الدول المسجلة والترتيب الحالي
+            total_countries_count = len(df_rep)
+            avg_composite_score = round(df_rep["المؤشر المركب (AACRI)"].mean(), 2)
+            
+            if top_score >= 80:
+                dynamic_summary_text = f"تتصدّر المشهد الإقليمي دولة **{top_country}** بمؤشر مركب بلغ {top_score_str}، مما يضعها في مرتبة الريادة الرقمية والسيادة التقنية المتقدمة. يبلغ متوسط أداء الدول المسجلة حالياً ({total_countries_count} دولة) نحو ({avg_composite_score}%)، وهو ما يعكس تفاوتاً هيكلياً يستوجب نقل الخبرات وتأسيس تحالفات إقليمية مشتركة تدعم الاقتصاد البرتقالي وتقي المهن الثقافية من مخاطر الاستلاب الخوارزمي."
+            elif top_score >= 51:
+                dynamic_summary_text = f"تسجل دولة **{top_country}** أعلى مؤشر مركب في القائمة الحالية بقيمة {top_score_str} ضمن نطاق الأداء المتوسط. بمتوسط عام يبلغ ({avg_composite_score}%) لـ ({total_countries_count}) دولة مسجلة، تبرز حاجة ماسة لتفعيل حزم برامج إعادة التأهيل السريع (Upskilling)، سد الفجوات الذكية في رأس المال البشري، وتعزيز أطر التشريعات الناظمة للوسم المائي وحماية الملكية الفكرية."
+            else:
+                dynamic_summary_text = f"تعكس قراءة المؤشرات لدولة **{top_country}** (المؤشر المركب: {top_score_str}) وجود تحديات وهياكل حرجة تتطلب تدخلاً طارئاً. في ظل متوسط عام يبلغ ({avg_composite_score}%) لعدد ({total_countries_count}) دولة مسجلة، تتحتم استدامة الخطط الاستثمارية العاجلة لتطوير البنية التقنية الأساسية ودعم الاستدامة الهيكلية للاقتصاد الإبداعي."
 
             st.markdown(f"""
             <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
@@ -780,7 +794,7 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: #166534; margin-top: 0; font-size: 17px;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
-                  يقدم هذا التقرير تجميعاً تحليلياً متكاملأ لمخرجات أقسام المنصة الأربعة، عاكساً رؤية استشرافية شاملة لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي وفق منظور التفكير المنظومي:
+                  {dynamic_summary_text}
                 </p>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 12px;">
                   <b>1. التشخيص القياسي والترتيب التراكمي (القسم الأول):</b> أظهرت نتائج تقييم المحاور الخمسة (البنية التقنية، الديناميكيات الاقتصادية، رأس المال البشري، البيئة التشريعية، المحددات الثقافية) تفاوتات هيكلية تستوجب سياسات تفصيلية مخصصة لكل بيئة إقليمية على حدة لتقليص الفجوات الذكية.
@@ -812,5 +826,4 @@ with tab4:
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
