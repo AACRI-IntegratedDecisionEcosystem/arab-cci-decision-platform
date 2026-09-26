@@ -44,8 +44,20 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
     text-align: right !important;
 }}
 
-/* محاذاة القوائم المنسدلة (Selectbox) لليمين في كافة الأقسام */
-div[data-baseweb="select"], div[data-baseweb="select"] * {{
+/* محاذاة شاملة وتامة لجميع عناصر القوائم المنسدلة (Selectbox) ونصوصها لليمين في كافة أقسام المنصة */
+div[data-baseweb="select"], div[data-baseweb="select"] *, div.stSelectbox div[data-baseweb="select"] > div {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+div[id*="baseui-select"] {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+ul[id*="baseui-menu"] {{
+    direction: rtl !important;
+    text-align: right !important;
+}}
+ul[id*="baseui-menu"] li {{
     direction: rtl !important;
     text-align: right !important;
 }}
