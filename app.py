@@ -167,11 +167,11 @@ div.stTabs {{
     text-align: center !important;
     width: 100% !important;
     background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    color: #FFFFFF !important;
-    padding: 30px 20px !important;
-    border-radius: 8px !important;
     border-top: 2px solid {CBE_ORANGE_MID} !important;
     border-bottom: 2px solid {CBE_ORANGE_MID} !important;
+    color: #FFFFFF !important;
+    padding: 25px 20px !important;
+    border-radius: 8px !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     margin-bottom: 25px !important;
     direction: rtl !important;
@@ -180,15 +180,15 @@ div.stTabs {{
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 24px !important;
+    font-size: 22px !important;
     font-weight: 800 !important;
     margin-bottom: 10px !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 14.5px !important;
+    font-size: 14px !important;
     font-weight: 500 !important;
     line-height: 1.6 !important;
     margin-bottom: 0px !important;
