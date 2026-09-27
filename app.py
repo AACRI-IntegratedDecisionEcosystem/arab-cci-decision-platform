@@ -919,9 +919,7 @@ with tab3:
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                         <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                             {item['deep']}
-                        </div>
-                    </div>
-                </div>
+
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
@@ -988,7 +986,7 @@ with tab4:
                     latest_sim_key = matched_sims[-1]
                     sim_data_obj = st.session_state.simulated_results_dict[latest_sim_key]
                     sim_detail = (
-                        f"<b>[معطيات المحاكي المسجلة]:</b> تم تطبيق سيناريو ({sim_data_obj['scenario']})؛ "
+                        f"<b></b> تم تطبيق سيناريو ({sim_data_obj['scenario']})؛ "
                         f"حيث بلغت القيمة المتوقعة للمؤشر ({sim_data_obj['simulated_val']}%) بصافي تغير قدره ({sim_data_obj['delta']:+.2f}). "
                         f"<b>التحليل:</b> {sim_data_obj['analysis_text']} "
                         f"<b>خطة التحرك:</b> {sim_data_obj['action_plan']}"
@@ -1005,7 +1003,7 @@ with tab4:
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = (
-                        f"<b>[توصيات لوحة القرار المسجلة]:</b> {dec_item['recs'][0]} — "
+                        f"<b></b> {dec_item['recs'][0]} — "
                         f"وكذلك: {dec_item['recs'][1]}"
                     )
                 else:
