@@ -26,6 +26,17 @@ CUSTOM_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
 
+/* إخفاء شريط أدوات Streamlit العلوي وأيقونة القطة/أدوات التطوير نهائياً للعرض الأكاديمي */
+header {{
+    visibility: hidden !important;
+    display: none !important;
+}}
+
+.stAppToolbar, div[data-testid="stHeader"] {{
+    display: none !important;
+    visibility: hidden !important;
+}}
+
 html, body, [class*="css"] {{
     font-family: 'Cairo', sans-serif !important;
     direction: rtl !important;
@@ -908,7 +919,9 @@ with tab3:
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                         <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                             {item['deep']}
-
+                        </div>
+                    </div>
+                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
