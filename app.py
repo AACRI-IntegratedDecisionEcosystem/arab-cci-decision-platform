@@ -66,8 +66,8 @@ div.stTabs {{
     flex-direction: row-reverse !important;
     width: 100% !important;
     max-width: 100% !important;
-    gap: 8px !important;
-    background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
+    gap: 50px !important;
+    background: linear-gradient(90deg, {CBE_NAVY} 50%, {CBE_ORANGE_DARK} 100%) !important;
     padding: 10px !important;
     border-radius: 8px !important;
     border-top: 2px solid {CBE_ORANGE_MID} !important;
