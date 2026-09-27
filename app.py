@@ -77,7 +77,7 @@ div.stTabs {{
 }}
 
 .stTabs [data-baseweb="tab"] {{
-    flex: 2 2 0% !important;
+    flex: 1 1 0% !important;
     width: 100% !important;
     max-width: none !important;
     background-color: rgba(120, 53, 15, 0.85) !important;
@@ -101,7 +101,7 @@ div.stTabs {{
     background-color: {CBE_ORANGE_MID} !important;
     color: #FFFFFF !important;
     border-color: #FFFFFF !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.2) !important;
 }}
 
 .stTabs [aria-selected="true"] {{
