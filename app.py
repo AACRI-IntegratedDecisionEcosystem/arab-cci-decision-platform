@@ -490,7 +490,6 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact) يناسب وضع المنصة تماماً
         table_html = """
 <div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
 <table class="custom-rtl-table">
@@ -533,7 +532,6 @@ with tab1:
         
         st.markdown(table_html, unsafe_allow_html=True)
 
-        # زر تحميل جدول الدول العربية المسجلة بصيغة Excel (CSV)
         csv_data = df_history.to_csv(index=False).encode('utf-8-sig')
         st.download_button(
             label="📥 تحميل جدول ترتيب الدول العربية المسجلة (Excel/CSV)",
@@ -747,15 +745,17 @@ with tab2:
                 </div>
                 """
                 sim_key = f"{sim_country_sel} - {scenario_dropdown}"
+                
+                # تخزين مفصل ونظيف يربط الدولة بالسيناريو ومخرجاته التحليلية حصرياً
                 st.session_state.simulated_results_dict[sim_key] = {
-                    "html": box_html, 
-                    "deep": deep_analysis, 
                     "country": sim_country_sel,
                     "scenario": scenario_dropdown,
                     "simulated_val": simulated_val,
                     "delta": delta,
                     "analysis_text": analysis_text,
-                    "action_plan": action_plan
+                    "action_plan": action_plan,
+                    "html": box_html, 
+                    "deep": deep_analysis
                 }
 
         if st.session_state.simulated_results_dict:
@@ -926,7 +926,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (تم عزل مخرجات المحاكي وضمان عدم تكرارها)
+# التبويب الرابع: التقرير التنفيذي الموحد (مع عزل وتمايز دقيق لمخرجات محاكي السياسات)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -953,7 +953,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة لضمان عدم التكرار بين الأقسام
+            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة منعاً لأي تكرار
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -975,34 +975,24 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # جلب وعزل مخرجات القسم الثاني (محاكي السياسات) خصيصاً لهذه الدولة بدقة متناهية وبدون تكرار نصوص عامة
-                matched_sims = [s_val for s_key, s_val in st.session_state.simulated_results_dict.items() if s_val.get("country") == c_name]
+                # ------------------------------------------------------------------
+                # استخلاص وتمايز دقيق ومستقل لمخرجات محاكي السياسات (القسم الثاني) حصرياً
+                # ------------------------------------------------------------------
+                matched_sims = [s_item for s_item in st.session_state.simulated_results_dict.values() if s_item["country"] == c_name]
                 if matched_sims:
                     latest_sim = matched_sims[-1]
-                    sim_scenario_name = latest_sim.get("scenario", "غير محدد")
-                    sim_val_num = latest_sim.get("simulated_val", 0.0)
-                    sim_delta_num = latest_sim.get("delta", 0.0)
-                    sim_analysis_body = latest_sim.get("analysis_text", "")
-                    sim_action_body = latest_sim.get("action_plan", "")
-                    
-                    sim_detail = f"""
-                    <div style="background: #F1F5F9; padding: 10px 14px; border-radius: 6px; margin-top: 6px; border-right: 3px solid {CBE_ORANGE_MID};">
-                        <b>🔬 التحليل الجوهري المستقاة من محاكي السياسات (القسم الثاني):</b><br>
-                        • <b>السيناريو المختبر:</b> {sim_scenario_name}<br>
-                        • <b>القيمة المتوقعة بعد المحاكاة:</b> {sim_val_num}% (صافي التغير: {sim_delta_num:+.2f})<br>
-                        • <b>الرؤية الاستشرافية القياسية:</b> {sim_analysis_body}<br>
-                        • <b>خطة التحرك المرتبطة بالسيناريو:</b> {sim_action_body}
-                    </div>
-                    """
+                    sim_detail = f"""<b>[سيناريو مسجل: {latest_sim['scenario']}]</b> — القيمة المتوقعة للمؤشر بعد المحاكاة بلغت ({latest_sim['simulated_val']}%) بصافي تغير قياسي قدره ({latest_sim['delta']:+.2f}). 
+                    <br>• <b>التحليل القياسي المرصود:</b> {latest_sim['analysis_text']}
+                    <br>• <b>خطة التحرك التنفيذية المقترحة بالمحاكي:</b> {latest_sim['action_plan']}"""
                 else:
-                    sim_detail = f"<b>[تنبيه توثيقي للقسم الثاني]:</b> لم يتم تفعيل أو تثبيت أي سيناريو استشرافي خاص بهذه الدولة في (محاكي السياسات) بعد؛ يُنصح بإجراء المحاكاة في التبويب الثاني لإثراء التحليل هنا."
+                    sim_detail = f"<b>[تنبيه توثيقي لمحاكي السياسات]:</b> لم يتم تفعيل أو تسجيل سيناريو استشرافي خاص بهذه الدولة في القسم الثاني (محاكي السياسات) بعد. يُنصح بضبط المحاكي لدولة ({c_name}) واستعراض أثر تدفقات الاستثمار."
                 
-                # جلب وعزل مخرجات القسم الثالث (لوحة دعم القرار) خصيصاً لهذه الدولة
+                # استخلاص مخرجات لوحة القرار (القسم الثالث)
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = f"تم تفعيل توصيات لوحة القرار ودعم التطعيم الثقافي الخاصة بدولة ({c_name}): ({dec_item['recs'][0]}) مع إرساء آليات الوسم المائي وحماية المصنفات الإبداعية."
                 else:
-                    dec_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت التوصيات الخاصة بدولة ({c_name}) في لوحة دعم اتخاذ القرار والتطعيم الثقافي (التبويب الثالث) لاستعراض القراءات والسياسات الموجهة هنا."
+                    dec_detail = f"<b>[تنبيه توثيقي لوحة القرار]:</b> لم يتم تسجيل التوصيات الخاصة بدولة ({c_name}) في لوحة دعم اتخاذ القرار (التبويب الثالث) بعد."
 
                 single_card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
@@ -1017,11 +1007,9 @@ with tab4:
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
                         <li><b>محاور الجاهزية الذكية المرصودة:</b> البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية ({c_val}%)</li>
                         <li><b>المسار التنفيذي الموصى به:</b> {specific_policy_action}</li>
-                        <li><b>🛡️ مخرجات لوحة دعم القرار والتطعيم الثقافي:</b> {dec_detail}</li>
+                        <li><b>🔬 مخرجات محاكي السياسات الاستشرافي (القسم الثاني):</b> {sim_detail}</li>
+                        <li><b>🛡️ مخرجات لوحة دعم القرار والتطعيم الثقافي (القسم الثالث):</b> {dec_detail}</li>
                     </ul>
-                    <div style="margin-top: 10px;">
-                        {sim_detail}
-                    </div>
                 </div>
                 """
                 cards_html_list.append(single_card_html)
@@ -1061,7 +1049,7 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل والمستقل تماماً لكل دولة مسجلة بناءً على معطياتها الفعلية ومخرجات المحاكاة المتاحة دون أي تكرار:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل والمستقل تماماً لكل دولة مسجلة بناءً على معطياتها الفعلية ومخرجات المحاكاة:
                 </p>
             """, unsafe_allow_html=True)
 
