@@ -1,4 +1,3 @@
-
 import random
 import io
 import pandas as pd
@@ -113,7 +112,7 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً */
+/* تصميم جدول RTL مخصص ومصغر ومريح بصرياً */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
@@ -157,7 +156,6 @@ div.stTabs {{
     background-color: #FEF3C7 !important;
 }}
 
-/* جعل الأزرار بعرض الشاشة وتنسيقها */
 .stButton > button {{
     width: 100% !important;
     border-radius: 50px !important;
@@ -196,7 +194,6 @@ div.stTabs {{
     margin-bottom: 0px !important;
 }}
 
-/* شريط الأخبار المتحرك */
 .ticker-wrap {{
     width: 100%;
     background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%);
@@ -491,7 +488,6 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact) يناسب وضع المنصة تماماً
         table_html = """
 <div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
 <table class="custom-rtl-table">
@@ -534,7 +530,6 @@ with tab1:
         
         st.markdown(table_html, unsafe_allow_html=True)
 
-        # زر تحميل جدول الدول العربية المسجلة بصيغة Excel (CSV)
         csv_data = df_history.to_csv(index=False).encode('utf-8-sig')
         st.download_button(
             label="📥 تحميل جدول ترتيب الدول العربية المسجلة (Excel/CSV)",
@@ -748,7 +743,16 @@ with tab2:
                 </div>
                 """
                 sim_key = f"{sim_country_sel} - {scenario_dropdown}"
-                st.session_state.simulated_results_dict[sim_key] = {"html": box_html, "deep": deep_analysis, "country": sim_country_sel}
+                st.session_state.simulated_results_dict[sim_key] = {
+                    "html": box_html, 
+                    "deep": deep_analysis, 
+                    "country": sim_country_sel,
+                    "simulated_val": simulated_val,
+                    "delta": delta,
+                    "scenario": scenario_dropdown,
+                    "analysis_text": analysis_text,
+                    "action_plan": action_plan
+                }
 
         if st.session_state.simulated_results_dict:
             st.markdown("---")
@@ -918,7 +922,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد
+# التبويب الرابع: التقرير التنفيذي الموحد (مطور ومستقل لكل دولة مع تنبيهات توثيقية صفراء)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -945,7 +949,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة مع دعم التنبيه التوثيقي
+            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة منعاً للتكرار
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -967,20 +971,39 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # التحقق من مخرجات محاكي السياسات وإدراج التنبيه التوثيقي إن لم تتوفر
+                # جلب مخرجات محاكي السياسات الخاص بهذه الدولة بدقة وتجنب أي تكرار
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
                 if matched_sims:
                     latest_sim_key = matched_sims[-1]
-                    sim_detail = f"تم رصد سيناريو استشرافي فعال لدولة ({c_name}) ضمن المحاكي: ({latest_sim_key})؛ حيث أثبتت النمذجة قدرة الدولة على تحقيق صافي نمو إيجابي وتوجيه موازنات التدفق لتحقيق السيادة الرقمية."
+                    sim_data_obj = st.session_state.simulated_results_dict[latest_sim_key]
+                    sim_detail = (
+                        f"<b>[معطيات المحاكي المسجلة]:</b> تم تطبيق سيناريو ({sim_data_obj['scenario']})؛ "
+                        f"حيث بلغت القيمة المتوقعة للمؤشر ({sim_data_obj['simulated_val']}%) بصافي تغير قدره ({sim_data_obj['delta']:+.2f}). "
+                        f"<b>التحليل:</b> {sim_data_obj['analysis_text']} "
+                        f"<b>خطة التحرك:</b> {sim_data_obj['action_plan']}"
+                    )
                 else:
-                    sim_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
+                    # تنبيه توثيقي مُميز بلون أصفر خفيف لعدم تسجيل البيانات في المحاكي
+                    sim_detail = (
+                        "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
+                        "⚠️ تنبيه توثيقي: لم يتم تسجيل أو تثبيت أي سيناريو استشرافي لهذا البلد في محاكي السياسات (التبويب الثاني). يرجى تفعيل المحاكي وتسجيل السيناريو لعرض نتائجه القياسية المستقلة هنا."
+                        "</span>"
+                    )
                 
-                # التحقق من مخرجات لوحة القرار وإدراج التنبيه التوثيقي إن لم تتوفر
+                # جلب مخرجات لوحة دعم القرار الخاصة بهذه الدولة بدقة
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
-                    dec_detail = f"تم تفعيل توصيات لوحة القرار ودعم التطعيم الثقافي الخاصة بدولة ({c_name}): ({dec_item['recs'][0]}) مع إرساء آليات الوسم المائي وحماية المصنفات الإبداعية."
+                    dec_detail = (
+                        f"<b>[توصيات لوحة القرار المسجلة]:</b> {dec_item['recs'][0]} — "
+                        f"وكذلك: {dec_item['recs'][1]}"
+                    )
                 else:
-                    dec_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت التوصيات الخاصة بدولة ({c_name}) في لوحة دعم اتخاذ القرار والتطعيم الثقافي (التبويب الثالث) لاستعراض القراءات والسياسات الموجهة هنا."
+                    # تنبيه توثيقي مُميز بلون أصفر خفيف لعدم اعتماد التوصيات
+                    dec_detail = (
+                        "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
+                        "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد في (التبويب الثالث). يرجى زيارة لوحة القرار واعتماد التوصيات لإدراجها بالتقرير."
+                        "</span>"
+                    )
 
                 single_card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
@@ -995,8 +1018,8 @@ with tab4:
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
                         <li><b>محاور الجاهزية الذكية المرصودة:</b> البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية ({c_val}%)</li>
                         <li><b>المسار التنفيذي الموصى به:</b> {specific_policy_action}</li>
-                        <li><b>🔬 مخرجات محاكي السياسات الاستشرافي:</b> {sim_detail}</li>
-                        <li><b>🛡️ مخرجات لوحة دعم القرار والتطعيم الثقافي:</b> {dec_detail}</li>
+                        <li style="margin-top: 8px;"><b>🔬 مخرجات محاكي السياسات الاستشرافي:</b><br>{sim_detail}</li>
+                        <li style="margin-top: 8px;"><b>🛡️ مخرجات لوحة دعم القرار والتطعيم الثقافي:</b><br>{dec_detail}</li>
                     </ul>
                 </div>
                 """
