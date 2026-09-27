@@ -164,32 +164,33 @@ div.stTabs {{
 }}
 
 .header-center {{
-    width: 100% !important;
-    background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    border-top: 2px solid {CBE_ORANGE_MID} !important;
-    border-bottom: 2px solid {CBE_ORANGE_MID} !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-    margin-bottom: 25px !important;
-    border-radius: 8px !important;
-    padding: 20px 25px !important;
     text-align: center !important;
+    background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(120, 53, 15, 0.90) 100%),
+                url('https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1600&auto=format&fit=crop') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    color: #FFFFFF !important;
+    padding: 40px 20px !important;
+    border-radius: 16px !important;
+    border-bottom: 5px solid {CBE_ORANGE_MID} !important;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
+    margin-bottom: 20px !important;
     direction: rtl !important;
-    box-sizing: border-box !important;
 }}
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 22px !important;
+    font-size: 26px !important;
     font-weight: 800 !important;
-    margin-bottom: 8px !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+    margin-bottom: 12px !important;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 13.5px !important;
+    font-size: 15px !important;
     font-weight: 500 !important;
-    line-height: 1.5 !important;
+    line-height: 1.6 !important;
     margin-bottom: 0px !important;
 }}
 
