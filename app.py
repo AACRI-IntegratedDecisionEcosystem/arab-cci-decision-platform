@@ -112,40 +112,40 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً */
+/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً ليتناسب مع شاشة العرض */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
     direction: rtl !important;
     text-align: right !important;
-    margin-top: 10px !important;
-    margin-bottom: 15px !important;
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
     font-family: 'Cairo', sans-serif !important;
     background-color: #FFFFFF !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     overflow: hidden !important;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
     border: 1px solid #CBD5E1 !important;
 }}
 
 .custom-rtl-table th {{
     background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
     color: #F8FAFC !important;
-    padding: 10px 8px !important;
+    padding: 8px 6px !important;
     font-weight: 700 !important;
     border: 1px solid #475569 !important;
     text-align: right !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     white-space: nowrap !important;
 }}
 
 .custom-rtl-table td {{
-    padding: 8px 8px !important;
+    padding: 6px 6px !important;
     border: 1px solid #E2E8F0 !important;
     color: #1E293B !important;
-    font-size: 12.5px !important;
+    font-size: 11.5px !important;
     text-align: right !important;
-    line-height: 1.4 !important;
+    line-height: 1.3 !important;
 }}
 
 .custom-rtl-table tr:nth-child(even) {{
@@ -490,13 +490,13 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact)
+        # جدول HTML مخصص ومصغر (Compact) ومريح بصرياً
         table_html = """
-<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 350px;">
+<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 320px;">
 <table class="custom-rtl-table">
 <thead>
 <tr>
-<th style="width: 35px; text-align: center;">م</th>
+<th style="width: 30px; text-align: center;">م</th>
 <th>الدولة</th>
 <th>المؤشر المركب (AACRI)</th>
 <th>رأس المال البشري (30%)</th>
@@ -521,7 +521,7 @@ with tab1:
 <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
 <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
 <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-<td style="font-size: 11.5px;">{row['التقييم المنظومي']}</td>
+<td style="font-size: 11px;">{row['التقييم المنظومي']}</td>
 </tr>
 """
             
@@ -874,7 +874,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
