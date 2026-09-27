@@ -54,7 +54,7 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* تمديد وتوحيد حاوية التبويبات الأربعة لتكون مطابقة تماماً لشريط الأخبار في اللون والحجم */
+/* تمديد وتنسيق حاوية التبويبات لتطابق شريط الأخبار تماماً */
 div.stTabs {{
     width: 100% !important;
     max-width: 100% !important;
@@ -66,32 +66,29 @@ div.stTabs {{
     flex-direction: row-reverse !important;
     width: 100% !important;
     max-width: 100% !important;
-    gap: 0px !important;
+    gap: 8px !important;
     background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    padding: 0px !important;
+    padding: 12px !important;
     border-radius: 8px !important;
     border-top: 2px solid {CBE_ORANGE_MID} !important;
     border-bottom: 2px solid {CBE_ORANGE_MID} !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     direction: rtl !important;
     box-sizing: border-box !important;
-    margin-bottom: 25px !important;
-    overflow: hidden !important;
 }}
 
 .stTabs [data-baseweb="tab"] {{
     flex: 1 1 0% !important;
     width: 100% !important;
     max-width: none !important;
-    background-color: transparent !important;
+    background-color: rgba(120, 53, 15, 0.85) !important;
     color: #FFFFFF !important;
-    border-radius: 0px !important;
-    padding: 10px 8px !important;
+    border-radius: 8px !important;
+    padding: 12px 8px !important;
     font-weight: 700 !important;
     font-family: 'Cairo', sans-serif !important;
     font-size: 14px !important;
-    border: none !important;
-    border-left: 1px solid rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
     text-align: center !important;
     justify-content: center !important;
     align-items: center !important;
@@ -104,15 +101,16 @@ div.stTabs {{
 .stTabs [data-baseweb="tab"]:hover {{
     background-color: {CBE_ORANGE_MID} !important;
     color: #FFFFFF !important;
+    border-color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
 }}
 
 .stTabs [aria-selected="true"] {{
     background: linear-gradient(135deg, {CBE_ORANGE_MID} 0%, {CBE_ORANGE_LIGHT} 100%) !important;
     color: #FBBF24 !important;
+    border: 2px solid #FFFFFF !important;
     font-weight: 800 !important;
-    border-top: 2px solid #FFFFFF !important;
-    border-bottom: 2px solid #FFFFFF !important;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
 /* تصميم جدول RTL مخصص ومصغر ومريح بصرياً */
@@ -352,7 +350,7 @@ def get_region_and_features(country_name):
     elif country_name in levant:
         return f"ترتبط {country_name} بإقليم بلاد الشام التاريخي، متميزة بتراث إبداعي فكري غني، وشبكات مجتمعية نشطة، وكفاءات بشرية عالية التأهل في مختلف حقول المعرفة والفنون."
     else:
-        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للت التكامل الإقليمي وتجسير مسارات التنمية المستدامة."
+        return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
 # تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
