@@ -165,16 +165,14 @@ div.stTabs {{
 
 .header-center {{
     text-align: center !important;
-    background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(120, 53, 15, 0.90) 100%),
-                url('https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1600&auto=format&fit=crop') !important;
-    background-size: cover !important;
-    background-position: center !important;
+    background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
     color: #FFFFFF !important;
     padding: 40px 20px !important;
-    border-radius: 16px !important;
-    border-bottom: 5px solid {CBE_ORANGE_MID} !important;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
-    margin-bottom: 20px !important;
+    border-radius: 8px !important;
+    border-top: 2px solid {CBE_ORANGE_MID} !important;
+    border-bottom: 2px solid {CBE_ORANGE_MID} !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    margin-bottom: 25px !important;
     direction: rtl !important;
 }}
 
