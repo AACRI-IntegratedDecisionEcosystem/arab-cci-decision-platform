@@ -122,7 +122,7 @@ div.stTabs {{
     margin-bottom: 12px !important;
     font-family: 'Cairo', sans-serif !important;
     background-color: #FFFFFF !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     overflow: hidden !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
     border: 1px solid #CBD5E1 !important;
@@ -490,7 +490,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact) ومناسب لواجهة المنصة تماماً
+        # جدول HTML مخصص ومصغر (Compact) يناسب وضع المنصة تماماً
         table_html = """
 <div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
 <table class="custom-rtl-table">
@@ -917,7 +917,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (مخرجات متميزة مع [تنبيه توثيقي] عند اللزوم)
+# التبويب الرابع: التقرير التنفيذي الموحد
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -944,7 +944,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة بالكامل لكل دولة مع تضمين [تنبيه توثيقي] عند عدم وجود تسجيلات سابقة
+            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة مع دعم التنبيه التوثيقي
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -966,7 +966,7 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # جلب دقيق ومخصص لمخرجات محاكي السياسات أو إدراج [تنبيه توثيقي]
+                # التحقق من مخرجات محاكي السياسات وإدراج التنبيه التوثيقي إن لم تتوفر
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
                 if matched_sims:
                     latest_sim_key = matched_sims[-1]
@@ -974,7 +974,7 @@ with tab4:
                 else:
                     sim_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
                 
-                # جلب دقيق ومخصص لتوصيات لوحة القرار أو إدراج [تنبيه توثيقي]
+                # التحقق من مخرجات لوحة القرار وإدراج التنبيه التوثيقي إن لم تتوفر
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = f"تم تفعيل توصيات لوحة القرار ودعم التطعيم الثقافي الخاصة بدولة ({c_name}): ({dec_item['recs'][0]}) مع إرساء آليات الوسم المائي وحماية المصنفات الإبداعية."
