@@ -112,40 +112,40 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً */
+/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً ليتناسب مع وضع المنصة */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
     direction: rtl !important;
     text-align: right !important;
-    margin-top: 10px !important;
-    margin-bottom: 15px !important;
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
     font-family: 'Cairo', sans-serif !important;
     background-color: #FFFFFF !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     overflow: hidden !important;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
     border: 1px solid #CBD5E1 !important;
 }}
 
 .custom-rtl-table th {{
     background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
     color: #F8FAFC !important;
-    padding: 10px 8px !important;
+    padding: 8px 6px !important;
     font-weight: 700 !important;
     border: 1px solid #475569 !important;
     text-align: right !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     white-space: nowrap !important;
 }}
 
 .custom-rtl-table td {{
-    padding: 8px 8px !important;
+    padding: 6px 6px !important;
     border: 1px solid #E2E8F0 !important;
     color: #1E293B !important;
-    font-size: 12.5px !important;
+    font-size: 11.5px !important;
     text-align: right !important;
-    line-height: 1.4 !important;
+    line-height: 1.3 !important;
 }}
 
 .custom-rtl-table tr:nth-child(even) {{
@@ -171,7 +171,7 @@ div.stTabs {{
     background-size: cover !important;
     background-position: center !important;
     color: #FFFFFF !important;
-    padding: 40px 20px !important;
+    padding: 35px 15px !important;
     border-radius: 16px !important;
     border-bottom: 5px solid {CBE_ORANGE_MID} !important;
     box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
@@ -181,17 +181,17 @@ div.stTabs {{
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 26px !important;
+    font-size: 24px !important;
     font-weight: 800 !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 10px !important;
     text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight: 500 !important;
-    line-height: 1.6 !important;
+    line-height: 1.5 !important;
     margin-bottom: 0px !important;
 }}
 
@@ -204,7 +204,7 @@ div.stTabs {{
     overflow: hidden;
     white-space: nowrap;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     border-radius: 8px;
     direction: ltr !important;
 }}
@@ -218,7 +218,7 @@ div.stTabs {{
 .ticker-item {{
     display: inline-block;
     padding: 8px 30px;
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: bold;
     color: #FFFFFF !important;
     direction: rtl !important;
@@ -233,7 +233,7 @@ div.stTabs {{
     text-align: center;
     color: #64748B;
     font-size: 13px;
-    margin-top: 40px;
+    margin-top: 35px;
     border-top: 1px solid #E2E8F0;
     padding-top: 15px;
     font-weight: bold;
@@ -490,20 +490,20 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact)
+        # جدول HTML مخصص ومصغر (Compact) ومريح بصرياً ومناسب لوضع المنصة
         table_html = """
-<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 350px;">
+<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
 <table class="custom-rtl-table">
 <thead>
 <tr>
-<th style="width: 35px; text-align: center;">م</th>
+<th style="width: 30px; text-align: center;">م</th>
 <th>الدولة</th>
 <th>المؤشر المركب (AACRI)</th>
-<th>رأس المال البشري (30%)</th>
-<th>البنية التقنية (20%)</th>
-<th>البيئة التنظيمية (20%)</th>
-<th>الديناميكيات الاقتصادية (15%)</th>
-<th>المحددات الثقافية (15%)</th>
+<th>رأس المال البشري</th>
+<th>البنية التقنية</th>
+<th>البيئة التنظيمية</th>
+<th>الاقتصاد البرتقالي</th>
+<th>المحددات الثقافية</th>
 <th>التقييم المنظومي</th>
 </tr>
 </thead>
@@ -521,7 +521,7 @@ with tab1:
 <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
 <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
 <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-<td style="font-size: 11.5px;">{row['التقييم المنظومي']}</td>
+<td style="font-size: 11px;">{row['التقييم المنظومي']}</td>
 </tr>
 """
             
@@ -573,7 +573,6 @@ with tab1:
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
         
-        # ألوان الرسم البياني الدائري متوافقة تماماً مع الهوية البصرية للمنصة
         custom_pie_colors = [CBE_NAVY, CBE_ORANGE_DARK, CBE_ORANGE_MID, CBE_ORANGE_LIGHT, "#334155"]
         
         fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", color=axes_names, color_discrete_map=dict(zip(axes_names, custom_pie_colors)))
@@ -874,7 +873,7 @@ with tab3:
                     else:
                         recs_list = [
                             f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                            f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                         ]
                         deep_analysis_text = f"""
 * تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -918,7 +917,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (تم تمايز بندي المحاكاة والدعم بدقة فائقة لكل دولة على حدة)
+# التبويب الرابع: التقرير التنفيذي الموحد (مدمج بمزايا الصياغة المتميزة والتنبيه التوثيقي)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -945,7 +944,6 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة بالكامل لكل دولة على حدة (فصل تام للمحاكاة والدعم لضمان عدم التكرار)
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -957,7 +955,6 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # صياغة استراتيجية متميزة وفريدة لكل دولة حسب نطاق أدائها
                 if c_score >= 80:
                     specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%)، مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
                     specific_policy_action = f"تأسيس 'مجلس سيادي أعلى للذكاء الاصطناعي'، إطلاق مبادرات تصدير المعايير الثقافية، وتوظيف رأس المال البشري المتميز ({h_val}%)."
@@ -968,15 +965,15 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # جلب دقيق ومخصص لمخرجات محاكي السياسات الفعلي لتلك الدولة أو التنبيه التوثيقي المطلوب
+                # جلب مخرجات المحاكي أو عرض التنبيه التوثيقي
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
                 if matched_sims:
                     latest_sim_key = matched_sims[-1]
                     sim_detail = f"تم رصد سيناريو استشرافي فعال لدولة ({c_name}) ضمن المحاكي: ({latest_sim_key})؛ حيث أثبتت النمذجة قدرة الدولة على تحقيق صافي نمو إيجابي وتوجيه موازنات التدفق لتحقيق السيادة الرقمية."
                 else:
-                    sim_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
+                    sim_detail = "<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
                 
-                # جلب دقيق ومخصص لتوصيات لوحة القرار الفعلية لتلك الدولة أو التنبيه التوثيقي المطلوب
+                # جلب توصيات لوحة القرار أو عرض التنبيه التوثيقي
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = f"تم تفعيل توصيات لوحة القرار ودعم التطعيم الثقافي الخاصة بدولة ({c_name}): ({dec_item['recs'][0]}) مع إرساء آليات الوسم المائي وحماية المصنفات الإبداعية."
@@ -1042,7 +1039,6 @@ with tab4:
                 </p>
             """, unsafe_allow_html=True)
 
-            # عرض البطاقات المستقلة والفريدة لكل دولة بدون أي تكرار
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
