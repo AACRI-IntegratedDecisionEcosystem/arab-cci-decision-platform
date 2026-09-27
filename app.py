@@ -112,7 +112,7 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً ليتناسب مع وضع المنصة */
+/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
@@ -122,7 +122,7 @@ div.stTabs {{
     margin-bottom: 12px !important;
     font-family: 'Cairo', sans-serif !important;
     background-color: #FFFFFF !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     overflow: hidden !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
     border: 1px solid #CBD5E1 !important;
@@ -171,7 +171,7 @@ div.stTabs {{
     background-size: cover !important;
     background-position: center !important;
     color: #FFFFFF !important;
-    padding: 35px 15px !important;
+    padding: 40px 20px !important;
     border-radius: 16px !important;
     border-bottom: 5px solid {CBE_ORANGE_MID} !important;
     box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
@@ -181,17 +181,17 @@ div.stTabs {{
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 24px !important;
+    font-size: 26px !important;
     font-weight: 800 !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 12px !important;
     text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
     font-weight: 500 !important;
-    line-height: 1.5 !important;
+    line-height: 1.6 !important;
     margin-bottom: 0px !important;
 }}
 
@@ -204,7 +204,7 @@ div.stTabs {{
     overflow: hidden;
     white-space: nowrap;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border-radius: 8px;
     direction: ltr !important;
 }}
@@ -218,7 +218,7 @@ div.stTabs {{
 .ticker-item {{
     display: inline-block;
     padding: 8px 30px;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: bold;
     color: #FFFFFF !important;
     direction: rtl !important;
@@ -233,7 +233,7 @@ div.stTabs {{
     text-align: center;
     color: #64748B;
     font-size: 13px;
-    margin-top: 35px;
+    margin-top: 40px;
     border-top: 1px solid #E2E8F0;
     padding-top: 15px;
     font-weight: bold;
@@ -490,7 +490,7 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact) ومريح بصرياً ومناسب لوضع المنصة
+        # جدول HTML مخصص ومصغر (Compact) ومناسب لواجهة المنصة تماماً
         table_html = """
 <div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
 <table class="custom-rtl-table">
@@ -498,11 +498,11 @@ with tab1:
 <tr>
 <th style="width: 30px; text-align: center;">م</th>
 <th>الدولة</th>
-<th>المؤشر المركب (AACRI)</th>
+<th>المؤشر المركب</th>
 <th>رأس المال البشري</th>
 <th>البنية التقنية</th>
 <th>البيئة التنظيمية</th>
-<th>الاقتصاد البرتقالي</th>
+<th>الديناميكيات الاقتصادية</th>
 <th>المحددات الثقافية</th>
 <th>التقييم المنظومي</th>
 </tr>
@@ -917,7 +917,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (مدمج بمزايا الصياغة المتميزة والتنبيه التوثيقي)
+# التبويب الرابع: التقرير التنفيذي الموحد (مخرجات متميزة مع [تنبيه توثيقي] عند اللزوم)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -944,6 +944,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
+            # معالجة فريدة ومتباينة بالكامل لكل دولة مع تضمين [تنبيه توثيقي] عند عدم وجود تسجيلات سابقة
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -965,15 +966,15 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # جلب مخرجات المحاكي أو عرض التنبيه التوثيقي
+                # جلب دقيق ومخصص لمخرجات محاكي السياسات أو إدراج [تنبيه توثيقي]
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
                 if matched_sims:
                     latest_sim_key = matched_sims[-1]
                     sim_detail = f"تم رصد سيناريو استشرافي فعال لدولة ({c_name}) ضمن المحاكي: ({latest_sim_key})؛ حيث أثبتت النمذجة قدرة الدولة على تحقيق صافي نمو إيجابي وتوجيه موازنات التدفق لتحقيق السيادة الرقمية."
                 else:
-                    sim_detail = "<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
+                    sim_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
                 
-                # جلب توصيات لوحة القرار أو عرض التنبيه التوثيقي
+                # جلب دقيق ومخصص لتوصيات لوحة القرار أو إدراج [تنبيه توثيقي]
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = f"تم تفعيل توصيات لوحة القرار ودعم التطعيم الثقافي الخاصة بدولة ({c_name}): ({dec_item['recs'][0]}) مع إرساء آليات الوسم المائي وحماية المصنفات الإبداعية."
