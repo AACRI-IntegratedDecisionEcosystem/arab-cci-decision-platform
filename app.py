@@ -68,7 +68,7 @@ div.stTabs {{
     max-width: 100% !important;
     gap: 8px !important;
     background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    padding: 12px !important;
+    padding: 20px !important;
     border-radius: 12px !important;
     border: 2px solid #FFFFFF !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
@@ -101,7 +101,7 @@ div.stTabs {{
     background-color: {CBE_ORANGE_MID} !important;
     color: #FFFFFF !important;
     border-color: #FFFFFF !important;
-    box-shadow: 0 10px 22px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
 }}
 
 .stTabs [aria-selected="true"] {{
