@@ -77,7 +77,7 @@ div.stTabs {{
 }}
 
 .stTabs [data-baseweb="tab"] {{
-    flex: 1 1 0% !important;
+    flex: 2 2 0% !important;
     width: 100% !important;
     max-width: none !important;
     background-color: rgba(120, 53, 15, 0.85) !important;
