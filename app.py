@@ -69,7 +69,7 @@ div.stTabs {{
     gap: 8px !important;
     background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
     padding: 12px !important;
-    border-radius: 12px !important;
+    border-radius: 8px !important;
     border: 2px solid #FFFFFF !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
     direction: rtl !important;
@@ -167,28 +167,30 @@ div.stTabs {{
     text-align: center !important;
     background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
     color: #FFFFFF !important;
-    padding: 40px 20px !important;
+    padding: 25px 20px !important;
     border-radius: 8px !important;
     border-top: 2px solid {CBE_ORANGE_MID} !important;
     border-bottom: 2px solid {CBE_ORANGE_MID} !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     margin-bottom: 25px !important;
     direction: rtl !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }}
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 26px !important;
+    font-size: 22px !important;
     font-weight: 800 !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 8px !important;
     text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight: 500 !important;
-    line-height: 1.6 !important;
+    line-height: 1.5 !important;
     margin-bottom: 0px !important;
 }}
 
@@ -203,6 +205,7 @@ div.stTabs {{
     margin-bottom: 25px;
     border-radius: 8px;
     direction: ltr !important;
+    box-sizing: border-box !important;
 }}
 
 .ticker {{
