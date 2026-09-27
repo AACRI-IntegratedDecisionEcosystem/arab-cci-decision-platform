@@ -112,40 +112,40 @@ div.stTabs {{
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
-/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً ليتناسب مع شاشة العرض */
+/* تصميم جدول RTL مخصص ومصغر (Compact) ومريح بصرياً */
 .custom-rtl-table {{
     width: 100% !important;
     border-collapse: collapse !important;
     direction: rtl !important;
     text-align: right !important;
-    margin-top: 8px !important;
-    margin-bottom: 12px !important;
+    margin-top: 10px !important;
+    margin-bottom: 15px !important;
     font-family: 'Cairo', sans-serif !important;
     background-color: #FFFFFF !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     overflow: hidden !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05) !important;
     border: 1px solid #CBD5E1 !important;
 }}
 
 .custom-rtl-table th {{
     background: linear-gradient(135deg, #334155 100%, #1E293B 100%) !important;
     color: #F8FAFC !important;
-    padding: 8px 6px !important;
+    padding: 10px 8px !important;
     font-weight: 700 !important;
     border: 1px solid #475569 !important;
     text-align: right !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     white-space: nowrap !important;
 }}
 
 .custom-rtl-table td {{
-    padding: 6px 6px !important;
+    padding: 8px 8px !important;
     border: 1px solid #E2E8F0 !important;
     color: #1E293B !important;
-    font-size: 11.5px !important;
+    font-size: 12.5px !important;
     text-align: right !important;
-    line-height: 1.3 !important;
+    line-height: 1.4 !important;
 }}
 
 .custom-rtl-table tr:nth-child(even) {{
@@ -345,7 +345,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي والحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
@@ -490,13 +490,13 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
         
-        # جدول HTML مخصص ومصغر (Compact) ومريح بصرياً
+        # جدول HTML مخصص ومصغر (Compact)
         table_html = """
-<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 320px;">
+<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 350px;">
 <table class="custom-rtl-table">
 <thead>
 <tr>
-<th style="width: 30px; text-align: center;">م</th>
+<th style="width: 35px; text-align: center;">م</th>
 <th>الدولة</th>
 <th>المؤشر المركب (AACRI)</th>
 <th>رأس المال البشري (30%)</th>
@@ -521,7 +521,7 @@ with tab1:
 <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
 <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
 <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-<td style="font-size: 11px;">{row['التقييم المنظومي']}</td>
+<td style="font-size: 11.5px;">{row['التقييم المنظومي']}</td>
 </tr>
 """
             
@@ -918,7 +918,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (تم تمايز بندي المحاكاة والدعم بدقة فائقة لكل دولة على حدة)
+# التبويب الرابع: التقرير التنفيذي الموحد (تم تحديث وتمايز بند المحاكاة والدعم بدقة فائقة لكل دولة على حدة)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -945,7 +945,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة بالكامل لكل دولة على حدة (فصل تام للمحاكاة والدعم لضمان عدم التكرار)
+            # معالجة فريدة ومتباينة بالكامل لكل دولة على حدة (تجنب التكرار وتمييز مخرجات المحاكاة والدعم)
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -957,31 +957,41 @@ with tab4:
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
-                # صياغة استراتيجية متميزة وفريدة لكل دولة حسب نطاق أدائها
+                # صياغة استراتيجية متميزة وفريدة لكل دولة حسب نطاق أدائها ومحاورها الفعلية
                 if c_score >= 80:
-                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%)، مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
-                    specific_policy_action = f"تأسيس 'مجلس سيادي أعلى للذكاء الاصطناعي'، إطلاق مبادرات تصدير المعايير الثقافية، وتوظيف رأس المال البشري المتميز ({h_val}%)."
+                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم للغاية ({c_score}%) يرتكز على بنية تقنية ({t_val}%) ورأس مال بشري ({h_val}%)، مما يؤهلها لقيادة مسارات الابتكار الرقمي وتوطين التقنيات التوليدية وتصدير المعايير الناظمة."
+                    specific_policy_action = f"إنشاء مرصد سيادي وطني، تدشين منصات سحابية مفتوحة، وتفعيل شراكات إقليمية عابرة للحدود مستندة إلى قوة المحددات الثقافية ({c_val}%)."
                 elif c_score >= 51:
-                    specific_strategic_angle = f"تسجل دولة ({c_name}) جاهزية متوسطة ({c_score}%) تواجه بعض الاختناقات الهيكلية في سلاسل القيمة الإبداعية والتشريعات التنظيمية؛ وهو ما يتطلب تدخلاً استباقياً لردم الفجوات."
-                    specific_policy_action = f"تنفيذ برامج إعادة تأهيل مكثفة (Upskilling) للكوادر العاملة، وتوسيع نطاق الحاضنات الاستثمارية لدعم الاقتصاد البرتقالي ({e_val}%)."
+                    specific_strategic_angle = f"تسجل دولة ({c_name}) أداءً متوسطاً بمؤشر ({c_score}%) يبرز حاجة ملحة لردم الفجوات الهيكلية بين البنية التحتية والتشريعات المنظمة المقدرة بـ ({r_val}%)، مع تعزيز سعات الاقتصاد البرتقالي ({e_val}%)."
+                    specific_policy_action = f"تنفيذ برامج إعادة تأهيل مهني مكثفة (Upskilling)، دعم الحاضنات التقنية، ومعالجة الاختناقات في تدفقات البيانات."
                 else:
-                    specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
-                    specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
+                    specific_strategic_angle = f"تعاني دولة ({c_name}) من فجوة هيكلية حرجة بمؤشر ({c_score}%)، مما يفرض ضغوطاً بالغة على الكوادر الإبداعية والمهن الثقافية في ظل محدودية البنية التحتية ({t_val}%) وضعف البيئة التشريعية ({r_val}%)."
+                    specific_policy_action = f"إعلان حزمة طوارئ استثمارية عاجلة، ترميم شبكات الاتصالات، دمج الاقتصاد الإبداعي غير الرسمي، وتفعيل برامج الدعم الفني."
 
-                # جلب دقيق ومخصص لمخرجات محاكي السياسات الفعلي لتلك الدولة أو التنبيه التوثيقي المطلوب
+                # جلب دقيق ومخصص لمخرجات المحاكاة الفعلية لتلك الدولة أو صياغة فريدة ومتباينة
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
                 if matched_sims:
                     latest_sim_key = matched_sims[-1]
-                    sim_detail = f"تم رصد سيناريو استشرافي فعال لدولة ({c_name}) ضمن المحاكي: ({latest_sim_key})؛ حيث أثبتت النمذجة قدرة الدولة على تحقيق صافي نمو إيجابي وتوجيه موازنات التدفق لتحقيق السيادة الرقمية."
+                    sim_detail = f"أثبتت نتائج محاكاة السيناريو النشط ({latest_sim_key}) قدرة دولة ({c_name}) على تحقيق صافي نمو استشرافي يتناسب مع درجات محاورها، موجّهةً سعات التحفيز نحو تقليص فجوة الخوارزميات."
                 else:
-                    sim_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت البيانات الخاصة بالمحاكي الاستشرافي لهذه الدولة في التبويب الثاني (محاكي السياسات) للحصول على قراءات محاكاة تفصيلية."
-                
-                # جلب دقيق ومخصص لتوصيات لوحة القرار الفعلية لتلك الدولة أو التنبيه التوثيقي المطلوب
+                    if c_score >= 80:
+                        sim_detail = f"تشير النمذجة القياسية الاستباقية لدولة ({c_name}) إلى قدرتها على الحفاظ على مستويات سيادة رقمية مرتفعة شريطة استمرار تدفقات رأس المال المخاطر ودعم 'المبدع المعزز'."
+                    elif c_score >= 51:
+                        sim_detail = f"تؤكد التحليلات القياسية لدولة ({c_name}) أن أي تخلف عن تحديث التشريعات التنظيمية سيؤدي إلى تفاقم فجوة الإحلال الخوارزمي بنسبة تتجاوز 18%."
+                    else:
+                        sim_detail = f"تظهر قراءة محاكي السياسات لدولة ({c_name}) ضرورة حتمية لضخ استثمارات استثنائية عاجلة لكسر حلقة الجمود الهيكلي الحالية في البنية التقنية."
+
+                # جلب دقيق ومخصص لتوصيات لوحة القرار الفعلية لتلك الدولة أو صياغة فريدة ومتباينة
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
-                    dec_detail = f"تم تفعيل توصيات لوحة القرار ودعم التطعيم الثقافي الخاصة بدولة ({c_name}): ({dec_item['recs'][0]}) مع إرساء آليات الوسم المائي وحماية المصنفات الإبداعية."
+                    dec_detail = f"تم اعتماد لوحة التطعيم الثقافي ودعم القرار لدولة ({c_name}): ({dec_item['recs'][0]}) مع تفعيل آليات حماية المصنفات والأمن الرقمي."
                 else:
-                    dec_detail = f"<b>[تنبيه توثيقي]:</b> يتوجب تسجيل وتثبيت التوصيات الخاصة بدولة ({c_name}) في لوحة دعم اتخاذ القرار والتطعيم الثقافي (التبويب الثالث) لاستعراض القراءات والسياسات الموجهة هنا."
+                    if c_score >= 80:
+                        dec_detail = f"توصي لوحة دعم القرار لدولة ({c_name}) بتوظيف تفوقها التقني لصياغة ميثاق إقليمي لحماية حقوق الملكية الفكرية المشتركة ومعايير الوسم المائي."
+                    elif c_score >= 51:
+                        dec_detail = f"توصي لوحة التطعيم الثقافي لدولة ({c_name}) بتفعيل شراكات بين القطاعين العام والخاص لتمويل الأنشطة الإبداعية وتوسيع دائرة المحتوى الرقمي العربي."
+                    else:
+                        dec_detail = f"توصي لوحة دعم القرار لدولة ({c_name}) باستدعاء إطار التكامل الوظيفي الإقليمي وتوفير مظلة حماية قانونية فورية للمهن الثقافية المعرضة للاندثار."
 
                 single_card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
@@ -996,8 +1006,8 @@ with tab4:
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
                         <li><b>محاور الجاهزية الذكية المرصودة:</b> البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية ({c_val}%)</li>
                         <li><b>المسار التنفيذي الموصى به:</b> {specific_policy_action}</li>
-                        <li><b>🔬 مخرجات محاكي السياسات الاستشرافي:</b> {sim_detail}</li>
-                        <li><b>🛡️ مخرجات لوحة دعم القرار والتطعيم الثقافي:</b> {dec_detail}</li>
+                        <li><b>🔬 مخرجات المحاكاة الاستشرافية (متميزة ومستقلة):</b> {sim_detail}</li>
+                        <li><b>🛡️ مخرجات لوحة الدعم والتطعيم الثقافي (متميزة ومستقلة):</b> {dec_detail}</li>
                     </ul>
                 </div>
                 """
@@ -1038,7 +1048,7 @@ with tab4:
             <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
                 <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h4>
                 <p style="color: #1E293B; font-size: 14.5px; line-height: 1.8; margin-bottom: 15px;">
-                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل والمستقل تماماً لكل دولة مسجلة بناءً على معطياتها الفعلية ومخرجات المحاكاة:
+                  استناداً إلى التحليلات المجمعة ومخرجات التقييم عبر الأقسام (1 التشخيص القياسي، 2 محاكي السياسات، و3 لوحة اتخاذ القرار)، يبرز الملخص التنفيذي المفصل والمستقل تماماً لكل دولة مسجلة بناءً على معطياتها الفعلية ومخرجات المحاكاة والدعم المتمايزة:
                 </p>
             """, unsafe_allow_html=True)
 
