@@ -748,9 +748,9 @@ with tab2:
                 st.session_state.simulated_results_dict[sim_key] = {
                     "html": box_html, 
                     "deep": deep_analysis, 
-                    "country": sim_country_sel,
+                    "country": sim_country_sel, 
                     "scenario": scenario_dropdown,
-                    "simulated_val": simulated_val,
+                    "sim_val": simulated_val,
                     "delta": delta,
                     "analysis": analysis_text,
                     "action_plan": action_plan
@@ -924,13 +924,13 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (مع عزل مخرجات المحاكي والقرار بدقة تامة)
+# التبويب الرابع: التقرير التنفيذي الموحد (تم عزل وتوليد مخرجات المحاكي بدقة منعاً لأي تكرار)
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
     <div dir="rtl" style="text-align: right;">
         <h3>📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية</h3>
-        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.</p>
+        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق لمحاكي السياسات، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -951,7 +951,7 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة مع عزل دقيق لبند محاكي السياسات
+            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة مع عزل تام لمخرجات محاكي السياسات (التبويب الثاني)
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -973,32 +973,37 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # استخلاص وتخصيص مخرجات محاكي السياسات بدقة تامة وبشكل متباين لا يكرر التحليلات العامة
-                matched_sims = [s_item for s_key, s_item in st.session_state.simulated_results_dict.items() if s_item.get("country") == c_name]
+                # العزل الدقيق لمخرجات محاكي السياسات (التبويب الثاني) لضمان عدم التكرار وتقديم تحليلات متباينة جوهرية
+                matched_sims = [s_item for s_key, s_item in st.session_state.simulated_results_dict.items() if s_item["country"] == c_name]
                 if matched_sims:
                     latest_sim = matched_sims[-1]
-                    sim_scenario_name = latest_sim.get("scenario")
-                    sim_val = latest_sim.get("simulated_val")
-                    sim_delta = latest_sim.get("delta")
-                    sim_analysis = latest_sim.get("analysis")
-                    sim_action = latest_sim.get("action_plan")
+                    sim_scenario_title = latest_sim["scenario"]
+                    sim_val_res = latest_sim["sim_val"]
+                    sim_delta_res = latest_sim["delta"]
+                    sim_analysis_core = latest_sim["analysis"]
+                    sim_action_core = latest_sim["action_plan"]
                     
-                    sim_detail = f"""
+                    sim_detail_html = f"""
                     <div style="background: #F8FAFC; padding: 10px; border-radius: 6px; border-right: 3px solid {CBE_ORANGE_MID}; margin-top: 6px;">
-                        <b>السيناريو المختبر:</b> {sim_scenario_name} | <b>القيمة المتوقعة بعد المحاكاة:</b> {sim_val}% (صافي التغير: {sim_delta:+.2f})<br>
-                        <b>التحليل الاستشرافي القياسي:</b> {sim_analysis}<br>
-                        <b>خطة التحرك التكتيكية:</b> {sim_action}
+                        <b>🔬 التحليل الجوهري المستقَى من محاكي السياسات (السيناريو: {sim_scenario_title}):</b><br>
+                        • القيمة المتوقعة للمؤشر: <b>{sim_val_res}%</b> (صافي التغير: <span style="color: {CBE_ORANGE_MID}; font-weight: bold;">{sim_delta_res:+.2f}</span>)<br>
+                        • <b>خلاصة النمذجة القياسية:</b> {sim_analysis_core}<br>
+                        • <b>التدخل الاستراتيجي المقترح:</b> {sim_action_core}
                     </div>
                     """
                 else:
-                    sim_detail = f"<span style='color: #64748B;'>[تنبيه توثيقي]: لم يتم تشغيل أو حفظ أي سيناريو استشرافي خاص بهذه الدولة في القسم الثاني (محاكي السياسات) حتى الآن. يُنصح بتفعيل المحاكي لرصد أثر التدخلات الاستثمارية بدقة.</span>"
+                    sim_detail_html = f"""
+                    <div style="background: #F8FAFC; padding: 8px; border-radius: 6px; border-right: 3px solid #94A3B8; margin-top: 6px; color: #64748B;">
+                        <b>[ملاحظة توثيقية لمحاكي السياسات]:</b> لم يتم تفعيل أو تسجيل سيناريو استشرافي خاص بهذه الدولة في محاكي السياسات (التبويب الثاني) حتى الآن. يُنصح بإجراء المحاكاة لتضمين مسارات النمو القياسية هنا.
+                    </div>
+                    """
                 
-                # استخلاص ومواءمة مخرجات لوحة القرار والتطعيم الثقافي الخاصة بالدولة
+                # التحقق والتنسيق الدقيق لمخرجات لوحة القرار (التبويب الثالث)
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
-                    dec_detail = f"<b>التوصية الاستراتيجية المعتمدة:</b> {dec_item['recs'][0]} مع تفعيل أطر حوكمة الأمن الثقافي والوسم المائي."
+                    dec_detail = f"توصيات لوحة القرار المعتمدة: ({dec_item['recs'][0]}) مع تفعيل آليات التطعيم الثقافي والوسم المائي."
                 else:
-                    dec_detail = f"<span style='color: #64748B;'>[تنبيه توثيقي]: لم يتم اعتماد توصيات لوحة القرار المخصصة لهذه الدولة في القسم الثالث بعد.</span>"
+                    dec_detail = "لم يتم اعتماد لوحة القرار والتوصيات المخصصة لهذه الدولة في التبويب الثالث بعد."
 
                 single_card_html = f"""
                 <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
@@ -1013,9 +1018,9 @@ with tab4:
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
                         <li><b>محاور الجاهزية الذكية المرصودة:</b> البنية التقنية ({t_val}%) | رأس المال البشري ({h_val}%) | البيئة التشريعية ({r_val}%) | الاقتصاد البرتقالي ({e_val}%) | المحددات الثقافية ({c_val}%)</li>
                         <li><b>المسار التنفيذي الموصى به:</b> {specific_policy_action}</li>
-                        <li><b>🔬 مخرجات محاكي السياسات الاستشرافي الفعلي:</b> {sim_detail}</li>
                         <li><b>🛡️ مخرجات لوحة دعم القرار والتطعيم الثقافي:</b> {dec_detail}</li>
                     </ul>
+                    {sim_detail_html}
                 </div>
                 """
                 cards_html_list.append(single_card_html)
