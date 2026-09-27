@@ -54,7 +54,7 @@ div[role="option"] {{
     text-align: right !important;
 }}
 
-/* تمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي وتنسيق الألوان */
+/* تمديد وتعديل حاوية التبويبات لتطابق تصميم شريط الأخبار تماماً وتوزيع الأقسام أربع تربع */
 div.stTabs {{
     width: 100% !important;
     max-width: 100% !important;
@@ -67,11 +67,12 @@ div.stTabs {{
     width: 100% !important;
     max-width: 100% !important;
     gap: 8px !important;
-    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    padding: 20px !important;
-    border-radius: 12px !important;
-    border: 2px solid #FFFFFF !important;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
+    background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    border-top: 2px solid {CBE_ORANGE_MID} !important;
+    border-bottom: 2px solid {CBE_ORANGE_MID} !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     direction: rtl !important;
     box-sizing: border-box !important;
 }}
@@ -82,8 +83,8 @@ div.stTabs {{
     max-width: none !important;
     background-color: rgba(120, 53, 15, 0.85) !important;
     color: #FFFFFF !important;
-    border-radius: 8px !important;
-    padding: 12px 8px !important;
+    border-radius: 6px !important;
+    padding: 10px 6px !important;
     font-weight: 700 !important;
     font-family: 'Cairo', sans-serif !important;
     font-size: 14px !important;
@@ -165,30 +166,30 @@ div.stTabs {{
 
 .header-center {{
     text-align: center !important;
-    background: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(120, 53, 15, 0.90) 100%),
-                url('https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1600&auto=format&fit=crop') !important;
-    background-size: cover !important;
-    background-position: center !important;
+    width: 100% !important;
+    background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
     color: #FFFFFF !important;
-    padding: 40px 20px !important;
-    border-radius: 16px !important;
-    border-bottom: 5px solid {CBE_ORANGE_MID} !important;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
-    margin-bottom: 20px !important;
+    padding: 30px 20px !important;
+    border-radius: 8px !important;
+    border-top: 2px solid {CBE_ORANGE_MID} !important;
+    border-bottom: 2px solid {CBE_ORANGE_MID} !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    margin-bottom: 25px !important;
     direction: rtl !important;
+    box-sizing: border-box !important;
 }}
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 26px !important;
+    font-size: 24px !important;
     font-weight: 800 !important;
-    margin-bottom: 12px !important;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
+    margin-bottom: 10px !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 15px !important;
+    font-size: 14.5px !important;
     font-weight: 500 !important;
     line-height: 1.6 !important;
     margin-bottom: 0px !important;
@@ -908,7 +909,9 @@ with tab3:
                         <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                         <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                             {item['deep']}
-
+                        </div>
+                    </div>
+                </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
         else:
