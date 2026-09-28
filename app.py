@@ -354,7 +354,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي والحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
@@ -393,14 +393,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى 5 تبويبات (Tabs) بعرض الشاشة (تم إضافة تبويب الملاحق)
+# التقسيم الرئيسي إلى 5 تبويبات (Tabs) بعرض الشاشة (تمت إضافة تبويب الملاحق خامساً)
 # ==============================================================================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 تشخيص مؤشر الجاهزية (AACRI)", 
     "📈 محاكي السياسات (Policy Simulator)", 
     "🛡️ لوحة دعم اتخاذ القرار", 
     "📑 التقرير التنفيذي الموحد",
-    "📂 ملاحق الدراسة والتنزيلات"
+    "📂 الملاحق والوثائق البحثية (1-6)"
 ])
 
 # ------------------------------------------------------------------------------
@@ -530,7 +530,7 @@ with tab1:
 <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
 <td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
 <td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-<td style="font-size: 11px;">{row['التقييم المنظومي']}</td>
+<td style="font-size: 11.5px;">{row['التقييم المنظومي']}</td>
 </tr>
 """
             
@@ -679,7 +679,7 @@ with tab2:
                 st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
             else:
                 base_val = base_aacri_input
-                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82  
+                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82 
                 if st.session_state.history_state:
                     for item in st.session_state.history_state:
                         if item["الدولة"] == sim_country_sel:
@@ -778,7 +778,6 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -927,7 +926,6 @@ with tab3:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -937,7 +935,7 @@ with tab4:
     st.markdown("""
     <div dir="rtl" style="text-align: right;">
         <h3>📑 أداة تصدير التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية</h3>
-        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد جاهز للعرض على القيادات العليا.</p>
+        <p>ملخص استراتيجي شامل يدمج نتائج التشخيص الوصفي، التحليل العميق للمحاور، وشجرة نقاط الرفع لدونيلا ميدوز في تقرير موحد شامل جاهز للعرض على القيادات العليا.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -984,7 +982,7 @@ with tab4:
                     latest_sim_key = matched_sims[-1]
                     sim_data_obj = st.session_state.simulated_results_dict[latest_sim_key]
                     sim_detail = (
-                        f"تم تطبيق سيناريو ({sim_data_obj['scenario']})؛ "
+                        f"تم تطبيق سيناريو ({sim_data_obj['scenario']}); "
                         f"حيث بلغت القيمة المتوقعة للمؤشر ({sim_data_obj['simulated_val']}%) بصافي تغير قدره ({sim_data_obj['delta']:+.2f}). "
                         f"<b>التحليل:</b> {sim_data_obj['analysis_text']} "
                         f"<b>خطة التحرك:</b> {sim_data_obj['action_plan']}"
@@ -992,17 +990,20 @@ with tab4:
                 else:
                     sim_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
-                        "⚠️ تنبيه توثيقي: لم يتم تسجيل أو تثبيت أي سيناريو استشرافي لهذا البلد في محاكي السياسات."
+                        "⚠️ تنبيه توثيقي: لم يتم تسجيل أو تثبيت أي سيناريو استشرافي لهذا البلد في محاكي السياسات (التبويب الثاني)."
                         "</span>"
                     )
                 
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
-                    dec_detail = f"{dec_item['recs'][0]} — وكذلك: {dec_item['recs'][1]}"
+                    dec_detail = (
+                        f"{dec_item['recs'][0]} — "
+                        f"وكذلك: {dec_item['recs'][1]}"
+                    )
                 else:
                     dec_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
-                        "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار لهذا البلد."
+                        "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد في (التبويب الثالث)."
                         "</span>"
                     )
 
@@ -1037,7 +1038,7 @@ with tab4:
 
             st.markdown(f"""
             <div style="background: {CBE_BG}; padding: 18px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 25px;" dir="rtl">
-                <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية:</h4>
+                <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h4>
                 <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CBE_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p style="margin-bottom: 8px; line-height: 1.8;"><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
                 <p style="margin: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
@@ -1057,15 +1058,20 @@ with tab4:
                 """
                 st.markdown(summary_card, unsafe_allow_html=True)
 
-            st.markdown(f"""
-            <div style="background: #F0FDF4; padding: 22px; border-radius: 12px; border: 1.5px solid #86EFAC; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
-                <h4 style="color: {CBE_NAVY}; margin-top: 0; font-size: 17px; font-weight: bold;">📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h4>
-            """, unsafe_allow_html=True)
-
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
-            st.markdown("""
+            st.markdown(f"""
+            <div style="background: #FFFBEB; padding: 22px; border-radius: 12px; border: 1.5px solid #FCD34D; margin-top: 20px; margin-bottom: 20px;" dir="rtl">
+                <h4 style="color: {CBE_ORANGE_DARK}; margin-top: 0; font-size: 17px;">🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h4>
+                <ul style="margin: 0; padding-right: 20px; line-height: 1.9; color: #78350F;">
+                  <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب وإعادة التأهيل.</li>
+                  <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية ومؤشرات قياس آنية.</li>
+                  <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة ومعايير الوسم المائي لحماية الحقوق.</li>
+                  <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي القومي.</li>
+                  <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة أساسية للتنمية المستدامة في عصر الذكاء الاصطناعي.</li>
+                </ul>
+            </div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1076,10 +1082,40 @@ with tab4:
                 <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
                 <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)</p>
                 <hr>
+                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية:</h3>
+                <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
+                <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
+                <p>إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
+                <hr>
+                <h3>📋 ترتيب الملخص التراكمي للدول:</h3>
+                <ul>
+            """
+            for idx, row in df_rep.iterrows():
+                s = row['المؤشر المركب (AACRI)']
+                s_str = get_colored_score_html(s)
+                word_content += f"<li><b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {s_str} | البنية التقنية: {row['البنية التقنية (20%)']}% | رأس المال البشري: {row['رأس المال البشري (30%)']}%</li>"
+            
+            word_content += f"""
+                </ul>
+                <hr>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة (مفصل ومستقل لكل دولة):</h3>
                 {word_blocks_html}
+                <hr>
+                <h3>🌳 إطار شجرة قرارات نقاط الرفع المنظومي (Meadows Leverage Points Framework):</h3>
+                <ul>
+                    <li><b>1. المعلمات والميزانيات (Parameters):</b> تعديل نسب الإنفاق المباشر وموازنات دعم التدريب وإعادة التأهيل.</li>
+                    <li><b>2. تدفق المعلومات (Information Flows):</b> توفير قواعد بيانات مرجعية ومنصات حصر رقمية ومؤشرات قياس آنية.</li>
+                    <li><b>3. القواعد والحوكمة (Rules):</b> تشريع أطر الملكية الفكرية المشتركة ومعايير الوسم المائي لحماية الحقوق.</li>
+                    <li><b>4. أهداف النظام (Goals):</b> توجيه السياسات الوطنية نحو تحقيق السيادة الرقمية وصون الأمن الثقافي القومي.</li>
+                    <li><b>5. النماذج الفكرية (Paradigms):</b> ترسيخ مفهوم الاقتصاد البرتقالي كركيزة أساسية للتنمية المستدامة في عصر الذكاء الاصطناعي.</li>
+                </ul>
+                <hr>
+                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
             </body>
             </html>
             """
+            
             st.download_button(
                 label="📥 تحميل التقرير التنفيذي في ملف مستند (Word)",
                 data=word_content.encode("utf-8-sig"),
@@ -1092,75 +1128,71 @@ with tab4:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الخامس الجديد: ملاحق الدراسة والتنزيلات (إتاحة الملاحق الستة للتحميل)
+# التبويب الخامس الجديد: الملاحق والوثائق البحثية (1-6) لإتاحة التحميل والاستعراض
 # ------------------------------------------------------------------------------
 with tab5:
     st.markdown("""
     <div dir="rtl" style="text-align: right;">
-        <h3>📂 مستودع الملاحق البحثية والتنزيلات الرسمية</h3>
-        <p>يحتوي هذا القسم على الملاحق الستة الكاملة للدراسة، ومتاحة للتنزيل المباشر بصيغ (Word / CSV / PDF) للاطلاع الفاحص والمراجع الأكاديمية.</p>
+        <h3>📂 الملاحق والوثائق البحثية الداعمة للمنصة (من الملحق 1 إلى الملحق 6)</h3>
+        <p>استعراض وتحميل الملاحق التفصيلية المتكاملة التي تشمل الدراسات الببليومترية، خرائط السببية، المصفوفة الإجرائية، المقارنات الزوجية، معادلات المؤشر، وبروتوكول الاختبار الميداني.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # محتوى الملحق الأول
-    m1_content = """وثيقة الملحق (1): الاستقراء الببليومتري ونمذجة الموضوعات وتفصيل الفجوة المعرفية (2017-2026). يشمل مسح قواعد البيانات (Scopus, Web of Science, Dimensions, دار المنظومة)."""
-    st.download_button(
-        label="📥 تحميل الملحق (1): الاستقراء الببليومتري ونمذجة الموضوعات (Word)",
-        data=m1_content.encode("utf-8-sig"),
-        file_name="الملحق_1_الاستقراء_الببليومتري.doc",
-        mime="application/msword",
-        use_container_width=True
-    )
+    # محتوى الملاحق بصيغة نصوص جاهزة للتحميل والعرض المباشر
+    appendices_data = {
+        "الملحق (1): الاستقراء الببليومتري ونمذجة الموضوعات": """ملحق (1)
+الاستقراء الببليومتري ونمذجة الموضوعات وتشخيص الفجوة المعرفية
+اعتمادًا على استراتيجية "التثليث المنهجي"، أجرى الباحث مسحًا ببليومتريًا مزدوجًا لقواعد البيانات الدولية (Scopus, Web of Science, Dimensions) والعربية (دار المنظومة) للفترة (2017-2025)...
+يتضمن هذا الملحق جدول المسح الببليومتري للتقاطعات البحثية، وتحليل كثافة المفاهيم (Co-occurrence Analysis)، وخرائط شبكة التعاون الدولي ومخرجات خوارزمية (LDA) للمواضيع المعرفية المهيمنة.""",
+        
+        "الملحق (2): المسارات الفرعية لخرائط حلقات السببية (CLDs)": """ملحق (2)
+المسارات الفرعية لخرائط حلقات السببية (CLDs)
+يتناول هذا الملحق التفصيل الهيكلي لحلقات التعزيز والتوازن (Reinforcing & Balancing Loops) للمحاور الخمسة:
+1. البنية التقنية (TR1, TR2, TB1).
+2. الديناميكيات الاقتصادية (ER1, ER2, EB1).
+3. رأس المال البشري والمهارات التوليدية (HR1, HB1).
+4. البيئة التنظيمية والتشريعية (AR1, AB1).
+5. المحددات الثقافية والهوياتية والأمن الثقافي (CR1, CB1).""",
 
-    # محتوى الملحق الثاني
-    m2_content = """وثيقة الملحق (2): المسارات الفرعية لخرائط حلقات السببية (CLDs) وحلقات التعزيز والتوازن (Reinforcing & Balancing Loops) في النسق الاجتماعي التقني."""
-    st.download_button(
-        label="📥 تحميل الملحق (2): المسارات الفرعية لخرائط حلقات السببية CLDs (Word)",
-        data=m2_content.encode("utf-8-sig"),
-        file_name="الملحق_2_خرائط_السبابية.doc",
-        mime="application/msword",
-        use_container_width=True
-    )
+        "الملحق (3): المصفوفة الإجرائية للمحاور والأبعاد والمتغيرات (AACRI)": """ملحق (3)
+المصفوفة الإجرائية للمحاور الرئيسة والأبعاد الأساسية والأبعاد الفرعية والمتغيرات للمؤشر (AACRI)
+إتاحة البنية الإجرائية الكاملة لـ 69 متغيراً إجرائياً، منضوية تحت 26 بعداً فرعياً، و13 بعداً أساسياً، و5 محاور رئيسة، وفق التسلسل الهرمي للمؤشر المركب.""",
 
-    # محتوى الملحق الثالث
-    m3_content = """وثيقة الملحق (3): المصفوفة الإجرائية الكاملة للمحاور الرئيسة (5) والأبعاد الأساسية (13) والأبعاد الفرعية (26) والمتغيرات التشغيلية (69) لمؤشر AACRI."""
-    st.download_button(
-        label="📥 تحميل الملحق (3): المصفوفة الإجرائية والمتغيرات الـ 69 (Word)",
-        data=m3_content.encode("utf-8-sig"),
-        file_name="الملحق_3_المتغيرات_69_AACRI.doc",
-        mime="application/msword",
-        use_container_width=True
-    )
+        "الملحق (4): المقارنات الزوجية (Pairwise Comparisons)": """ملحق (4)
+المقارنات الزوجية (Pairwise Comparisons)
+تقييم الأهمية النسبية بين كل محورين رئيسيين بناءً على مقياس "ساعاتي" المتدرج من (1 إلى 9) ومؤشر نسبة الاتساق (Consistency Ratio) لضمان الرصانة الرياضية لمخرجات التحليل الهرمي (AHP).""",
 
-    # محتوى الملحق الرابع
-    m4_content = """وثيقة الملحق (4): جداول المقارنات الزوجية (Pairwise Comparisons) وفق منهجية التحليل الهرمي (AHP) ونسب الاتساق (CR <= 0.10)."""
-    st.download_button(
-        label="📥 تحميل الملحق (4): مصفوفات المقارنات الزوجية AHP (Word)",
-        data=m4_content.encode("utf-8-sig"),
-        file_name="الملحق_4_المقارنات_الزوجية_AHP.doc",
-        mime="application/msword",
-        use_container_width=True
-    )
+        "الملحق (5): معادلات المؤشر المركب والتطبيع والقياس": """ملحق (5)
+معادلات المؤشر المركب والتطبيع والقياس
+الإطار الرياضي للمؤشر المركب (الصيغة المرجحة):
+Main Index AACRI = Σ (wi * ci)
+وتتضمن معادلات التطبيع والقياس (Min-Max Scaling) للمؤشرات ذات الأثر الإيجابي والسلبي.""",
 
-    # محتوى الملحق الخامس
-    m5_content = """وثيقة الملحق (5): المعادلات الرياضية التفصيلية لمعادلة الاحتساب التجميعي الخطر المرجح للمؤشر المركب (AACRI) ومعادلات التطبيع (Min-Max)."""
-    st.download_button(
-        label="📥 تحميل الملحق (5): المعادلات الرياضية والتطبيع (Word)",
-        data=m5_content.encode("utf-8-sig"),
-        file_name="الملحق_5_المعادلات_الرياضية.doc",
-        mime="application/msword",
-        use_container_width=True
-    )
+        "الملحق (6): بروتوكول الاختبار الميداني والوصول التفاعلي للمنصة": """ملحق (6)
+بروتوكول الاختبار الميداني والوصول التفاعلي لمنصة "منظومة القرار المتكاملة"
+تجسيدًا للجانب التطبيقي والبرمجي لهذه الدراسة، تفاصيل رابط الوصول السحابي للمنصة، بيانات الاعتماد التجريبية (user / 123)، والخطوات الإجرائية لإتمام عملية التحكيم الميداني."""
+    }
 
-    # محتوى الملحق السادس
-    m6_content = """وثيقة الملحق (6): بروتوكول الاختبار الميداني والوصول التفاعلي لمنصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية (رابط الوصول وبيانات الاعتماد)."""
-    st.download_button(
-        label="📥 تحميل الملحق (6): بروتوكول الاختبار الميداني للمنصة (Word)",
-        data=m6_content.encode("utf-8-sig"),
-        file_name="الملحق_6_بروتوكول_الاختبار.doc",
-        mime="application/msword",
-        use_container_width=True
-    )
+    selected_app = st.selectbox("اختر الملحق لاستعراض محتواه بالكامل:", list(appendices_data.keys()))
+
+    st.markdown(f"""
+    <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-top: 15px; margin-bottom: 15px;" dir="rtl">
+        <h4 style="color: {CBE_NAVY}; margin-top: 0;">📄 استعراض محتوى: {selected_app}</h4>
+        <p style="color: #1E293B; line-height: 1.8; white-space: pre-line;">{appendices_data[selected_app]}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # أزرار تحميل الملاحق المباشرة
+    col_app1, col_app2, col_app3 = st.columns(3)
+    with col_app1:
+        st.download_button("📥 تحميل ملحق (1)", data=appendices_data["الملحق (1): الاستقراء الببليومتري ونمذجة الموضوعات"].encode("utf-8-sig"), file_name="ملحق_1_الاستقراء_الببليومتري.txt", mime="text/plain", use_container_width=True)
+        st.download_button("📥 تحميل ملحق (4)", data=appendices_data["الملحق (4): المقارنات الزوجية (Pairwise Comparisons)"].encode("utf-8-sig"), file_name="ملحق_4_المقارنات_الزوجية.txt", mime="text/plain", use_container_width=True)
+    with col_app2:
+        st.download_button("📥 تحميل ملحق (2)", data=appendices_data["الملحق (2): المسارات الفرعية لخرائط حلقات السببية (CLDs)"].encode("utf-8-sig"), file_name="ملحق_2_خرائط_السبابية.txt", mime="text/plain", use_container_width=True)
+        st.download_button("📥 تحميل ملحق (5)", data=appendices_data["الملحق (5): معادلات المؤشر المركب والتطبيع والقياس"].encode("utf-8-sig"), file_name="ملحق_5_معادلات_المؤشر.txt", mime="text/plain", use_container_width=True)
+    with col_app3:
+        st.download_button("📥 تحميل ملحق (3)", data=appendices_data["الملحق (3): المصفوفة الإجرائية للمحاور والأبعاد والمتغيرات (AACRI)"].encode("utf-8-sig"), file_name="ملحق_3_المصفوفة_الإجرائية.txt", mime="text/plain", use_container_width=True)
+        st.download_button("📥 تحميل ملحق (6)", data=appendices_data["الملحق (6): بروتوكول الاختبار الميداني والوصول التفاعلي للمنصة"].encode("utf-8-sig"), file_name="ملحق_6_بروتوكول_الاختبار.txt", mime="text/plain", use_container_width=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
