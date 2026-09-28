@@ -369,6 +369,8 @@ if "simulated_results_dict" not in st.session_state:
     st.session_state.simulated_results_dict = {}
 if "decision_results_dict" not in st.session_state:
     st.session_state.decision_results_dict = {}
+if "uploaded_appendices" not in st.session_state:
+    st.session_state.uploaded_appendices = {}
 
 # ==============================================================================
 # التروياسة والشريط الإخباري
@@ -393,13 +395,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى 4 تبويبات (Tabs) بعرض الشاشة
+# التقسيم الرئيسي إلى 5 تبويبات (Tabs) بعرض الشاشة (تمت إضافة تبويب الملاحق)
 # ==============================================================================
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 تشخيص مؤشر الجاهزية (AACRI)", 
     "📈 محاكي السياسات (Policy Simulator)", 
     "🛡️ لوحة دعم اتخاذ القرار", 
-    "📑 التقرير التنفيذي الموحد"
+    "📑 التقرير التنفيذي الموحد",
+    "📚 ملاحق الدراسة التوثيقية"
 ])
 
 # ------------------------------------------------------------------------------
@@ -931,7 +934,7 @@ with tab3:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الرابع: التقرير التنفيذي الموحد (مطور ومستقل لكل دولة مع تنبيهات توثيقية صفراء)
+# التبويب الرابع: التقرير التنفيذي الموحد
 # ------------------------------------------------------------------------------
 with tab4:
     st.markdown("""
@@ -958,7 +961,6 @@ with tab4:
             cards_html_list = []
             word_blocks_html = ""
 
-            # معالجة فريدة ومتباينة ومستقلة تماماً لكل دولة منعاً للتكرار
             for idx, row in df_rep.iterrows():
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
@@ -980,34 +982,30 @@ with tab4:
                     specific_strategic_angle = f"تظهر قراءة دولة ({c_name}) فجوة هيكلية حرجة ({c_score}%) تهدد باستبعاد الكوادر الوطنية من سوق العمل الرقمي وتستوجب خطط طوارئ عاجلة لترميم البنية التحتية."
                     specific_policy_action = f"إعلان حالة طوارئ استثمارية لرفع سقف البنية التقنية المتدنية ({t_val}%) وتطوير أطر البيئة التشريعية المقدرة بـ ({r_val}%)."
 
-                # جلب مخرجات محاكي السياسات الخاص بهذه الدولة بدقة وتجنب أي تكرار
                 matched_sims = [s_key for s_key in st.session_state.simulated_results_dict.keys() if s_key.startswith(c_name)]
                 if matched_sims:
                     latest_sim_key = matched_sims[-1]
                     sim_data_obj = st.session_state.simulated_results_dict[latest_sim_key]
                     sim_detail = (
-                        f"<b></b> تم تطبيق سيناريو ({sim_data_obj['scenario']})؛ "
+                        f"تم تطبيق سيناريو ({sim_data_obj['scenario']})؛ "
                         f"حيث بلغت القيمة المتوقعة للمؤشر ({sim_data_obj['simulated_val']}%) بصافي تغير قدره ({sim_data_obj['delta']:+.2f}). "
                         f"<b>التحليل:</b> {sim_data_obj['analysis_text']} "
                         f"<b>خطة التحرك:</b> {sim_data_obj['action_plan']}"
                     )
                 else:
-                    # تنبيه توثيقي مُميز بلون أصفر خفيف لعدم تسجيل البيانات في المحاكي
                     sim_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
                         "⚠️ تنبيه توثيقي: لم يتم تسجيل أو تثبيت أي سيناريو استشرافي لهذا البلد في محاكي السياسات (التبويب الثاني). يرجى تفعيل المحاكي وتسجيل السيناريو لعرض نتائجه القياسية المستقلة هنا."
                         "</span>"
                     )
                 
-                # جلب مخرجات لوحة دعم القرار الخاصة بهذه الدولة بدقة
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = (
-                        f"<b></b> {dec_item['recs'][0]} — "
+                        f"{dec_item['recs'][0]} — "
                         f"وكذلك: {dec_item['recs'][1]}"
                     )
                 else:
-                    # تنبيه توثيقي مُميز بلون أصفر خفيف لعدم اعتماد التوصيات
                     dec_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
                         "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد في (التبويب الثالث). يرجى زيارة لوحة القرار واعتماد التوصيات لإدراجها بالتقرير."
@@ -1142,6 +1140,86 @@ with tab4:
                 mime="application/msword",
                 use_container_width=True
             )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# التبويب الخامس (المضاف حديثاً): ملاحق الدراسة التوثيقية (Upload & Appendices Hub)
+# ------------------------------------------------------------------------------
+with tab5:
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>📚 مستودع ملاحق الدراسة التوثيقية ومنصة الإحالات الرقمية</h3>
+        <p>إدارة وتثبيت واستعراض الملاحق الفنية والمنهجية والرياضية للبحث (الببليومتري، مصفوفات AHP، والمتغيرات الـ 69).</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_up1, col_up2 = st.columns([1, 1], gap="large")
+
+    with col_up1:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
+        st.markdown("<h4>📤 رفع وتثبيت ملحق جديد للدراسة</h4>", unsafe_allow_html=True)
+        appendix_name = st.selectbox("اختر الملحق المستهدف للرفع والتوثيق", [
+            "الملحق (أ): استراتيجية البحث الببليومتري وسلاسل البيانات",
+            "الملحق (ب): مخرجات نمذجة الموضوعات (LDA) وتحليل VOSviewer",
+            "الملحق (ج): المصفوفة الإجرائية الكاملة للمتغيرات الـ 69",
+            "الملحق (د): مصفوفات المقارنات الزوجية الكاملة للتحليل الهرمي (AHP)",
+            "الملحق (هـ): معادلات التطبيع القياسي والتجميع المرجح",
+            "الملحق (و): خرائط حلقات السببية التفصيلية (CLDs)"
+        ], key="app_select_box")
+
+        uploaded_file = st.file_uploader("اختر ملف الملحق (PDF أو Excel أو CSV)", type=["pdf", "xlsx", "csv", "docx"], key="app_file_uploader")
+
+        if st.button("💾 حفظ وتثبيت الملحق في المنصة", use_container_width=True, type="primary"):
+            if uploaded_file is not None:
+                st.session_state.uploaded_appendices[appendix_name] = {
+                    "filename": uploaded_file.name,
+                    "size": uploaded_file.size,
+                    "data": uploaded_file.getvalue()
+                }
+                st.success(f"✅ تم رفع وتثبيت ({appendix_name}) بنجاح على المنصة السحابية.")
+            else:
+                st.warning("⚠️ يرجى اختيار ملف أولاً قبل النقر على زر التثبيت.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col_up2:
+        st.markdown('<div dir="rtl" style="text-align: right;">', unsafe_allow_html=True)
+        st.markdown("<h4>📂 الملاحق المثبتة والمتاحة للاستعراض</h4>", unsafe_allow_html=True)
+        
+        default_appendices = [
+            "الملحق (أ): استراتيجية البحث الببليومتري وسلاسل البيانات",
+            "الملحق (ب): مخرجات نمذجة الموضوعات (LDA) وتحليل VOSviewer",
+            "الملحق (ج): المصفوفة الإجرائية الكاملة للمتغيرات الـ 69",
+            "الملحق (د): مصفوفات المقارنات الزوجية الكاملة للتحليل الهرمي (AHP)",
+            "الملحق (هـ): معادلات التطبيع القياسي والتجميع المرجح",
+            "الملحق (و): خرائط حلقات السببية التفصيلية (CLDs)"
+        ]
+
+        for app_title in default_appendices:
+            if app_title in st.session_state.uploaded_appendices:
+                file_info = st.session_state.uploaded_appendices[app_title]
+                st.markdown(f"""
+                <div style="background: #F0FDF4; padding: 10px 14px; border-radius: 8px; border: 1px solid #86EFAC; margin-bottom: 8px;" dir="rtl">
+                    <b>✅ {app_title}</b><br>
+                    <span style="font-size: 12px; color: #166534;">الملف المثبت: {file_info['filename']} (جاهز للتحميل والاستعراض)</span>
+                </div>
+                """, unsafe_allow_html=True)
+                st.download_button(
+                    label=f"📥 تحميل {app_title}",
+                    data=file_info["data"],
+                    file_name=file_info["filename"],
+                    mime="application/octet-stream",
+                    key=f"down_{app_title}"
+                )
+            else:
+                st.markdown(f"""
+                <div style="background: #F8FAFC; padding: 10px 14px; border-radius: 8px; border: 1px solid #CBD5E1; margin-bottom: 8px;" dir="rtl" style="color: #64748B;">
+                    <b>📌 {app_title}</b><br>
+                    <span style="font-size: 12px; color: #64748B;">الحالة: متاح عبر الإحالة المنهجية (يمكن رفع ملفه التوثيقي المخصص من الجهة اليمنى).</span>
+                </div>
+                """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
