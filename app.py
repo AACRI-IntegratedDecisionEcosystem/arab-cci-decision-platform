@@ -1,5 +1,6 @@
 import random
 import io
+import os
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -97,7 +98,7 @@ div.stTabs {{
     padding: 12px 8px !important;
     font-weight: 700 !important;
     font-family: 'Cairo', sans-serif !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     border: 1px solid rgba(255,255,255,0.2) !important;
     text-align: center !important;
     justify-content: center !important;
@@ -339,7 +340,7 @@ def describe_rf(val):
 
 def describe_cd(val):
     if val >= 80:
-        return f"محددات ثقافية وهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
+        return f"محددات ثقافية والهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
     elif val >= 50:
         return f"محددات ثقافية متوازنة (%{val}) تتطلب تعزيز المحتوى الرقمي الثقافي والتراثي المتاح بالعربية."
     else:
@@ -393,14 +394,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى 5 تبويبات (Tabs) بما فيها ملاحق المشروع
+# التقسيم الرئيسي إلى 5 تبويبات (Tabs) تشمل الملاحق البرمجية
 # ==============================================================================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 تشخيص مؤشر الجاهزية (AACRI)", 
     "📈 محاكي السياسات (Policy Simulator)", 
     "🛡️ لوحة دعم اتخاذ القرار", 
     "📑 التقرير التنفيذي الموحد",
-    "📁 ملاحق المشروع والوثائق (PDF)"
+    "📚 ملاحق المشروع والوثائق (PDF)"
 ])
 
 # ------------------------------------------------------------------------------
@@ -679,7 +680,7 @@ with tab2:
                 st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
             else:
                 base_val = base_aacri_input
-                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82  
+                t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82 
                 if st.session_state.history_state:
                     for item in st.session_state.history_state:
                         if item["الدولة"] == sim_country_sel:
@@ -990,7 +991,7 @@ with tab4:
                 else:
                     sim_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
-                        "⚠️ تنبيه توثيقي: لم يتم تسجيل أي سيناريو استشرافي لهذا البلد في محاكي السياسات."
+                        "⚠️ تنبيه توثيقي: لم يتم تسجيل أو تثبيت أي سيناريو استشرافي لهذا البلد في محاكي السياسات."
                         "</span>"
                     )
                 
@@ -1000,7 +1001,7 @@ with tab4:
                 else:
                     dec_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
-                        "⚠️ تنبيه توثيقي: لم يتم اعتماد توصيات لوحة القرار والتطعيم الثقافي لهذا البلد."
+                        "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد."
                         "</span>"
                     )
 
@@ -1042,6 +1043,18 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
+            st.markdown("<h4 style='color: #0A192F; margin-bottom: 12px;'>📋 ترتيب الملخص التراكمي للدول:</h4>", unsafe_allow_html=True)
+            for idx, row in df_rep.iterrows():
+                s = row['المؤشر المركب (AACRI)']
+                s_str = get_colored_score_html(s)
+                summary_card = f"""
+                <div style="margin-bottom: 12px; line-height: 1.8; background: #F8FAFC; padding: 12px 16px; border-radius: 8px; border: 1px solid #E2E8F0;" dir="rtl">
+                    <b>المركز ({idx + 1}): {row['الدولة']}</b> — المؤشر المركب: {s_str} | البنية التقنية: {row['البنية التقنية (20%)']}% | رأس المال البشري: {row['رأس المال البشري (30%)']}% <br>
+                    <span style="color: #475569; font-size: 13.5px;"><b>التقييم التشخيصي:</b> {row['التقييم المنظومي']}</span>
+                </div>
+                """
+                st.markdown(summary_card, unsafe_allow_html=True)
+
             for card_code in cards_html_list:
                 st.markdown(card_code, unsafe_allow_html=True)
 
@@ -1049,72 +1062,85 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
+            word_content = f"""
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
+            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
+                <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
+                <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)</p>
+                <hr>
+                <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية:</h3>
+                <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
+                <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
+                <p>إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
+                <hr>
+                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
+                {word_blocks_html}
+                <hr>
+                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
+                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
+            </body>
+            </html>
+            """
+            st.download_button(
+                label="📥 تحميل التقرير التنفيذي في ملف مستند (Word)",
+                data=word_content.encode("utf-8-sig"),
+                file_name="التقرير_التنفيذي_للسياسات_الثقافية.doc",
+                mime="application/msword",
+                use_container_width=True
+            )
+
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الخامس: ملاحق المشروع والوثائق (PDF) - (جديد)
+# التبويب الخامس: ملاحق المشروع والوثائق (PDF) - (تم إضافته حديثاً)
 # ------------------------------------------------------------------------------
 with tab5:
     st.markdown("""
     <div dir="rtl" style="text-align: right;">
-        <h3>📁 مستودع ملاحق المشروع والوثائق البحثية (PDF)</h3>
-        <p>استعراض وتحميل ملاحق الدراسة الستة المرفوعة برمجياً إلى مستودع المشروع، لتكون متاحة للزوار والباحثين للاطلاع على التفاصيل المنهجية والقياسية.</p>
+        <h3>📚 ملاحق المشروع والوثائق البحثية الداعمة (PDF)</h3>
+        <p>استعراض وتحميل ملاحق الدراسة الأساسية المرفقة مستودعياً بصيغة PDF لتمكين لجان التحكيم والباحثين من الاطلاع على التوثيق العلمي والمنهجي الكامل.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # تعريف الملاحق ومساراتها الافتراضية في مستودع GitHub
+    # قائمة الملاحق الستة بأسماؤها وملفاتها الفعلية على مستودع GitHub
     appendices = [
-        {
-            "title": "ملحق 1: الاستقراء الببليومتري ونمذجة الموضوعات وتشخيص الفجوة المعرفية",
-            "file": "ملحق 1 الاستقراء الببليومتري ونمذجة الموضوعات وتشخيص الفجوة المعرفية.pdf",
-            "desc": "مسح ببليومتري مزدوج لقواعد البيانات الدولية (Scopus, WoS, Dimensions) والعربية، وتحليل شبكات VOSviewer وخوارزمية LDA."
-        },
-        {
-            "title": "ملحق 2: المسارات الفرعية لخرائط حلقات السببية (CLDs)",
-            "file": "ملحق 2 المسارات الفرعية لخرائط حلقات السببية (CLDs).pdf",
-            "desc": "التفصيل الكامل لحلقات التعزيز والتوازن في البنية التقنية، والديناميكيات الاقتصادية، ورأس المال البشري."
-        },
-        {
-            "title": "ملحق 3: المصفوفة الإجرائية للمحاور الرئيسة والأبعاد والمتغيرات (AACRI)",
-            "file": "ملحق 3المصفوفة الإجرائية للمحاور الرئيسة والأبعاد الأساسية والأبعاد الفرعية والمتغيرات للمؤشر (AACRI).pdf",
-            "desc": "الهيكل الإجرائي الكامل للمتغيرات الـ 69 المنضوية تحت الأبعاد والمحاور الخمسة للمؤشر."
-        },
-        {
-            "title": "ملحق 4: المقارنات الزوجية (Pairwise Comparisons)",
-            "file": "ملحق 4 المقارنات الزوجية (Pairwise Comparisons).pdf",
-            "desc": "استبيان مقياس ساعاتي لتحديد الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي (AHP)."
-        },
-        {
-            "title": "ملحق 5: معادلات المؤشر المركب والتطبيع والقياس",
-            "file": "الملحق (5) معادلات المؤشر المركب والتطبيع والقياس.pdf",
-            "desc": "الإطار الرياضي لمعادلة المؤشر المرجح ومنهجية التوحيد والمعيارية (Min-Max Scaling)."
-        },
-        {
-            "title": "ملحق 6: بروتوكول الاختبار الميداني والوصول التفاعلي للمنصة",
-            "file": "الملحق (6) بروتوكول الاختبار الميداني والوصول التفاعلي لمنصة 'منظومة القرار المتكاملة.pdf",
-            "desc": "دليل التشغيل السحابي والخطوات الإجرائية لاختبار المنصة ولجان التحكيم."
-        }
+        {"title": "ملحق 1: الاستقراء الببليومتري ونمذجة الموضوعات وتشخيص الفجوة المعرفية", "filename": "ملحق 1 الاستقراء الببليومتري ونمذجة الموضوعات وتشخيص الفجوة المعرفية.pdf"},
+        {"title": "ملحق 2: المسارات الفرعية لخرائط حلقات السببية (CLDs)", "filename": "ملحق 2 المسارات الفرعية لخرائط حلقات السببية (CLDs).pdf"},
+        {"title": "ملحق 3: المصفوفة الإجرائية للمحاور الرئيسة والأبعاد الأساسية والأبعاد الفرعية والمتغيرات للمؤشر (AACRI)", "filename": "ملحق 3المصفوفة الإجرائية للمحاور الرئيسة والأبعاد الأساسية والأبعاد الفرعية والمتغيرات للمؤشر (AACRI).pdf"},
+        {"title": "ملحق 4: المقارنات الزوجية (Pairwise Comparisons)", "filename": "ملحق 4 المقارنات الزوجية (Pairwise Comparisons)،.pdf"},
+        {"title": "ملحق 5: معادلات المؤشر المركب والتطبيع والقياس", "filename": "الملحق (5) معادلات المؤشر المركب والتطبيع والقياس.pdf"},
+        {"title": "ملحق 6: بروتوكول الاختبار الميداني والوصول التفاعلي لمنصة 'منظومة القرار المتكاملة'", "filename": "ملحق (6) بروتوكول الاختبار الميداني والوصول التفاعلي لمنصة 'منظومة القرار المتكاملة.pdf"}
     ]
 
     for app in appendices:
         with st.expander(f"📑 {app['title']}"):
-            st.markdown(f"<p style='text-align: right; color: #475569;'>{app['desc']}</p>", unsafe_allow_html=True)
-            
-            # محاكاة رابط التحميل أو الاستعراض المباشر للملف من مستودع GitHub
-            col_a, col_b = st.columns([1, 1])
-            with col_a:
-                st.info(f"📂 اسم الملف في المستودع:\n`{app['file']}`")
-            with col_b:
-                # زر تحميل افتراضي يعتمد على وجود الملف في المستودع المحلي أو المسار
+            file_path = app["filename"]
+            if os.path.exists(file_path):
+                st.success(f"✅ الملف متوفر وجاهز للاستعراض والتحميل: `{file_path}`")
+                
+                # زر التحميل المباشر للزوار
+                with open(file_path, "rb") as f:
+                    pdf_bytes = f.read()
                 st.download_button(
                     label=f"📥 تحميل {app['title']} (PDF)",
-                    data=b"PDF_CONTENT_PLACEHOLDER",  # يتم استبداله ببيانات الملف الفعلي عند تواجده في مسار المشروع
-                    file_name=app['file'],
+                    data=pdf_bytes,
+                    file_name=file_path,
                     mime="application/pdf",
                     use_container_width=True,
-                    key=app['file']
+                    key=f"dl_{file_path}"
                 )
+                
+                # معاينة محتوى ملف الـ PDF داخل المنصة باستخدام iframe أو تضمين HTML
+                try:
+                    import base64
+                    base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+                except Exception:
+                    st.info("ℹ️ تعذر عرض معاينة الـ PDF المباشرة، يمكنك تحميل الملف مباشرة لاستعراض محتواه بالكامل.")
+            else:
+                st.warning(f"⚠️ تنبيه: الملف `{file_path}` غير موجود حالياً في مجلد المشروع الرئيسي على GitHub. تأكد من رفع الملف بالاسم المطابق تماماً ليعمل الاستدعاء البرمجي بسلاسة.")
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
