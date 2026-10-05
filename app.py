@@ -78,9 +78,9 @@ div.stTabs {{
     flex-direction: row-reverse !important;
     width: 100% !important;
     max-width: 100% !important;
-    gap: 8px !important;
+    gap: 6px !important;
     background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    padding: 12px !important;
+    padding: 10px !important;
     border-radius: 12px !important;
     border: 2px solid #FFFFFF !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
@@ -95,10 +95,10 @@ div.stTabs {{
     background-color: rgba(120, 53, 15, 0.85) !important;
     color: #FFFFFF !important;
     border-radius: 8px !important;
-    padding: 12px 8px !important;
+    padding: 10px 4px !important;
     font-weight: 700 !important;
     font-family: 'Cairo', sans-serif !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
     border: 1px solid rgba(255,255,255,0.2) !important;
     text-align: center !important;
     justify-content: center !important;
@@ -394,14 +394,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى 5 تبويبات (Tabs) تشمل تبويب الملاحق الجديد
+# التقسيم الرئيسي إلى 6 تبويبات (Tabs) تشمل تبويب دليل المستخدم الجديد
 # ==============================================================================
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 تشخيص مؤشر الجاهزية (AACRI)", 
     "📈 محاكي السياسات (Policy Simulator)", 
     "🛡️ لوحة دعم اتخاذ القرار", 
     "📑 التقرير التنفيذي الموحد",
-    "📚 ملاحق المشروع والوثائق (PDF)"
+    "📚 ملاحق المشروع والوثائق (PDF)",
+    "📖 دليل المستخدم الرسمي"
 ])
 
 # ------------------------------------------------------------------------------
@@ -563,7 +564,7 @@ with tab1:
                 st.success(f"✅ تم حذف سجل دولة ({country_to_delete}) بنجاح.")
                 st.rerun()
     else:
-        st.info("📂 لا توجد دول مسجلة حتى الآن. قم بإجراء التشخيص في الأعلى لتسجيل وترتيب الدول.")
+        st.info("📂 لا توجد دول مسجلة حتى الآن. قم إجراء التشخيص في الأعلى لتسجيل وترتيب الدول.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1001,7 +1002,7 @@ with tab4:
                 else:
                     dec_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
-                        "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد."
+                        "⚠️️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد."
                         "</span>"
                     )
 
@@ -1094,7 +1095,7 @@ with tab4:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب الخامس: ملاحق المشروع والوثائق (PDF) - (محدث بالأسماء الفعلية للمستودع ودون عارض تفاعلي)
+# التبويب الخامس: ملاحق المشروع والوثائق (PDF)
 # ------------------------------------------------------------------------------
 with tab5:
     st.markdown("""
@@ -1104,7 +1105,6 @@ with tab5:
     </div>
     """, unsafe_allow_html=True)
 
-    # مطابقة تامة لأسماء الملفات الفعلية المرفوعة على مستودع GitHub
     appendices = [
         {"title": "ملحق 1: الاستقراء الببليومتري ونمذجة الموضوعات وتشخيص الفجوة المعرفية", "filename": "1 ملحق .pdf"},
         {"title": "ملحق 2: المسارات الفرعية لخرائط حلقات السببية (CLDs)", "filename": "2 ملحق.pdf"},
@@ -1120,7 +1120,6 @@ with tab5:
             if os.path.exists(file_path):
                 st.success(f"✅ الملف متوفر وجاهز للتحميل: `{file_path}`")
                 
-                # زر التحميل المباشر للزوار والباحثين
                 with open(file_path, "rb") as f:
                     pdf_bytes = f.read()
                 st.download_button(
@@ -1134,4 +1133,73 @@ with tab5:
             else:
                 st.warning(f"⚠️ تنبيه: الملف `{file_path}` غير موجود حالياً في مجلد المشروع الرئيسي على GitHub. تأكد من تطابق اسم الملف تماماً في المستودع.")
 
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# التبويب السادس الجديد: دليل المستخدم الرسمي (User Guide)
+# ------------------------------------------------------------------------------
+with tab6:
+    st.markdown("""
+    <div dir="rtl" style="text-align: right;">
+        <h3>📖 دليل المستخدم الرسمي والتوثيق المنهجي لمنصة "منظومة القرار المتكاملة"</h3>
+        <p>مرجع تفصيلي يشرح الأقسام الوظيفية والبرمجية للمنصة، موضحاً آليات التشغيل واستثمار مخرجات النمذجة لدعم صانع القرار العربي.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 28px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h4 style="color: {CBE_NAVY}; font-weight: 800; margin-top: 0;">1. المقدمة الإبستيمولوجية والوظيفية</h4>
+        <p style="color: #334155; font-size: 14.5px;">
+            تمثل منصة <b>"منظومة القرار المتكاملة"</b> بيئة برمجية وسحابية تطبيقية مصممة خصيصاً لترجمة الإطار النظري والقياسي للسياسات الثقافية والإبداعية في عصر الذكاء الاصطناعي التوليدي. تهدف المنصة إلى نقل صانع القرار من التشخيص الوصفي الساكن إلى الاستشراف الاستباقي للسياسات عبر ستة أقسام متكاملة.
+        </p>
+
+        <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
+
+        <h4 style="color: {CBE_NAVY}; font-weight: 800;">2. الهيكل التنظيمي والوظيفي لأقسام المنصة</h4>
+        
+        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
+            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📊 القسم الأول: تشخيص مؤشر الجاهزية الذكية (AACRI)</p>
+            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
+                يختص بالتشخيص القياسي عبر حساب مؤشر (AACRI) المستند إلى 69 متغيراً وهيكل خماسي الأبعاد (رأس المال البشري 30%، البنية التقنية 20%، البيئة التشريعية 20%، المحددات الثقافية 15%، والديناميكيات الاقتصادية 15%). يتيح النظام إدخال الأوزان، احتساب المؤشر فورياً، عرض التمثيل الراداري، وتثبيت النتائج في الجدول التراكمي.
+            </p>
+        </div>
+
+        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
+            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📈 القسم الثاني: محاكي السياسات الاستشرافي (Policy Simulator)</p>
+            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
+                يمثل طبقة المحاكاة الرياضية والاستدلالية استناداً إلى الانحدار القياسي المتعدد (Multiple Regression). يتيح اختيار السيناريو الاستراتيجي (تشاؤمي، معتدل، طموح) وضبط متغيرات التحفيز لقياس الأثر التراكمي على تقليص الفجوة المهنية وتمكين "المبدع المعزز".
+            </p>
+        </div>
+
+        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
+            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">🛡️️ القسم الثالث: لوحة دعم اتخاذ القرار والتطعيم الثقافي</p>
+            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
+                مصممة لاستعراض وتثبيت التوصيات المخصصة لكل دولة ديناميكياً لتجنب التكرار، مع ربط مخرجات التشخيص بحماية الملكية الفكرية، احتواء الاقتصاد غير الرسمي، وتفعيل بروتوكولات الحضانة الإبداعية (CIP).
+            </p>
+        </div>
+
+        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
+            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📑 القسم الرابع: أداة تصدير التقرير التنفيذي الموحد</p>
+            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
+                أداة استراتيجية تدمج نتائج التشخيص الوصفي، التحليل العميق، وإطار دونيلا ميدوز لنقاط الرفع في تقرير موحد متكامل جاهز للعرض والتصدير كملف مستند (Word) للقيادات العليا.
+            </p>
+        </div>
+
+        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
+            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📚 القسم الخامس: ملاحق المشروع والوثائق البحثية (PDF)</p>
+            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
+                مستودع رقمي داخلي يتيح استعراض وتحميل ملاحق الدراسة الستة (الاستقراء الببليومتري، مصفوفات CLDs، متغيرات AACRI، المقارنات الزوجية AHP، معادلات التطبيع والقياس، وبروتوكول الاختبار الميداني).
+            </p>
+        </div>
+
+        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 0px;">
+            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📖 القسم السادس: دليل المستخدم الرسمي</p>
+            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
+                المرجع الرقمي المصغر داخل المنصة لإرشاد المستخدمين ولجان التحكيم بخطوات التشغيل والتنقل السلس بين دوائر التشخيص والمحاكاة والتقارير.
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
