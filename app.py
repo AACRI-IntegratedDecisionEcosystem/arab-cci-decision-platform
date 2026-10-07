@@ -18,7 +18,7 @@ st.set_page_config(
 
 # الألوان التراثية الرسمية للمنصة
 CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
-CBE_ORANGE_MID = "#B45309"   # برتقالي غامق تراثي
+CBE_ORANGE_MID = "#B45309"    # برتقالي غامق تراثي
 CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
 CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
 CBE_BG = "#F8FAFC"           # خلفية ناعمة
@@ -340,7 +340,7 @@ def describe_rf(val):
 
 def describe_cd(val):
     if val >= 80:
-        return f"محددات ثقافية وهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
+        return f"محددات ثقافية والهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
     elif val >= 50:
         return f"محددات ثقافية متوازنة (%{val}) تتطلب تعزيز المحتوى الرقمي الثقافي والتراثي المتاح بالعربية."
     else:
@@ -355,7 +355,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي والحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
@@ -1136,89 +1136,33 @@ with tab5:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب السادس الجديد: دليل المستخدم الرسمي (User Guide) متضمناً ملف البي دي إف المخصص
+# التبويب السادس: دليل المستخدم الرسمي (User Guide) - مخصص لملف PDF حصراً
 # ------------------------------------------------------------------------------
 with tab6:
     st.markdown("""
     <div dir="rtl" style="text-align: right;">
-        <h3>📖 دليل المستخدم الرسمي والتوثيق المنهجي لمنصة "منظومة القرار المتكاملة"</h3>
-        <p>مرجع تفصيلي يشرح الأقسام الوظيفية والبرمجية للمنصة، موضحاً آليات التشغيل واستثمار مخرجات النمذجة لدعم صانع القرار العربي.</p>
+        <h3>📖 دليل المستخدم الرسمي لمنصة "منظومة القرار المتكاملة" (PDF)</h3>
+        <p>استعراض وتحميل دليل المستخدم والتوثيق المنهجي الرسمي للمنصة بصيغة PDF لتمكين المحكمين والمستخدمين من الاطلاع الفوري.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # التحقق من توفر ملف دليل المستخدم بصيغة PDF وإتاحة خيار المعاينة والتحميل في القسم السادس حصراً
-    guide_pdf_filename = "دليل المستخدم.pdf"
-    if os.path.exists(guide_pdf_filename):
-        st.success(f"✅ دليل المستخدم بصيغة PDF متوفر وجاهز للاطلاع والتحميل الفوري: `{guide_pdf_filename}`")
-        with open(guide_pdf_filename, "rb") as gf:
-            guide_bytes = gf.read()
-        st.download_button(
-            label="📥 تحميل دليل المستخدم الرسمي للمنصة (PDF)",
-            data=guide_bytes,
-            file_name=guide_pdf_filename,
-            mime="application/pdf",
-            use_container_width=True,
-            key="dl_user_guide_pdf"
-        )
-    else:
-        st.warning(f"⚠️ تنبيه: ملف دليل المستخدم `{guide_pdf_filename}` غير موجود حالياً في المجلد الرئيسي. يمكنك رفع الملف بالمجلد لتمكين التحميل المباشر أدناه.")
+    user_guide_filename = "دليل المستخدم.pdf"
+    
+    with st.expander(f"📑 دليل المستخدم الرسمي للمنصة"):
+        if os.path.exists(user_guide_filename):
+            st.success(f"✅ ملف دليل المستخدم متوفر وجاهز للتحميل: `{user_guide_filename}`")
+            
+            with open(user_guide_filename, "rb") as f:
+                pdf_bytes_ug = f.read()
+            st.download_button(
+                label="📥 تحميل دليل المستخدم الرسمي (PDF)",
+                data=pdf_bytes_ug,
+                file_name=user_guide_filename,
+                mime="application/pdf",
+                use_container_width=True,
+                key=f"dl_{user_guide_filename}"
+            )
+        else:
+            st.warning(f"⚠️ تنبيه: الملف `{user_guide_filename}` غير موجود حالياً في مجلد المشروع الرئيسي على GitHub. تأكد من تطابق اسم الملف تماماً في المستودع.")
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    st.markdown(f"""
-    <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 28px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        <h4 style="color: {CBE_NAVY}; font-weight: 800; margin-top: 0;">1. المقدمة الإبستيمولوجية والوظيفية</h4>
-        <p style="color: #334155; font-size: 14.5px;">
-            تمثل منصة <b>"منظومة القرار المتكاملة"</b> بيئة برمجية وسحابية تطبيقية مصممة خصيصاً لترجمة الإطار النظري والقياسي للسياسات الثقافية والإبداعية في عصر الذكاء الاصطناعي التوليدي. تهدف المنصة إلى نقل صانع القرار من التشخيص الوصفي الساكن إلى الاستشراف الاستباقي للسياسات عبر ستة أقسام متكاملة.
-        </p>
-
-        <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
-
-        <h4 style="color: {CBE_NAVY}; font-weight: 800;">2. الهيكل التنظيمي والوظيفي لأقسام المنصة</h4>
-        
-        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
-            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📊 القسم الأول: تشخيص مؤشر الجاهزية الذكية (AACRI)</p>
-            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
-                يختص بالتشخيص القياسي عبر حساب مؤشر (AACRI) المستند إلى 69 متغيراً وهيكل خماسي الأبعاد (رأس المال البشري 30%، البنية التقنية 20%، البيئة التشريعية 20%، المحددات الثقافية 15%، والديناميكيات الاقتصادية 15%). يتيح النظام إدخال الأوزان، احتساب المؤشر فورياً، عرض التمثيل الراداري، وتثبيت النتائج في الجدول التراكمي.
-            </p>
-        </div>
-
-        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
-            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📈 القسم الثاني: محاكي السياسات الاستشرافي (Policy Simulator)</p>
-            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
-                يمثل طبقة المحاكاة الرياضية والاستدلالية استناداً إلى الانحدار القياسي المتعدد (Multiple Regression). يتيح اختيار السيناريو الاستراتيجي (تشاؤمي، معتدل، طموح) وضبط متغيرات التحفيز لقياس الأثر التراكمي على تقليص الفجوة المهنية وتمكين "المبدع المعزز".
-            </p>
-        </div>
-
-        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
-            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">🛡 القسم الثالث: لوحة دعم اتخاذ القرار والتطعيم الثقافي</p>
-            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
-                مصممة لاستعراض وتثبيت التوصيات المخصصة لكل دولة ديناميكياً لتجنب التكرار، مع ربط مخرجات التشخيص بحماية الملكية الفكرية، احتواء الاقتصاد غير الرسمي، وتفعيل بروتوكولات الحضانة الإبداعية (CIP).
-            </p>
-        </div>
-
-        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
-            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📑 القسم الرابع: أداة تصدير التقرير التنفيذي الموحد</p>
-            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
-                أداة استراتيجية تدمج نتائج التشخيص الوصفي، التحليل العميق، وإطار دونيلا ميدوز لنقاط الرفع في تقرير موحد متكامل جاهز للعرض والتصدير كملف مستند (Word) للقيادات العليا.
-            </p>
-        </div>
-
-        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 15px;">
-            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📚 القسم الخامس: ملاحق المشروع والوثائق البحثية (PDF)</p>
-            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
-                مستودع رقمي داخلي يتيح استعراض وتحميل ملاحق الدراسة الستة (الاستقراء الببليومتري، مصفوفات CLDs، متغيرات AACRI، المقارنات الزوجية AHP، معادلات التطبيع والقياس، وبروتوكول الاختبار الميداني).
-            </p>
-        </div>
-
-        <div style="background: {CBE_BG}; padding: 16px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 0px;">
-            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px;">📖 القسم السادس: دليل المستخدم الرسمي</p>
-            <p style="margin: 0; font-size: 14px; color: #1E293B; line-height: 1.8;">
-                المرجع الرقمي المصغر داخل المنصة لإرشاد المستخدمين ولجان التحكيم بخطوات التشغيل والتنقل السلس بين دوائر التشخيص والمحاكاة والتقارير.
-            </p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
