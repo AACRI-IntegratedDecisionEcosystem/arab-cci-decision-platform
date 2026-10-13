@@ -21,8 +21,8 @@ st.set_page_config(
 CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
 CBE_ORANGE_MID = "#B45309"    # برتقالي غامق تراثي
 CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
-CBE_NAVY = "#0A192F"          # أزرق ملكي عميق
-CBE_BG = "#F8FAFC"            # خلفية ناعمة
+CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
+CBE_BG = "#F8FAFC"           # خلفية ناعمة
 
 CUSTOM_CSS = f"""
 <style>
@@ -255,21 +255,19 @@ div.stTabs {{
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ==============================================================================
-# دالة استخراج عنوان IP الحقيقي للزائر عبر ترويسات Streamlit Context
+# دالة استخراج عنوان الـ IP الحقيقي للزائر وتفادي التكرار
 # ==============================================================================
 def get_visitor_ip():
     try:
-        headers = getattr(st, "context", None)
-        if headers and hasattr(headers, "headers"):
-            h = headers.headers
-            # التحقق من وجود IP عبر ترويسات الخوادم الوكيلة (Proxies / Cloudflare)
-            if "X-Forwarded-For" in h:
-                return h["X-Forwarded-For"].split(",")[0].strip()
-            elif "X-Real-Ip" in h:
-                return h["X-Real-Ip"].strip()
+        # محاولة قراءة الـ IP من رؤوس الاتصال الخاصة بـ Streamlit Cloud / Proxies
+        headers = st.context.headers
+        ip = headers.get("X-Forwarded-For") or headers.get("X-Real-Ip")
+        if ip:
+            # إذا كان هناك أكثر من IP مفصول بفواصل، نأخذ الأول
+            return ip.split(",")[0].strip()
     except Exception:
         pass
-    return "127.0.0.1 (محلي/غير متوفر)"
+    return "127.0.0.1 (محلي / غير متوفر)"
 
 # ==============================================================================
 # إدارة جلسة الدخول (Authentication) وتتبع الزوار (مع معالجة مشكلة تكرار الظهور واستخراج الـ IP)
@@ -302,30 +300,32 @@ if not st.session_state.authenticated:
             password = st.text_input("كلمة المرور (Password)", type="password", placeholder="أدخل كلمة المرور...")
             
             if st.button("🔐 تسجيل الدخول للمنصة", use_container_width=True):
-                current_ip = get_visitor_ip()
+                client_ip = get_visitor_ip()
                 if username == "admin" and password == "2621326_a":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "admin"
-                    # تتبع وتسجيل الزائر الفريد مع IP وعدم تكراره العشوائي
-                    if "admin" not in st.session_state.logged_users_set:
-                        st.session_state.logged_users_set.add("admin")
+                    # تتبع وتسجيل الزائر الفريد أو تحديث سجله دون تكرار عشوائي مزعج مع حفظ الـ IP
+                    session_key_user = f"admin_{client_ip}"
+                    if session_key_user not in st.session_state.logged_users_set:
+                        st.session_state.logged_users_set.add(session_key_user)
                         st.session_state.visitors_log.append({
                             "اسم المستخدم": "admin",
                             "الدور": "مشرف (Admin)",
-                            "عنوان IP": current_ip,
+                            "عنوان IP": client_ip,
                             "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         })
                     st.rerun()
                 elif username == "user" and password == "123":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "user"
-                    # تتبع وتسجيل الزائر الفريد مع IP
-                    if "user" not in st.session_state.logged_users_set:
-                        st.session_state.logged_users_set.add("user")
+                    # تتبع وتسجيل الزائر الفريد مع حفظ الـ IP
+                    session_key_user = f"user_{client_ip}"
+                    if session_key_user not in st.session_state.logged_users_set:
+                        st.session_state.logged_users_set.add(session_key_user)
                         st.session_state.visitors_log.append({
                             "اسم المستخدم": "user",
                             "الدور": "مستخدم عادي (User)",
-                            "عنوان IP": current_ip,
+                            "عنوان IP": client_ip,
                             "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         })
                     st.rerun()
@@ -430,7 +430,7 @@ if "decision_results_dict" not in st.session_state:
     st.session_state.decision_results_dict = {}
 
 # ==============================================================================
-# الترؤياسة والشريط الإخباري
+# التروياسة والشريط الإخباري
 # ==============================================================================
 st.markdown(f"""
 <div class="header-center">
@@ -1244,7 +1244,7 @@ if st.session_state.current_user == "admin":
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
             <h3>🔒 سجل الزوار والأفراد المسجلين (خاص بالأدمن فقط)</h3>
-            <p>يتيح لك هذا القسم متابعة بيانات الأفراد والأدوار وعنوان IP الخاص بالزوار وتوقيتات الدخول إلى المنصة بدقة.</p>
+            <p>يتيح لك هذا القسم متابعة بيانات الأفراد والأدوار وعنوان IP وتوقيتات الدخول إلى المنصة بدقة.</p>
         </div>
         """, unsafe_allow_html=True)
 
