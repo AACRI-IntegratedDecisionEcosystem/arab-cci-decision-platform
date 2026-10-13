@@ -21,8 +21,8 @@ st.set_page_config(
 CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
 CBE_ORANGE_MID = "#B45309"    # برتقالي غامق تراثي
 CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
-CBE_NAVY = "#0A192F"          # أزرق ملكي عميق
-CBE_BG = "#F8FAFC"            # خلفية ناعمة
+CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
+CBE_BG = "#F8FAFC"           # خلفية ناعمة
 
 CUSTOM_CSS = f"""
 <style>
@@ -255,7 +255,7 @@ div.stTabs {{
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ==============================================================================
-# إدارة جلسة الدخول (Authentication) وتتبع الزوار
+# إدارة جلسة الدخول (Authentication) وتتبع الزوار (مع معالجة مشكلة تكرار الظهور)
 # ==============================================================================
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -263,6 +263,8 @@ if "current_user" not in st.session_state:
     st.session_state.current_user = ""
 if "visitors_log" not in st.session_state:
     st.session_state.visitors_log = []
+if "logged_users_set" not in st.session_state:
+    st.session_state.logged_users_set = set()
 
 if not st.session_state.authenticated:
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -286,26 +288,40 @@ if not st.session_state.authenticated:
                 if username == "admin" and password == "2621326_a":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "admin"
-                    # تسجيل الدخول في السجل
-                    st.session_state.visitors_log.append({
-                        "اسم المستخدم": "admin",
-                        "الدور": "مشرف (Admin)",
-                        "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    })
+                    # تتبع وتسجيل الزائر الفريد أو تحديث سجله دون تكرار عشوائي مزعج
+                    if "admin" not in st.session_state.logged_users_set:
+                        st.session_state.logged_users_set.add("admin")
+                        st.session_state.visitors_log.append({
+                            "اسم المستخدم": "admin",
+                            "الدور": "مشرف (Admin)",
+                            "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        })
                     st.rerun()
                 elif username == "user" and password == "123":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "user"
-                    # تسجيل الدخول في السجل
-                    st.session_state.visitors_log.append({
-                        "اسم المستخدم": "user",
-                        "الدور": "مستخدم عادي (User)",
-                        "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    })
+                    # تتبع وتسجيل الزائر الفريد
+                    if "user" not in st.session_state.logged_users_set:
+                        st.session_state.logged_users_set.add("user")
+                        st.session_state.visitors_log.append({
+                            "اسم المستخدم": "user",
+                            "الدور": "مستخدم عادي (User)",
+                            "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        })
                     st.rerun()
                 else:
                     st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (الأدمن: admin / 2621326_a | اليوزر: user / 123)")
     st.stop()
+
+# ==============================================================================
+# شريط علوي أو أداتي صغير يتيح زر "تسجيل الخروج" (Logout)
+# ==============================================================================
+logout_col1, logout_col2 = st.columns([6, 1])
+with logout_col2:
+    if st.button("🚪 تسجيل الخروج", use_container_width=True, type="secondary"):
+        st.session_state.authenticated = False
+        st.session_state.current_user = ""
+        st.rerun()
 
 # ==============================================================================
 # القائمة الرسمية الكاملة للدول العربية
@@ -416,19 +432,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى التبويبات (مع تخصيص تبويب إدارة الزوار وسر زر الخروج للأدمن فقط)
+# التقسيم الرئيسي إلى التبويبات (مع تخصيص تبويب إدارة الزوار للأدمن فقط)
 # ==============================================================================
 if st.session_state.current_user == "admin":
-    # إضافة زر تسجيل الخروج للأدمن في أعلى الشريط الجانبي أو واجهة الأدمن
-    with st.sidebar:
-        st.markdown("### 🛠️ لوحة تحكم المشرف (Admin)")
-        st.write(f"المستخدم الحالي: **{st.session_state.current_user}**")
-        if st.button("🚪 تسجيل الخروج (Logout)", use_container_width=True, type="secondary"):
-            st.session_state.authenticated = False
-            st.session_state.current_user = ""
-            st.rerun()
-        st.markdown("---")
-
     tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
         "📊 تشخيص مؤشر الجاهزية (AACRI)", 
         "📈 محاكي السياسات (Policy Simulator)", 
