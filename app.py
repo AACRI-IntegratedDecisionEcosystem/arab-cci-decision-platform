@@ -394,22 +394,14 @@ if "decision_results_dict" not in st.session_state:
     st.session_state.decision_results_dict = {}
 
 # ==============================================================================
-# التروياسة وشريط الأدوات العلوي مع مفتاح تسجيل الخروج
+# التروياسة والشريط الإخباري
 # ==============================================================================
-top_col1, top_col2 = st.columns([5, 1])
-with top_col1:
-    st.markdown(f"""
-    <div class="header-center">
-    <h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
-    <h3>ضمن مخرجات دراسة بحثية مقاربة منهجية لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي</h3>
-    </div>
-    """, unsafe_allow_html=True)
-with top_col2:
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚪 تسجيل الخروج", use_container_width=True, type="secondary"):
-        st.session_state.authenticated = False
-        st.session_state.current_user = ""
-        st.rerun()
+st.markdown(f"""
+<div class="header-center">
+<h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
+<h3>ضمن مخرجات دراسة بحثية مقاربة منهجية لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي</h3>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <div class="ticker-wrap">
@@ -424,9 +416,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى التبويبات (مع تخصيص تبويب إدارة الزوار للأدمن فقط)
+# التقسيم الرئيسي إلى التبويبات (مع تخصيص تبويب إدارة الزوار وسر زر الخروج للأدمن فقط)
 # ==============================================================================
 if st.session_state.current_user == "admin":
+    # إضافة زر تسجيل الخروج للأدمن في أعلى الشريط الجانبي أو واجهة الأدمن
+    with st.sidebar:
+        st.markdown("### 🛠️ لوحة تحكم المشرف (Admin)")
+        st.write(f"المستخدم الحالي: **{st.session_state.current_user}**")
+        if st.button("🚪 تسجيل الخروج (Logout)", use_container_width=True, type="secondary"):
+            st.session_state.authenticated = False
+            st.session_state.current_user = ""
+            st.rerun()
+        st.markdown("---")
+
     tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
         "📊 تشخيص مؤشر الجاهزية (AACRI)", 
         "📈 محاكي السياسات (Policy Simulator)", 
@@ -750,7 +752,7 @@ with tab2:
                 elif scenario_dropdown.startswith("📊"):
                     simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0022)))
                     if base_val >= 80:
-                        analysis_text = f"استقرار تطوري مستدام لـ ({sim_country_sel}): استناداً إلى توازن المحددات الثقافية ({c_val}%) وديناميكيات السوق البرتقالي ({e_val}%)، يتحقق نمو تدريجي مستقر نحو ريادة الابتكار."
+                        analysis_text = f"استقرار تطوري مستدام لـ ({sim_country_sel}): استناداً إلى توازن المحددات الثقافية ({c_val}%) وديناميكيات السوق البرتقالي ({e_val}%), يتحقق نمو تدريجي مستقر نحو ريادة الابتكار."
                         action_plan = f"مواصلة برامج التحفيز التقليدي وتوسيع دائرة الشراكات الإقليمية للاستفادة القصوى من رصيد الكوادر البشرية ({h_val}%)."
                     elif base_val >= 51:
                         analysis_text = f"تقدم ملحوظ لـ ({sim_country_sel}): نجاح تدريجي في ترشيد استخدام الأدوات التوليدية، دعم مهارات 'المبدع المعزز'، وتقليص الفجوة المهنية استناداً إلى ({c_val}%)."
@@ -1011,7 +1013,7 @@ with tab4:
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
                 if c_score >= 80:
-                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%)، مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
+                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%), مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
                     specific_policy_action = f"تأسيس 'مجلس سيادي أعلى للذكاء الاصطناعي'، إطلاق مبادرات تصدير المعايير الثقافية، وتوظيف رأس المال البشري المتميز ({h_val}%)."
                 elif c_score >= 51:
                     specific_strategic_angle = f"تسجل دولة ({c_name}) جاهزية متوسطة ({c_score}%) تواجه بعض الاختناقات الهيكلية في سلاسل القيمة الإبداعية والتشريعات التنظيمية؛ وهو ما يتطلب تدخلاً استباقياً لردم الفجوات."
@@ -1215,8 +1217,8 @@ if st.session_state.current_user == "admin":
     with tab_admin:
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
-            <h3>🔒 سجل الزوار والأفراد المسجلين ومعلومات الزيارة (خاص بالأدمن فقط)</h3>
-            <p>يتيح لك هذا القسم متابعة بيانات الأفراد، الأدوار، وتوقيتات الدخول الفعلي إلى المنصة.</p>
+            <h3>🔒 سجل الزوار والأفراد المسجلين (خاص بالأدمن فقط)</h3>
+            <p>يتيح لك هذا القسم متابعة بيانات الأفراد والأدوار وتوقيتات الدخول إلى المنصة بدقة.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1224,7 +1226,7 @@ if st.session_state.current_user == "admin":
             df_visitors = pd.DataFrame(st.session_state.visitors_log)
             st.dataframe(df_visitors, use_container_width=True)
             
-            csv_visitors = df_visitors.to_csv(index=EOF:=False).encode('utf-8-sig') if False else df_visitors.to_csv(index=False).encode('utf-8-sig')
+            csv_visitors = df_visitors.to_csv(index=False).encode('utf-8-sig')
             st.download_button(
                 label="📥 تحميل سجل الزوار والأفراد (CSV)",
                 data=csv_visitors,
@@ -1234,17 +1236,5 @@ if st.session_state.current_user == "admin":
             )
         else:
             st.info("ℹ️ لا توجد سجلات زوار حتى الآن.")
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="background: #FEF3C7; padding: 16px; border-radius: 8px; border: 1px solid #FCD34D;" dir="rtl">
-            <h4 style="color: #92400E; margin-top: 0;">💡 كيف تقوم بالاطلاع على معلومات الزوار والدول؟ (شرح تفصيلي)</h4>
-            <p style="color: #1E293B; font-size: 14px; line-height: 1.8; margin-bottom: 0;">
-                1. <b>سجل الجلسات الفعلي (Session State):</b> يعتمد النظام حالياً على تتبع أسماء المستخدمين وتوقيتات الولوج الفعلي (مثل الأدمن والمستخدم العادي) أثناء تفاعلهم مع واجهات المنصة عبر متغيرات الجلسة المؤقتة.
-                <br>2. <b>تصدير التقارير:</b> يمكنك كأدمن النقر على زر <i>"تحميل سجل الزوار والأفراد"</i> للحصول على ملف CSV متكامل يضم كافة بيانات الدخول والتوتيتات بدقة.
-                <br>3. <b>الاستضافة السحابية (Streamlit Community Cloud):</b> لمعرفة تفاصيل جغرافية أدق (مثل الدول التي زارت الموقع عبر عناوين الـ IP الحقيقية)، يوصى بربط التطبيق بأدوات التحليل المدمجة مثل Streamlit Analytics أو Google Analytics أو مراقبة لوحة تحكم الخادم (Server Logs) في منصة الاستضافة.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
 
         st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
