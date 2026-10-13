@@ -394,14 +394,22 @@ if "decision_results_dict" not in st.session_state:
     st.session_state.decision_results_dict = {}
 
 # ==============================================================================
-# التروياسة والشريط الإخباري
+# التروياسة وشريط الأدوات العلوي مع مفتاح تسجيل الخروج
 # ==============================================================================
-st.markdown(f"""
-<div class="header-center">
-<h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
-<h3>ضمن مخرجات دراسة بحثية مقاربة منهجية لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي</h3>
-</div>
-""", unsafe_allow_html=True)
+top_col1, top_col2 = st.columns([5, 1])
+with top_col1:
+    st.markdown(f"""
+    <div class="header-center">
+    <h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
+    <h3>ضمن مخرجات دراسة بحثية مقاربة منهجية لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي</h3>
+    </div>
+    """, unsafe_allow_html=True)
+with top_col2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🚪 تسجيل الخروج", use_container_width=True, type="secondary"):
+        st.session_state.authenticated = False
+        st.session_state.current_user = ""
+        st.rerun()
 
 st.markdown("""
 <div class="ticker-wrap">
@@ -1207,8 +1215,8 @@ if st.session_state.current_user == "admin":
     with tab_admin:
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
-            <h3>🔒 سجل الزوار والأفراد المسجلين (خاص بالأدمن فقط)</h3>
-            <p>يتيح لك هذا القسم متابعة بيانات الأفراد والأدوار وتوقيتات الدخول إلى المنصة بدقة.</p>
+            <h3>🔒 سجل الزوار والأفراد المسجلين ومعلومات الزيارة (خاص بالأدمن فقط)</h3>
+            <p>يتيح لك هذا القسم متابعة بيانات الأفراد، الأدوار، وتوقيتات الدخول الفعلي إلى المنصة.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1216,7 +1224,7 @@ if st.session_state.current_user == "admin":
             df_visitors = pd.DataFrame(st.session_state.visitors_log)
             st.dataframe(df_visitors, use_container_width=True)
             
-            csv_visitors = df_visitors.to_csv(index=False).encode('utf-8-sig')
+            csv_visitors = df_visitors.to_csv(index=EOF:=False).encode('utf-8-sig') if False else df_visitors.to_csv(index=False).encode('utf-8-sig')
             st.download_button(
                 label="📥 تحميل سجل الزوار والأفراد (CSV)",
                 data=csv_visitors,
@@ -1226,5 +1234,17 @@ if st.session_state.current_user == "admin":
             )
         else:
             st.info("ℹ️ لا توجد سجلات زوار حتى الآن.")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background: #FEF3C7; padding: 16px; border-radius: 8px; border: 1px solid #FCD34D;" dir="rtl">
+            <h4 style="color: #92400E; margin-top: 0;">💡 كيف تقوم بالاطلاع على معلومات الزوار والدول؟ (شرح تفصيلي)</h4>
+            <p style="color: #1E293B; font-size: 14px; line-height: 1.8; margin-bottom: 0;">
+                1. <b>سجل الجلسات الفعلي (Session State):</b> يعتمد النظام حالياً على تتبع أسماء المستخدمين وتوقيتات الولوج الفعلي (مثل الأدمن والمستخدم العادي) أثناء تفاعلهم مع واجهات المنصة عبر متغيرات الجلسة المؤقتة.
+                <br>2. <b>تصدير التقارير:</b> يمكنك كأدمن النقر على زر <i>"تحميل سجل الزوار والأفراد"</i> للحصول على ملف CSV متكامل يضم كافة بيانات الدخول والتوتيتات بدقة.
+                <br>3. <b>الاستضافة السحابية (Streamlit Community Cloud):</b> لمعرفة تفاصيل جغرافية أدق (مثل الدول التي زارت الموقع عبر عناوين الـ IP الحقيقية)، يوصى بربط التطبيق بأدوات التحليل المدمجة مثل Streamlit Analytics أو Google Analytics أو مراقبة لوحة تحكم الخادم (Server Logs) في منصة الاستضافة.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
         st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
