@@ -21,8 +21,8 @@ st.set_page_config(
 CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
 CBE_ORANGE_MID = "#B45309"    # برتقالي غامق تراثي
 CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
-CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
-CBE_BG = "#F8FAFC"           # خلفية ناعمة
+CBE_NAVY = "#0A192F"          # أزرق ملكي عميق
+CBE_BG = "#F8FAFC"            # خلفية ناعمة
 
 CUSTOM_CSS = f"""
 <style>
@@ -255,11 +255,12 @@ div.stTabs {{
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ==============================================================================
-# إدارة جلسة الدخول وتتبع الزيارات (Authentication & Visitor Tracking)
+# إدارة جلسة الدخول (Authentication) وتتبع الزوار
 # ==============================================================================
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
-
+if "current_user" not in st.session_state:
+    st.session_state.current_user = ""
 if "visitors_log" not in st.session_state:
     st.session_state.visitors_log = []
 
@@ -282,19 +283,28 @@ if not st.session_state.authenticated:
             password = st.text_input("كلمة المرور (Password)", type="password", placeholder="أدخل كلمة المرور...")
             
             if st.button("🔐 تسجيل الدخول للمنصة", use_container_width=True):
-                if username == "user" and password == "123":
+                if username == "admin" and password == "2621326_a":
                     st.session_state.authenticated = True
-                    # تسجيل الزيارة بنجاح في السجل
-                    simulated_countries = ["جمهورية مصر العربية", "دولة قطر", "المملكة العربية السعودية", "دولة الإمارات العربية المتحدة", "المملكة الأردنية الهاشمية", "المملكة المغربية"]
+                    st.session_state.current_user = "admin"
+                    # تسجيل الدخول في السجل
                     st.session_state.visitors_log.append({
-                        "وقت الزيارة": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "اسم المستخدم": username,
-                        "الدولة المرصودة": random.choice(simulated_countries),
-                        "حالة الدخول": "ناجح"
+                        "اسم المستخدم": "admin",
+                        "الدور": "مشرف (Admin)",
+                        "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    })
+                    st.rerun()
+                elif username == "user" and password == "123":
+                    st.session_state.authenticated = True
+                    st.session_state.current_user = "user"
+                    # تسجيل الدخول في السجل
+                    st.session_state.visitors_log.append({
+                        "اسم المستخدم": "user",
+                        "الدور": "مستخدم عادي (User)",
+                        "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     })
                     st.rerun()
                 else:
-                    st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (تجريبي: user / 123)")
+                    st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (الأدمن: admin / 2621326_a | اليوزر: user / 123)")
     st.stop()
 
 # ==============================================================================
@@ -367,7 +377,7 @@ def get_region_and_features(country_name):
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
-        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي وحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
+        return f"تتمركز {country_name} في إقليم وادي النيل، متسلحة بعمق تاريخي الحضاري فريد، وثقل ديموغرافي بشري كبير، ورأس مال أكاديمي وثقافي عريق يمثل مرتكزاً أساسياً للإنتاج الإبداعي."
     elif country_name in north_africa:
         return f"تتوزع {country_name} في نطاق إقليم شمال إفريقيا، متخِذةً من التنوع الثقافي واللغوي المتوسطي والأفريقي جسوراً حية للتواصل الإبداعي وعقد الشراكات العابرة للحدود."
     elif country_name in levant:
@@ -406,17 +416,27 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى 7 تبويبات (Tabs) تشمل تبويب سجل الزيارات الجديد
+# التقسيم الرئيسي إلى التبويبات (مع تخصيص تبويب إدارة الزوار للأدمن فقط)
 # ==============================================================================
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "📊 تشخيص مؤشر الجاهزية (AACRI)", 
-    "📈 محاكي السياسات (Policy Simulator)", 
-    "🛡️ لوحة دعم اتخاذ القرار", 
-    "📑 التقرير التنفيذي الموحد",
-    "📚 ملاحق المشروع والوثائق (PDF)",
-    "📖 دليل المستخدم الرسمي",
-    "📊 سجل تتبع الزيارات والدول"
-])
+if st.session_state.current_user == "admin":
+    tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
+        "📊 تشخيص مؤشر الجاهزية (AACRI)", 
+        "📈 محاكي السياسات (Policy Simulator)", 
+        "🛡️ لوحة دعم اتخاذ القرار", 
+        "📑 التقرير التنفيذي الموحد",
+        "📚 ملاحق المشروع والوثائق (PDF)",
+        "📖 دليل المستخدم الرسمي",
+        "🔒 سجل الزوار والأفراد (Admin)"
+    ])
+else:
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "📊 تشخيص مؤشر الجاهزية (AACRI)", 
+        "📈 محاكي السياسات (Policy Simulator)", 
+        "🛡️ لوحة دعم اتخاذ القرار", 
+        "📑 التقرير التنفيذي الموحد",
+        "📚 ملاحق المشروع والوثائق (PDF)",
+        "📖 دليل المستخدم الرسمي"
+    ])
 
 # ------------------------------------------------------------------------------
 # التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
@@ -983,7 +1003,7 @@ with tab4:
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
                 
                 if c_score >= 80:
-                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}5)، مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
+                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%)، مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
                     specific_policy_action = f"تأسيس 'مجلس سيادي أعلى للذكاء الاصطناعي'، إطلاق مبادرات تصدير المعايير الثقافية، وتوظيف رأس المال البشري المتميز ({h_val}%)."
                 elif c_score >= 51:
                     specific_strategic_angle = f"تسجل دولة ({c_name}) جاهزية متوسطة ({c_score}%) تواجه بعض الاختناقات الهيكلية في سلاسل القيمة الإبداعية والتشريعات التنظيمية؛ وهو ما يتطلب تدخلاً استباقياً لردم الفجوات."
@@ -1149,7 +1169,7 @@ with tab5:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب السادس: دليل المستخدم الرسمي (User Guide)
+# التبويب السادس: دليل المستخدم الرسمي (User Guide) - مخصص لملف PDF حصراً
 # ------------------------------------------------------------------------------
 with tab6:
     st.markdown("""
@@ -1181,37 +1201,30 @@ with tab6:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب السابع: سجل تتبع الزيارات والدول (Visitors Tracking Dashboard)
+# التبويب السابع: سجل الزوار والأفراد (مخصص للأدمن فقط)
 # ------------------------------------------------------------------------------
-with tab7:
-    st.markdown("""
-    <div dir="rtl" style="text-align: right;">
-        <h3>📊 سجل تتبع الزيارات والدول (أفراد وأقاليم الدخول)</h3>
-        <p>متابعة تفصيلية لحركات الأفراد والأطراف المصرح لها بالدخول إلى المنصة، مع بيانات التوقيت والدول المرصودة.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    if st.session_state.visitors_log:
-        df_visitors = pd.DataFrame(st.session_state.visitors_log)
-        
-        st.markdown(f"""
-        <div style="background: #FFFFFF; padding: 20px; border-radius: 10px; border: 1px solid #CBD5E1; margin-bottom: 20px;" dir="rtl">
-            <h4 style="color: {CBE_NAVY}; margin-top: 0;">📈 إحصائيات عامة:</h4>
-            <p>إجمالي عدد عمليات تسجيل الدخول والزيارات المرصودة: <b>{len(df_visitors)} زيارة</b></p>
+if st.session_state.current_user == "admin":
+    with tab_admin:
+        st.markdown("""
+        <div dir="rtl" style="text-align: right;">
+            <h3>🔒 سجل الزوار والأفراد المسجلين (خاص بالأدمن فقط)</h3>
+            <p>يتيح لك هذا القسم متابعة بيانات الأفراد والأدوار وتوقيتات الدخول إلى المنصة بدقة.</p>
         </div>
         """, unsafe_allow_html=True)
 
-        st.dataframe(df_visitors, use_container_width=True)
+        if st.session_state.visitors_log:
+            df_visitors = pd.DataFrame(st.session_state.visitors_log)
+            st.dataframe(df_visitors, use_container_width=True)
+            
+            csv_visitors = df_visitors.to_csv(index=False).encode('utf-8-sig')
+            st.download_button(
+                label="📥 تحميل سجل الزوار والأفراد (CSV)",
+                data=csv_visitors,
+                file_name="سجل_الزوار_المنصة.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+        else:
+            st.info("ℹ️ لا توجد سجلات زوار حتى الآن.")
 
-        csv_visitors = df_visitors.to_csv(index=False).encode('utf-8-sig')
-        st.download_button(
-            label="📥 تحميل سجل الزيارات والدول (Excel/CSV)",
-            data=csv_visitors,
-            file_name="سجل_زيارات_المنصة.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-    else:
-        st.info("ℹ️ لا توجد بيانات زيارات مسجلة حتى الآن في الجلسة الحالية.")
-
-    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
