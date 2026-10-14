@@ -255,14 +255,12 @@ div.stTabs {{
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ==============================================================================
-# دالة استخراج عنوان الـ IP الحقيقي للزائر بدقة وتجاوز مشاكل الخوادم السحابية
+# دالة استخراج عنوان الـ IP الحقيقي للزائر بدقة
 # ==============================================================================
 def get_visitor_ip():
     try:
-        # محاولة استخراج الـ IP من ترويسات الطلب في Streamlit
         ctx = st.runtime.scriptrunner.get_script_run_ctx()
         if ctx and hasattr(ctx, "session_id"):
-            # استخراج العناوين عبر بيئة التشغيل السحابية
             from streamlit.web.server.websocket_headers import _get_websocket_headers
             headers = _get_websocket_headers()
             if headers:
@@ -271,21 +269,42 @@ def get_visitor_ip():
                     return ip.split(",")[0].strip()
     except Exception:
         pass
-    
-    # بديل احتياطي في حال التشغيل المحلي أو تعذر القراءة
     return "127.0.0.1 (محلي / Local)"
 
 # ==============================================================================
-# إدارة جلسة الدخول (Authentication) وتتبع الزوار (مع تتبع دقيق للـ IP)
+# دوال إدارة وحفظ سجلات الزوار بشكل دائم في ملف خارجي (visitors_log.csv)
+# ==============================================================================
+LOG_FILE_PATH = "visitors_log.csv"
+
+def load_visitors_log_from_file():
+    if os.path.exists(LOG_FILE_PATH):
+        try:
+            df = pd.read_csv(LOG_FILE_PATH, encoding='utf-8-sig')
+            return df.to_dict(orient="records")
+        except Exception:
+            return []
+    return []
+
+def append_visitor_to_file(visitor_entry):
+    existing_logs = load_visitors_log_from_file()
+    # التحقق من عدم التكرار لنفس الزائر في نفس الجلسة بملف الحفظ
+    exists = any(
+        item.get("عنوان IP") == visitor_entry.get("عنوان IP") and 
+        item.get("اسم المستخدم") == visitor_entry.get("اسم المستخدم") 
+        for item in existing_logs
+    )
+    if not exists:
+        existing_logs.append(visitor_entry)
+        df_out = pd.DataFrame(existing_logs)
+        df_out.to_csv(LOG_FILE_PATH, index=False, encoding='utf-8-sig')
+
+# ==============================================================================
+# إدارة جلسة الدخول (Authentication) وتتبع الزوار (مع الحفظ الدائم)
 # ==============================================================================
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "current_user" not in st.session_state:
     st.session_state.current_user = ""
-if "visitors_log" not in st.session_state:
-    st.session_state.visitors_log = []
-if "logged_users_set" not in st.session_state:
-    st.session_state.logged_users_set = set()
 
 if not st.session_state.authenticated:
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -307,40 +326,39 @@ if not st.session_state.authenticated:
             
             if st.button("🔐 تسجيل الدخول للمنصة", use_container_width=True):
                 visitor_ip_addr = get_visitor_ip()
+                current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
                 if username == "admin" and password == "2621326_a":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "admin"
-                    # تتبع وتسجيل الزائر الفريد مع عنوان الـ IP الحقيقي دون تكرار عشوائي
-                    log_key = f"admin_{visitor_ip_addr}"
-                    if log_key not in st.session_state.logged_users_set:
-                        st.session_state.logged_users_set.add(log_key)
-                        st.session_state.visitors_log.append({
-                            "عنوان IP": visitor_ip_addr,
-                            "اسم المستخدم": "admin",
-                            "الدور": "مشرف (Admin)",
-                            "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        })
+                    
+                    new_record = {
+                        "عنوان IP": visitor_ip_addr,
+                        "اسم المستخدم": "admin",
+                        "الدور": "مشرف (Admin)",
+                        "وقت الدخول": current_time_str
+                    }
+                    append_visitor_to_file(new_record)
                     st.rerun()
+                    
                 elif username == "user" and password == "123":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "user"
-                    # تتبع وتسجيل الزائر الفريد مع عنوان الـ IP الحقيقي
-                    log_key = f"user_{visitor_ip_addr}"
-                    if log_key not in st.session_state.logged_users_set:
-                        st.session_state.logged_users_set.add(log_key)
-                        st.session_state.visitors_log.append({
-                            "عنوان IP": visitor_ip_addr,
-                            "اسم المستخدم": "user",
-                            "الدور": "مستخدم عادي (User)",
-                            "وقت الدخول": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        })
+                    
+                    new_record = {
+                        "عنوان IP": visitor_ip_addr,
+                        "اسم المستخدم": "user",
+                        "الدور": "مستخدم عادي (User)",
+                        "وقت الدخول": current_time_str
+                    }
+                    append_visitor_to_file(new_record)
                     st.rerun()
                 else:
                     st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (الأدمن: admin / 2621326_a | اليوزر: user / 123)")
     st.stop()
 
 # ==============================================================================
-# شريط علوي أو أداتي صغير يتيح زر "تسجيل الخروج" (Logout)
+# شريط تسجيل الخروج
 # ==============================================================================
 logout_col1, logout_col2 = st.columns([6, 1])
 with logout_col2:
@@ -427,7 +445,6 @@ def get_region_and_features(country_name):
     else:
         return f"تندرج {country_name} ضمن نطاق العالم العربي الموسع، محتضنةً خصائص جيوستراتيجية وتاريخية فريدة داعمة للتكامل الإقليمي وتجسير مسارات التنمية المستدامة."
 
-# تهيئة الذاكرة المؤقتة للبيانات
 if "history_state" not in st.session_state:
     st.session_state.history_state = []
 if "simulated_results_dict" not in st.session_state:
@@ -458,7 +475,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى التبويبات (مع تخصيص تبويب إدارة الزوار للأدمن فقط)
+# التقسيم الرئيسي إلى التبويبات
 # ==============================================================================
 if st.session_state.current_user == "admin":
     tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
@@ -681,7 +698,6 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
 
-    # التحقق من إدخال بيانات القسم الأول مسبقاً
     if not st.session_state.history_state:
         st.warning("يرجى أولاً إدخال بيانات الدولة وحساب مؤشر AACRI في القسم الأول.")
     else:
@@ -750,7 +766,6 @@ with tab2:
                 mime="application/msword",
                 use_container_width=True
             )
-                
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_sim_out:
@@ -871,7 +886,6 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-    # التحقق من إدخال بيانات القسم الأول مسبقاً
     if not st.session_state.history_state:
         st.warning("يرجى أولاً إدخال بيانات الدولة وحساب مؤشر AACRI في القسم الأول.")
     else:
@@ -931,7 +945,6 @@ with tab3:
                 mime="application/msword",
                 use_container_width=True
             )
-                
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_dec_out:
@@ -1218,7 +1231,7 @@ with tab5:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب السادس: دليل المستخدم الرسمي (User Guide) - مخصص لملف PDF حصراً
+# التبويب السادس: دليل المستخدم الرسمي (User Guide)
 # ------------------------------------------------------------------------------
 with tab6:
     st.markdown("""
@@ -1250,19 +1263,20 @@ with tab6:
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# التبويب السابع: سجل الزوار والأفراد (مخصص للأدمن فقط)
+# التبويب السابع: سجل الزوار والأفراد (مخصص للأدمن فقط) - مع استعراض السجلات القديمة
 # ------------------------------------------------------------------------------
 if st.session_state.current_user == "admin":
     with tab_admin:
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
             <h3>🔒 سجل الزوار والأفراد المسجلين (خاص بالأدمن فقط)</h3>
-            <p>يتيح لك هذا القسم متابعة عناوين IP الخاصة بالزوار، والأفراد، والأدوار، وتوقيتات الدخول إلى المنصة بدقة.</p>
+            <p>يتيح لك هذا القسم متابعة جميع الزيارات القديمة والجديدة وتواريخ الدخول المسجلة بشكل دائم عبر ملف السيرفر.</p>
         </div>
         """, unsafe_allow_html=True)
 
-        if st.session_state.visitors_log:
-            df_visitors = pd.DataFrame(st.session_state.visitors_log)
+        visitors_data_list = load_visitors_log_from_file()
+        if visitors_data_list:
+            df_visitors = pd.DataFrame(visitors_data_list)
             st.dataframe(df_visitors, use_container_width=True)
             
             csv_visitors = df_visitors.to_csv(index=False).encode('utf-8-sig')
@@ -1274,6 +1288,6 @@ if st.session_state.current_user == "admin":
                 use_container_width=True
             )
         else:
-            st.info("ℹ️ لا توجد سجلات زوار حتى الآن.")
+            st.info("ℹ️ لا توجد سجلات زوار مسجلة حتى الآن في الملف الخارجي.")
 
         st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
