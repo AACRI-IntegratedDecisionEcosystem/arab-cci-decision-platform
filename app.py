@@ -276,6 +276,18 @@ def get_visitor_ip():
 # ==============================================================================
 LOG_FILE_PATH = "visitors_log.csv"
 
+def init_visitor_log_file():
+    """ضمان إنشاء ملف السجل تلقائياً بجانب app.py فور تشغيل التطبيق"""
+    if not os.path.exists(LOG_FILE_PATH):
+        try:
+            df_init = pd.DataFrame(columns=["عنوان IP", "اسم المستخدم", "الدور", "وقت الدخول"])
+            df_init.to_csv(LOG_FILE_PATH, index=False, encoding='utf-8-sig')
+        except Exception:
+            pass
+
+# استدعاء دالة التهيئة فوراً عند بدء التشغيل لتوليد الملف في المجلد
+init_visitor_log_file()
+
 def load_visitors_log_from_file():
     if os.path.exists(LOG_FILE_PATH):
         try:
@@ -287,7 +299,6 @@ def load_visitors_log_from_file():
 
 def append_visitor_to_file(visitor_entry):
     existing_logs = load_visitors_log_from_file()
-    # التحقق من عدم التكرار لنفس الزائر في نفس الجلسة بملف الحفظ
     exists = any(
         item.get("عنوان IP") == visitor_entry.get("عنوان IP") and 
         item.get("اسم المستخدم") == visitor_entry.get("اسم المستخدم") 
@@ -766,6 +777,7 @@ with tab2:
                 mime="application/msword",
                 use_container_width=True
             )
+                
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_sim_out:
@@ -945,6 +957,7 @@ with tab3:
                 mime="application/msword",
                 use_container_width=True
             )
+                
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_dec_out:
