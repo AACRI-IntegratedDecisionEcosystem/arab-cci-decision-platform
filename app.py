@@ -363,7 +363,7 @@ if not st.session_state.authenticated:
                     append_visitor_to_file(new_record)
                     st.rerun()
                 else:
-                    st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. (الأدمن: admin / 2621326_a | اليوزر: user / 123)")
+                    st.error("⚠️ اسم المستخدم أو كلمة المرور غير صحيحة.")
     st.stop()
 
 # ==============================================================================
