@@ -1,34 +1,411 @@
+import json
 import random
 import io
 import os
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 
 # ==============================================================================
-# إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL)
+# إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL + Responsive)
 # ==============================================================================
 st.set_page_config(
     page_title="منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية",
     page_icon="🏛️",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="auto"
 )
 
-# الألوان التراثية الرسمية للمنصة
-CBE_ORANGE_DARK = "#78350F"  # برتقالي غامق جداً قاتم
-CBE_ORANGE_MID = "#B45309"    # برتقالي غامق تراثي
-CBE_ORANGE_LIGHT = "#D97706" # برتقالي أفتح نسبياً عند التحديد
-CBE_NAVY = "#0A192F"         # أزرق ملكي عميق
-CBE_BG = "#F8FAFC"           # خلفية ناعمة
+# الألوان التراثية الرسمية للمنصة وحالات التفاعل
+CCI_ORANGE_DARK = "#78350F"    # برتقالي غامق جداً قاتم
+CCI_ORANGE_MID = "#B45309"      # برتقالي غامق تراثي
+CCI_ORANGE_LIGHT = "#D97706"    # برتقالي أفتح نسبياً عند التحديد
+CCI_NAVY = "#0A192F"           # أزرق ملكي عميق
+CCI_NAVY_HOVER = "#162A4A"     # درجة تمرير متناسقة مع الخلفية الأساسية
+CCI_GOLD_BRIGHT = "#FBBF24"    # لون خط نصي مشرق عند التمرير / الضغط / التحديد
+CCI_BG = "#F8FAFC"             # خلفية ناعمة
+UI_CSS_VERSION = "cci-tabs-v15"
+
+# أولوية الخطوط: Bahij TheSansArabic ثم Readex Pro ثم Tajawal ثم Cairo
+APP_FONT = "'Bahij TheSansArabic', 'Readex Pro', 'Tajawal', 'Cairo', sans-serif"
+
+# ------------------------------------------------------------------------------
+# تنسيق الشريط العلوي (التبويبات): بعرض الشاشة ومتجاوب 100% بين اللابتوب والموبايل
+# ------------------------------------------------------------------------------
+TABS_RULES = f"""
+/* ---- تمدد حاوية التبويبات بعرض الشاشة كاملاً ---- */
+div[data-testid="stTabs"],
+div.stTabs {{
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    direction: rtl !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}}
+
+div[data-testid="stTabs"] > div,
+div[data-testid="stTabs"] [data-baseweb="tabs"],
+div.stTabs [data-baseweb="tabs"] {{
+    width: 100% !important;
+    max-width: 100% !important;
+}}
+
+/* ---- إخفاء الخط السفلي لـ BaseWeb نهائياً ---- */
+div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+div[data-testid="stTabs"] [data-baseweb="tab-border"] {{
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    background-color: transparent !important;
+}}
+
+/* ---- التنسيق الأساسي لشريط التبويبات المتناسق مع الخلفية ---- */
+html body div[data-testid="stTabs"] [data-baseweb="tab-list"],
+html body [role="tablist"] {{
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 6px !important;
+    padding: 8px !important;
+    margin: 0 0 18px 0 !important;
+    background: linear-gradient(135deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%) !important;
+    border: 2px solid {CCI_GOLD_BRIGHT} !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 25px rgba(10, 25, 47, 0.22) !important;
+    direction: rtl !important;
+}}
+
+/* الحاوية الداخلية إن وجدت في بعض إصدارات Streamlit */
+div[data-testid="stTabs"] [data-baseweb="tab-list"] > div,
+div[data-testid="stTabs"] [data-baseweb="tab-list"] [role="tablist"] {{
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    direction: rtl !important;
+}}
+
+/* ---- شاشات اللابتوب والكمبيوتر (> 768px): توزيع متساوٍ بعرض الشاشة الكامل ---- */
+@media (min-width: 769px) {{
+    html body div[data-testid="stTabs"] [data-baseweb="tab-list"],
+    html body [role="tablist"] {{
+        justify-content: space-between !important;
+        overflow: visible !important;
+    }}
+
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] > div,
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] [role="tablist"] {{
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }}
+
+    html body div[data-testid="stTabs"] button[role="tab"],
+    html body div[data-testid="stTabs"] button[data-baseweb="tab"],
+    html body [role="tablist"] [role="tab"] {{
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 48px !important;
+        margin: 0 !important;
+        padding: 8px 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1.5px solid rgba(251, 191, 36, 0.35) !important;
+        border-radius: 8px !important;
+        font-family: {APP_FONT} !important;
+        font-weight: 700 !important;
+        font-size: 12.5px !important;
+        line-height: 1.35 !important;
+        text-align: center !important;
+        white-space: normal !important;
+        outline: none !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+    }}
+
+    html body div[data-testid="stTabs"] button[role="tab"] *,
+    html body [role="tablist"] [role="tab"] * {{
+        white-space: normal !important;
+    }}
+}}
+
+/* ---- شاشات الموبايل والتابلت الصغير (<= 768px): تمرير أفقي واضح بلا تقطيع ---- */
+@media (max-width: 768px) {{
+    html body div[data-testid="stTabs"] [data-baseweb="tab-list"],
+    html body [role="tablist"] {{
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        justify-content: flex-start !important;
+        padding: 8px !important;
+        gap: 8px !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: {CCI_GOLD_BRIGHT} {CCI_NAVY} !important;
+    }}
+
+    html body div[data-testid="stTabs"] [data-baseweb="tab-list"]::-webkit-scrollbar,
+    html body [role="tablist"]::-webkit-scrollbar {{
+        height: 4px !important;
+    }}
+    html body div[data-testid="stTabs"] [data-baseweb="tab-list"]::-webkit-scrollbar-track,
+    html body [role="tablist"]::-webkit-scrollbar-track {{
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 4px !important;
+    }}
+    html body div[data-testid="stTabs"] [data-baseweb="tab-list"]::-webkit-scrollbar-thumb,
+    html body [role="tablist"]::-webkit-scrollbar-thumb {{
+        background: {CCI_GOLD_BRIGHT} !important;
+        border-radius: 4px !important;
+    }}
+
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] > div,
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] [role="tablist"] {{
+        flex: 0 0 auto !important;
+        width: max-content !important;
+        gap: 8px !important;
+    }}
+
+    html body div[data-testid="stTabs"] button[role="tab"],
+    html body div[data-testid="stTabs"] button[data-baseweb="tab"],
+    html body [role="tablist"] [role="tab"] {{
+        flex: 0 0 auto !important;
+        min-width: max-content !important;
+        width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 42px !important;
+        margin: 0 !important;
+        padding: 8px 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1.5px solid rgba(251, 191, 36, 0.45) !important;
+        border-radius: 8px !important;
+        font-family: {APP_FONT} !important;
+        font-weight: 700 !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }}
+
+    html body div[data-testid="stTabs"] button[role="tab"] *,
+    html body [role="tablist"] [role="tab"] * {{
+        white-space: nowrap !important;
+        display: inline !important;
+    }}
+
+    /* إخفاء زر السهم الجانبي التلقائي لـ BaseWeb الذي يغطي التبويبات في الموبايل */
+    div[data-testid="stTabs"] button[aria-label*="scroll"],
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] ~ button {{
+        display: none !important;
+    }}
+}}
+
+/* ---- تنسيق النصوص والأيقونات داخل التبويبات ---- */
+div[data-testid="stTabs"] button[role="tab"] *,
+html body [role="tablist"] [role="tab"] * {{
+    font-family: {APP_FONT} !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    text-align: center !important;
+    margin: 0 !important;
+}}
+"""
+
+TABS_COLOR_RULES = f"""
+/* الوضع الافتراضي: نص أبيض واضح على خلفية تراثية دافئة متناسقة */
+html body [data-baseweb="tab-list"] button[role="tab"],
+html body [data-baseweb="tab-list"] button[role="tab"] *,
+html body [role="tablist"] [role="tab"],
+html body [role="tablist"] [role="tab"] * {{
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    opacity: 1 !important;
+}}
+
+html body [data-baseweb="tab-list"] button[role="tab"],
+html body [role="tablist"] [role="tab"] {{
+    background-color: rgba(120, 53, 15, 0.88) !important;
+}}
+
+html body [data-baseweb="tab-list"] button[role="tab"] *,
+html body [role="tablist"] [role="tab"] * {{
+    background: transparent !important;
+}}
+
+/* عند المرور أو الضغط أو التركيز أو التحديد: خط نصي ذهبي مشرق متناسق مع الخلفية */
+html body [data-baseweb="tab-list"] button[role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]),
+html body [data-baseweb="tab-list"] button[role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]) *,
+html body [role="tablist"] [role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]),
+html body [role="tablist"] [role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]) * {{
+    color: {CCI_GOLD_BRIGHT} !important;
+    -webkit-text-fill-color: {CCI_GOLD_BRIGHT} !important;
+}}
+
+html body [data-baseweb="tab-list"] button[role="tab"]:hover,
+html body [role="tablist"] [role="tab"]:hover {{
+    background-color: {CCI_ORANGE_MID} !important;
+}}
+
+html body [data-baseweb="tab-list"] button[role="tab"][aria-selected="true"],
+html body [role="tablist"] [role="tab"][aria-selected="true"] {{
+    background: linear-gradient(135deg, {CCI_ORANGE_MID} 0%, {CCI_ORANGE_LIGHT} 100%) !important;
+    font-weight: 800 !important;
+    border: 2px solid #FFFFFF !important;
+    box-shadow: 0 4px 15px rgba(180, 83, 9, 0.45) !important;
+}}
+"""
+
+TABS_RULES = TABS_RULES + TABS_COLOR_RULES
+TABS_CSS = f"<style id='cci-tabs-{UI_CSS_VERSION}'>{TABS_RULES}</style>"
+
+TABS_GUARD_JS = """
+(function () {
+  var W = window;
+  if (W.__cciTabsObserver) { try { W.__cciTabsObserver.disconnect(); } catch (e) {} }
+  var BASE_BG = 'rgba(120, 53, 15, 0.88)';
+  var HOVER_BG = '%HOVER%';
+  var ACTIVE_BG = '%ACTIVE_BG%';
+  var GOLD = '%GOLD%';
+  var WHITE = '#FFFFFF';
+  var SEL = '[role="tablist"] [role="tab"]';
+
+  function setColor(el, c) {
+    el.style.setProperty('color', c, 'important');
+    el.style.setProperty('-webkit-text-fill-color', c, 'important');
+  }
+
+  function paint(btn, hot) {
+    var sel = btn.getAttribute('aria-selected') === 'true';
+    var c = (sel || hot) ? GOLD : WHITE;
+    setColor(btn, c);
+    if (sel) {
+      btn.style.setProperty('background', ACTIVE_BG, 'important');
+    } else if (hot) {
+      btn.style.setProperty('background', HOVER_BG, 'important');
+    } else {
+      btn.style.setProperty('background', BASE_BG, 'important');
+    }
+    btn.querySelectorAll('*').forEach(function (n) { setColor(n, c); });
+  }
+
+  function run() {
+    document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
+      .forEach(function (el) { el.style.setProperty('display', 'none', 'important'); });
+
+    document.querySelectorAll(SEL).forEach(function (b) {
+      paint(b, b.matches(':hover'));
+      if (!b.__cciBound) {
+        b.__cciBound = 1;
+        b.addEventListener('pointerenter', function () { paint(b, true); });
+        b.addEventListener('pointerleave', function () { paint(b, false); });
+        b.addEventListener('pointerdown',  function () { paint(b, true); });
+        b.addEventListener('pointerup',    function () { paint(b, false); });
+        b.addEventListener('click', function () {
+          setTimeout(run, 0);
+          if (window.innerWidth <= 768) {
+            try { b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch (e) {}
+          }
+        });
+      }
+    });
+  }
+
+  var queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; run(); });
+  }
+
+  run();
+  setTimeout(run, 100);
+  setTimeout(run, 400);
+
+  W.__cciTabsObserver = new MutationObserver(schedule);
+  W.__cciTabsObserver.observe(document.body, {
+    childList: true, subtree: true,
+    attributes: true, attributeFilter: ['aria-selected']
+  });
+})();
+"""
+
+
+def inject_tabs_css():
+    """يحقن CSS والسكربت في الصفحة الأم ليبقيا فعّالين بعد كل إعادة تشغيل."""
+    st.markdown(TABS_CSS, unsafe_allow_html=True)
+
+    guard_js = (
+        TABS_GUARD_JS
+        .replace("%HOVER%", CCI_ORANGE_MID)
+        .replace("%ACTIVE_BG%", f"linear-gradient(135deg, {CCI_ORANGE_MID} 0%, {CCI_ORANGE_LIGHT} 100%)")
+        .replace("%GOLD%", CCI_GOLD_BRIGHT)
+    )
+
+    components.html(
+        f"""
+        <script>
+        (function() {{
+            var doc = window.parent.document;
+
+            doc.querySelectorAll('style[id^="cci-tabs-css-"], script[id^="cci-tabs-guard-"], style[id^="cci-tabs-"]')
+               .forEach(function (n) {{ n.remove(); }});
+
+            var st = doc.createElement('style');
+            st.id = 'cci-tabs-css-{UI_CSS_VERSION}';
+            st.textContent = {json.dumps(TABS_RULES)};
+            doc.head.appendChild(st);
+
+            var sc = doc.createElement('script');
+            sc.id = 'cci-tabs-guard-{UI_CSS_VERSION}';
+            sc.textContent = {json.dumps(guard_js)};
+            doc.head.appendChild(sc);
+        }})();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+
 
 CUSTOM_CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
 
-/* إخفاء شريط أدوات Streamlit العلوي وأيقونة القطة/أدوات التطوير نهائياً للعرض الأكاديمي */
+@font-face {{
+    font-family: 'Bahij TheSansArabic';
+    src: local('Bahij TheSansArabic'), local('Bahij TheSansArabic Plain'), local('Bahij_TheSansArabic-Plain');
+    font-weight: 400;
+}}
+@font-face {{
+    font-family: 'Bahij TheSansArabic';
+    src: local('Bahij TheSansArabic Bold'), local('Bahij_TheSansArabic-Bold');
+    font-weight: 700;
+}}
+
+/* إخفاء شريط أدوات Streamlit العلوي وأيقونة أدوات التطوير نهائياً للعرض الأكاديمي */
 header {{
     visibility: hidden !important;
     display: none !important;
@@ -39,17 +416,43 @@ header {{
     visibility: hidden !important;
 }}
 
+/* إخفاء إطارات السكربت المخفية دون إيقاف تنفيذ JavaScript */
+iframe[height="0"] {{
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}}
+
 html, body, [class*="css"] {{
-    font-family: 'Cairo', sans-serif !important;
+    font-family: {APP_FONT} !important;
     direction: rtl !important;
     text-align: right !important;
-    background-color: {CBE_BG} !important;
+    background-color: {CCI_BG} !important;
+}}
+
+.stApp p, .stApp label, .stApp li, .stApp td, .stApp th, .stApp h1, .stApp h2, .stApp h3,
+.stApp h4, .stApp h5, .stApp h6, .stApp input, .stApp textarea, .stApp select,
+.stApp button, .stApp a, .stApp div[data-baseweb] {{
+    font-family: {APP_FONT} !important;
 }}
 
 .stApp {{
-    background-color: {CBE_BG} !important;
+    background-color: {CCI_BG} !important;
     direction: rtl !important;
     text-align: right !important;
+    overflow-x: hidden !important;
+}}
+
+.block-container,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewBlockContainer"] {{
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
 }}
 
 div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.stTable {{
@@ -58,71 +461,13 @@ div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.
 }}
 
 /* فرض محاذاة اليمين على كافة عناصر القوائم المنسدلة والقوائم المنبثقة */
-div[data-baseweb="select"] *, 
-div[data-baseweb="popover"] *, 
-ul[data-baseweb="menu"] *, 
+div[data-baseweb="select"] *,
+div[data-baseweb="popover"] *,
+ul[data-baseweb="menu"] *,
 div[role="listbox"] *,
 div[role="option"] {{
     direction: rtl !important;
     text-align: right !important;
-}}
-
-/* تمديد التبويبات بعرض الشاشة بالكامل وتوزيعها بالتساوي وتنسيق الألوان */
-div.stTabs {{
-    width: 100% !important;
-    max-width: 100% !important;
-    direction: rtl !important;
-}}
-
-.stTabs [data-baseweb="tab-list"] {{
-    display: flex !important;
-    flex-direction: row-reverse !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    gap: 6px !important;
-    background: linear-gradient(135deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%) !important;
-    padding: 10px !important;
-    border-radius: 12px !important;
-    border: 2px solid #FFFFFF !important;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
-    direction: rtl !important;
-    box-sizing: border-box !important;
-}}
-
-.stTabs [data-baseweb="tab"] {{
-    flex: 1 1 0% !important;
-    width: 100% !important;
-    max-width: none !important;
-    background-color: rgba(120, 53, 15, 0.85) !important;
-    color: #FFFFFF !important;
-    border-radius: 8px !important;
-    padding: 10px 4px !important;
-    font-weight: 700 !important;
-    font-family: 'Cairo', sans-serif !important;
-    font-size: 13px !important;
-    border: 1px solid rgba(255,255,255,0.2) !important;
-    text-align: center !important;
-    justify-content: center !important;
-    align-items: center !important;
-    transition: all 0.3s ease !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}}
-
-.stTabs [data-baseweb="tab"]:hover {{
-    background-color: {CBE_ORANGE_MID} !important;
-    color: #FFFFFF !important;
-    border-color: #FFFFFF !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-}}
-
-.stTabs [aria-selected="true"] {{
-    background: linear-gradient(135deg, {CBE_ORANGE_MID} 0%, {CBE_ORANGE_LIGHT} 100%) !important;
-    color: #FBBF24 !important;
-    border: 2px solid #FFFFFF !important;
-    font-weight: 800 !important;
-    box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4) !important;
 }}
 
 /* تصميم جدول RTL مخصص ومصغر ومريح بصرياً */
@@ -133,7 +478,7 @@ div.stTabs {{
     text-align: right !important;
     margin-top: 8px !important;
     margin-bottom: 12px !important;
-    font-family: 'Cairo', sans-serif !important;
+    font-family: {APP_FONT} !important;
     background-color: #FFFFFF !important;
     border-radius: 6px !important;
     overflow: hidden !important;
@@ -169,10 +514,11 @@ div.stTabs {{
     background-color: #FEF3C7 !important;
 }}
 
-.stButton > button {{
+.stButton > button,
+.stDownloadButton > button {{
     width: 100% !important;
     border-radius: 50px !important;
-    font-family: 'Cairo', sans-serif !important;
+    font-family: {APP_FONT} !important;
     font-weight: 700 !important;
 }}
 
@@ -183,9 +529,9 @@ div.stTabs {{
     background-size: cover !important;
     background-position: center !important;
     color: #FFFFFF !important;
-    padding: 40px 20px !important;
+    padding: clamp(24px, 4vw, 40px) clamp(12px, 3vw, 20px) !important;
     border-radius: 16px !important;
-    border-bottom: 5px solid {CBE_ORANGE_MID} !important;
+    border-bottom: 5px solid {CCI_ORANGE_MID} !important;
     box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
     margin-bottom: 20px !important;
     direction: rtl !important;
@@ -193,15 +539,16 @@ div.stTabs {{
 
 .header-center h1 {{
     color: #FBBF24 !important;
-    font-size: 26px !important;
+    font-size: clamp(19px, 4.5vw, 26px) !important;
     font-weight: 800 !important;
     margin-bottom: 12px !important;
+    line-height: 1.45 !important;
     text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
 }}
 
 .header-center h3 {{
     color: #F1F5F9 !important;
-    font-size: 15px !important;
+    font-size: clamp(13px, 3.2vw, 15px) !important;
     font-weight: 500 !important;
     line-height: 1.6 !important;
     margin-bottom: 0px !important;
@@ -209,9 +556,9 @@ div.stTabs {{
 
 .ticker-wrap {{
     width: 100%;
-    background: linear-gradient(90deg, {CBE_NAVY} 0%, {CBE_ORANGE_DARK} 100%);
-    border-top: 2px solid {CBE_ORANGE_MID};
-    border-bottom: 2px solid {CBE_ORANGE_MID};
+    background: linear-gradient(90deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%);
+    border-top: 2px solid {CCI_ORANGE_MID};
+    border-bottom: 2px solid {CCI_ORANGE_MID};
     overflow: hidden;
     white-space: nowrap;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -249,6 +596,46 @@ div.stTabs {{
     padding-top: 15px;
     font-weight: bold;
     direction: rtl !important;
+}}
+
+{TABS_RULES}
+
+@media (max-width: 768px) {{
+    .block-container,
+    [data-testid="stMainBlockContainer"],
+    [data-testid="stAppViewBlockContainer"] {{
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }}
+
+    .stButton > button,
+    .stDownloadButton > button {{
+        min-height: 44px !important;
+        font-size: 13.5px !important;
+        white-space: normal !important;
+        line-height: 1.4 !important;
+    }}
+
+    input, textarea, select {{
+        font-size: 16px !important;
+    }}
+
+    [data-testid="stDataFrame"], .js-plotly-plot {{
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }}
+
+    .custom-rtl-table {{
+        min-width: 560px !important;
+    }}
+
+    .ticker-item {{
+        font-size: 12.5px !important;
+        padding: 6px 18px !important;
+    }}
 }}
 </style>
 """
@@ -298,8 +685,8 @@ def load_visitors_log_from_file():
 def append_visitor_to_file(visitor_entry):
     existing_logs = load_visitors_log_from_file()
     exists = any(
-        item.get("عنوان IP") == visitor_entry.get("عنوان IP") and 
-        item.get("اسم المستخدم") == visitor_entry.get("اسم المستخدم") 
+        item.get("عنوان IP") == visitor_entry.get("عنوان IP") and
+        item.get("اسم المستخدم") == visitor_entry.get("اسم المستخدم")
         for item in existing_logs
     )
     if not exists:
@@ -322,25 +709,25 @@ if not st.session_state.authenticated:
         login_container = st.container()
         with login_container:
             st.markdown(f"""
-            <div style="background: #FFFFFF; padding: 30px; border-radius: 16px; border: 2px solid {CBE_ORANGE_MID}; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: right;" dir="rtl">
-                <h2 style="color: {CBE_NAVY}; text-align: center; font-weight: 800; margin-bottom: 10px;">🏛️ منصة منظومة القرار المتكاملة</h2>
+            <div style="background: #FFFFFF; padding: clamp(18px, 4vw, 30px); border-radius: 16px; border: 2px solid {CCI_ORANGE_MID}; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: right;" dir="rtl">
+                <h2 style="color: {CCI_NAVY}; text-align: center; font-weight: 800; margin-bottom: 10px;">🏛️ منصة منظومة القرار المتكاملة</h2>
                 <p style="color: #475569; text-align: center; font-size: 14px; line-height: 1.6; margin-bottom: 25px;">
                     نموذج تشغيلي ذكي لدعم سياسات الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي. يرجى تسجيل الدخول للمتابعة.
                 </p>
             </div>
             """, unsafe_allow_html=True)
-            
+
             username = st.text_input("اسم المستخدم (Username)", placeholder="أدخل اسم المستخدم...")
             password = st.text_input("كلمة المرور (Password)", type="password", placeholder="أدخل كلمة المرور...")
-            
+
             if st.button("🔐 تسجيل الدخول للمنصة", use_container_width=True):
                 visitor_ip_addr = get_visitor_ip()
                 current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                
+
                 if username == "admin" and password == "2621326_a":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "admin"
-                    
+
                     new_record = {
                         "عنوان IP": visitor_ip_addr,
                         "اسم المستخدم": "admin",
@@ -349,11 +736,11 @@ if not st.session_state.authenticated:
                     }
                     append_visitor_to_file(new_record)
                     st.rerun()
-                    
+
                 elif username == "user" and password == "123":
                     st.session_state.authenticated = True
                     st.session_state.current_user = "user"
-                    
+
                     new_record = {
                         "عنوان IP": visitor_ip_addr,
                         "اسم المستخدم": "user",
@@ -442,7 +829,7 @@ def get_region_and_features(country_name):
     nile_valley = ["جمهورية مصر العربية", "جمهورية السودان"]
     north_africa = ["المملكة المغربية", "الجمهورية التونسية", "الجمهورية الجزائرية الديمقراطية الشعبية", "ليبيا", "الجمهورية الإسلامية الموريتانية"]
     levant = ["المملكة الأردنية الهاشمية", "الجمهورية اللبنانية", "الجمهورية العربية السورية", "دولة فلسطين"]
-    
+
     if country_name in gulf_countries:
         return f"تنتمي {country_name} إلى إقليم الخليج العربي (شبه الجزيرة العربية)، وهي منطقة تتميز بكتلة مالية استثمارية واعدة، وسرعات بنية تحتية رقمية فائقة، وتركيز استراتيجي عالٍ على التحول الذكي وقيادة الابتكار التقني."
     elif country_name in nile_valley:
@@ -462,7 +849,7 @@ if "decision_results_dict" not in st.session_state:
     st.session_state.decision_results_dict = {}
 
 # ==============================================================================
-# التروياسة والشريط الإخباري
+# الترويسة والشريط الإخباري
 # ==============================================================================
 st.markdown(f"""
 <div class="header-center">
@@ -488,9 +875,9 @@ st.markdown("""
 # ==============================================================================
 if st.session_state.current_user == "admin":
     tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
-        "📊 تشخيص مؤشر الجاهزية (AACRI)", 
-        "📈 محاكي السياسات (Policy Simulator)", 
-        "🛡️ لوحة دعم اتخاذ القرار", 
+        "📊 تشخيص مؤشر الجاهزية (AACRI)",
+        "📈 محاكي السياسات (Policy Simulator)",
+        "🛡️ لوحة دعم اتخاذ القرار",
         "📑 التقرير التنفيذي الموحد",
         "📚 ملاحق المشروع والوثائق (PDF)",
         "📖 دليل المستخدم الرسمي",
@@ -498,13 +885,16 @@ if st.session_state.current_user == "admin":
     ])
 else:
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "📊 تشخيص مؤشر الجاهزية (AACRI)", 
-        "📈 محاكي السياسات (Policy Simulator)", 
-        "🛡️ لوحة دعم اتخاذ القرار", 
+        "📊 تشخيص مؤشر الجاهزية (AACRI)",
+        "📈 محاكي السياسات (Policy Simulator)",
+        "🛡️ لوحة دعم اتخاذ القرار",
         "📑 التقرير التنفيذي الموحد",
         "📚 ملاحق المشروع والوثائق (PDF)",
         "📖 دليل المستخدم الرسمي"
     ])
+
+# حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل وتفاعلات الموبايل واللابتوب
+inject_tabs_css()
 
 # ------------------------------------------------------------------------------
 # التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
@@ -572,12 +962,12 @@ with tab1:
                     st.session_state.history_state.append(entry)
 
                 st.markdown(f"""
-                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                  <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
-                  <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CBE_NAVY}; font-weight: bold;">{country_sel}</span></p>
+                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CCI_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                  <h3 style="color: {CCI_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
+                  <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CCI_NAVY}; font-weight: bold;">{country_sel}</span></p>
                   <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_str_plain}</span></p>
-                  <div style="background: {CBE_BG}; padding: 16px; border-radius: 8px; border-right: 5px solid {CBE_ORANGE_MID}; margin-top: 10px;">
-                    <p style="margin: 0 0 8px 0; font-weight: bold; color: {CBE_NAVY};">التقييم التشخيصي والتفصيل المنظومي:</p>
+                  <div style="background: {CCI_BG}; padding: 16px; border-radius: 8px; border-right: 5px solid {CCI_ORANGE_MID}; margin-top: 10px;">
+                    <p style="margin: 0 0 8px 0; font-weight: bold; color: {CCI_NAVY};">التقييم التشخيصي والتفصيل المنظومي:</p>
                     <p style="margin: 0; color: #1E293B; font-size: 14.5px;">{detailed_diag}</p>
                   </div>
                 </div>
@@ -586,7 +976,7 @@ with tab1:
                 categories = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
                 scores_list = [ti_slider, ed_slider, hc_slider, rf_slider, cd_slider]
                 fig = go.Figure()
-                fig.add_trace(go.Scatterpolar(r=scores_list, theta=categories, fill='toself', name=country_sel, line_color=CBE_ORANGE_MID))
+                fig.add_trace(go.Scatterpolar(r=scores_list, theta=categories, fill='toself', name=country_sel, line_color=CCI_ORANGE_MID))
                 fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), paper_bgcolor="#FFFFFF", font=dict(family="Cairo", size=13))
                 st.plotly_chart(fig, use_container_width=True)
         else:
@@ -602,7 +992,7 @@ with tab1:
 
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
-        
+
         table_html = """
 <div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
 <table class="custom-rtl-table">
@@ -621,13 +1011,13 @@ with tab1:
 </thead>
 <tbody>
 """
-        
+
         for idx, row in df_history.iterrows():
             table_html += f"""
 <tr>
 <td style="text-align: center; font-weight: bold;">{idx + 1}</td>
-<td style="font-weight: bold; color: {CBE_NAVY};">{row['الدولة']}</td>
-<td style="font-weight: bold; color: {CBE_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
+<td style="font-weight: bold; color: {CCI_NAVY};">{row['الدولة']}</td>
+<td style="font-weight: bold; color: {CCI_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
 <td>{row['رأس المال البشري (30%)']}%</td>
 <td>{row['البنية التقنية (20%)']}%</td>
 <td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
@@ -636,13 +1026,13 @@ with tab1:
 <td style="font-size: 11px;">{row['التقييم المنظومي']}</td>
 </tr>
 """
-            
+
         table_html += """
 </tbody>
 </table>
 </div>
 """
-        
+
         st.markdown(table_html, unsafe_allow_html=True)
 
         csv_data = df_history.to_csv(index=False).encode('utf-8-sig')
@@ -676,16 +1066,16 @@ with tab1:
             <li><b>البنية التقنية (وزن 20%):</b> يضم مؤشرات سعة وتدفق البيانات الضخمة، سرعات الإنترنت عريض الباند، وتوطين النماذج اللغوية الكبيرة (LLMs).</li>
             <li><b>الديناميكيات الاقتصادية (وزن 15%):</b> يضم مساهمة الاقتصاد البرتقالي في الناتج المحلي، الصادرات الإبداعية، وصفقات رأس المال المخاطر (VC).</li>
             <li><b>رأس المال البشري (وزن 30%):</b> يضم نسب التدريب المعتمد في هندسة الأوامر (Prompt Engineering) وبرامج إعادة التأهيل (Reskilling & Upskilling) وتمكين 'المبدع المعزز'.</li>
-            <li><b>البيئة التنظيمية والتشريعية (وزن 20%):</b> يضم تشريعات الملكية الفكرية المشتركة، أطر المسؤولية (Liability), وآليات الوسم المائي (Watermarking).</li>
-            <li><b>المحددات الثقافية والهوياتية (وزن 15%):</b> يضم نسبة المحتوى الرقمي المتاح بالعربية، أرشفة التراث ثلاثي الأبعاد (3D Archives), ومؤشرات الأمن الثقافي.</li>
+            <li><b>البيئة التنظيمية والتشريعية (وزن 20%):</b> يضم تشريعات الملكية الفكرية المشتركة، أطر المسؤولية (Liability)، وآليات الوسم المائي (Watermarking).</li>
+            <li><b>المحددات الثقافية والهوياتية (وزن 15%):</b> يضم نسبة المحتوى الرقمي المتاح بالعربية، أرشفة التراث ثلاثي الأبعاد (3D Archives)، ومؤشرات الأمن الثقافي.</li>
         </ul>
         </div>
         """, unsafe_allow_html=True)
         axes_names = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
         weights_vals = [20, 15, 30, 20, 15]
-        
-        custom_pie_colors = [CBE_NAVY, CBE_ORANGE_DARK, CBE_ORANGE_MID, CBE_ORANGE_LIGHT, "#334155"]
-        
+
+        custom_pie_colors = [CCI_NAVY, CCI_ORANGE_DARK, CCI_ORANGE_MID, CCI_ORANGE_LIGHT, "#334155"]
+
         fig_pie = px.pie(names=axes_names, values=weights_vals, hole=0.4, title="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", color=axes_names, color_discrete_map=dict(zip(axes_names, custom_pie_colors)))
         fig_pie.update_layout(
             title=dict(text="توزيع الأوزان النسبية لمحاور المؤشر وفق التحليل الهرمي AHP", x=0.99, xanchor='right'),
@@ -717,13 +1107,13 @@ with tab2:
             recorded_countries_sim = [item["الدولة"] for item in st.session_state.history_state]
             sim_country_sel = st.selectbox("اختر الدولة للمحاكاة", recorded_countries_sim, key="sim_country")
             base_aacri_input = st.slider("قيمة المؤشر الافتراضي الحالي", 30.0, 100.0, 68.5, 0.5, key="sim_base")
-            
+
             scenario_dropdown = st.selectbox("اختر السيناريو الاستراتيجي", [
                 "📉 السيناريو التشاؤمي (غياب التدخل وضعف الاستثمار)",
                 "📊 السيناريو المعتدل / التفاؤلي (استثمارات تقليدية تدريجية)",
                 "🚀 السيناريو الطموح / الاستباقي (إصلاحات هيكلية شاملة وسيادة تقنية)"
             ], index=1, key="sim_scen")
-            
+
             var1_tech = st.slider("1️⃣ نسبة الزيادة في البنية التقنية وتوطين النماذج (%)", 0, 50, 20, key="sim_v1")
             var2_eco = st.slider("2️⃣ نسبة الزيادة في الديناميكيات الاقتصادية (%)", 0, 50, 15, key="sim_v2")
             var3_hc = st.slider("3️⃣ نسبة الزيادة في رأس المال البشري (%)", 0, 50, 15, key="sim_v3")
@@ -731,7 +1121,7 @@ with tab2:
             var5_cult = st.slider("5️⃣ نسبة التوسع في المحددات الثقافية (%)", 0, 50, 25, key="sim_v5")
 
             run_sim_btn = st.button("📋 إضافة وتثبيت سيناريو الدولة", use_container_width=True, type="primary")
-            
+
             if st.button("🗑️ مسح وإعادة تعيين استجابات المحاكي", use_container_width=True, type="secondary"):
                 st.session_state.simulated_results_dict = {}
                 st.success("✅ تم مسح جميع سيناريوهات المحاكي بنجاح.")
@@ -757,7 +1147,7 @@ with tab2:
                     """
             else:
                 sim_word_html += "<p>لا توجد سيناريوهات مسجلة حالياً.</p>"
-                
+
             sim_word_html += f"""
                 <hr>
                 <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
@@ -775,7 +1165,7 @@ with tab2:
                 mime="application/msword",
                 use_container_width=True
             )
-                
+
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_sim_out:
@@ -785,7 +1175,7 @@ with tab2:
                     st.warning("⚠️ يرجى اختيار دولة عربية صحيحة أولاً.")
                 else:
                     base_val = base_aacri_input
-                    t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82 
+                    t_val, e_val, h_val, r_val, c_val = 68, 70, 72, 65, 82
                     for item in st.session_state.history_state:
                         if item["الدولة"] == sim_country_sel:
                             base_val = item["المؤشر المركب (AACRI)"]
@@ -812,7 +1202,7 @@ with tab2:
                     elif scenario_dropdown.startswith("📊"):
                         simulated_val = min(100.0, base_val * (1 + (combined_boost * 0.0022)))
                         if base_val >= 80:
-                            analysis_text = f"استقرار تطوري مستدام لـ ({sim_country_sel}): استناداً إلى توازن المحددات الثقافية ({c_val}%) وديناميكيات السوق البرتقالي ({e_val}%), يتحقق نمو تدريجي مستقر نحو ريادة الابتكار."
+                            analysis_text = f"استقرار تطوري مستدام لـ ({sim_country_sel}): استناداً إلى توازن المحددات الثقافية ({c_val}%) وديناميكيات السوق البرتقالي ({e_val}%)، يتحقق نمو تدريجي مستقر نحو ريادة الابتكار."
                             action_plan = f"مواصلة برامج التحفيز التقليدي وتوسيع دائرة الشراكات الإقليمية للاستفادة القصوى من رصيد الكوادر البشرية ({h_val}%)."
                         elif base_val >= 51:
                             analysis_text = f"تقدم ملحوظ لـ ({sim_country_sel}): نجاح تدريجي في ترشيد استخدام الأدوات التوليدية، دعم مهارات 'المبدع المعزز'، وتقليص الفجوة المهنية استناداً إلى ({c_val}%)."
@@ -838,7 +1228,7 @@ with tab2:
 
                     deep_analysis = f"""
                     <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 10px;" dir="rtl">
-                        <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 8px; text-align: right;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
+                        <p style="font-weight: bold; color: {CCI_NAVY}; margin-bottom: 8px; text-align: right;">📊 التشخيص القياسي المخصص والمبني على درجات المحاور لدولة ({sim_country_sel}):</p>
                         <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
                             <li><b>1. البنية التقنية:</b> {describe_ti(t_val)}</li>
                             <li><b>2. الديناميكيات الاقتصادية:</b> {describe_ed(e_val)}</li>
@@ -850,19 +1240,19 @@ with tab2:
                     """
 
                     box_html = f"""
-                    <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                      <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
+                    <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CCI_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                      <h3 style="color: {CCI_NAVY}; font-weight: bold; margin-bottom: 8px;">📈 محاكاة دولة: {sim_country_sel} | السيناريو: {scenario_dropdown}</h3>
                       <p style="font-size: 15px; margin-bottom: 8px;"><b>القيمة المتوقعة للمؤشر:</b> {score_str_plain} (صافي التغير: <span style="font-weight: bold;">{delta:+.2f}</span>)</p>
-                      <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
+                      <div style="background: {CCI_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CCI_ORANGE_MID}; margin-top: 10px;">
                         <p style="margin-bottom: 6px;"><b>🔬 التحليل القياسي:</b> {analysis_text}</p>
-                        <p style="margin: 0 0 8px 0; color: {CBE_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
+                        <p style="margin: 0 0 8px 0; color: {CCI_ORANGE_MID}; font-weight: bold;">🛠️ خطة التحرك: {action_plan}</p>
                       </div>
                     </div>
                     """
                     sim_key = f"{sim_country_sel} - {scenario_dropdown}"
                     st.session_state.simulated_results_dict[sim_key] = {
-                        "html": box_html, 
-                        "deep": deep_analysis, 
+                        "html": box_html,
+                        "deep": deep_analysis,
                         "country": sim_country_sel,
                         "simulated_val": simulated_val,
                         "delta": delta,
@@ -906,7 +1296,7 @@ with tab3:
             recorded_countries_dec = [item["الدولة"] for item in st.session_state.history_state]
             decision_country_sel = st.selectbox("اختر الدولة لاستعراض التوصيات", recorded_countries_dec, key="dec_country")
             generate_decision_btn = st.button("📋 إضافة وتثبيت توصيات الدولة المختارة", use_container_width=True, type="primary")
-            
+
             if st.button("🗑️ مسح وإعادة تعيين لوحة القرار", use_container_width=True, type="secondary"):
                 st.session_state.decision_results_dict = {}
                 st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
@@ -937,7 +1327,7 @@ with tab3:
                     """
             else:
                 dec_word_html += "<p>لا توجد توصيات مسجلة حالياً.</p>"
-                
+
             dec_word_html += f"""
                 <hr>
                 <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
@@ -955,7 +1345,7 @@ with tab3:
                 mime="application/msword",
                 use_container_width=True
             )
-                
+
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_dec_out:
@@ -997,7 +1387,7 @@ with tab3:
                         else:
                             recs_list = [
                                 f"<b>التدخل الاستباقي العاجل لدولة ({decision_country_sel}):</b> معالجة الاختناقات الهيكلية الحادة في البنية التقنية ({t_val}%).",
-                                f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لت تأمين تدفقات استثمارية آمنة."
+                                f"<b>احتواء الاقتصاد غير الرسمي:</b> دمج الأنشطة الإبداعية المستترة ورفع كفاءة البيئة التشريعية ({r_val}%) لتأمين تدفقات استثمارية آمنة."
                             ]
                             deep_analysis_text = f"""
 - تفرض الضرورة القصوى استدعاء إطار <b>'التكامل الوظيفي الإقليمي'</b> لتعويض الفجوة في رأس المال البشري ({h_val}%).
@@ -1015,18 +1405,21 @@ with tab3:
             if st.session_state.decision_results_dict:
                 for item in st.session_state.decision_results_dict.values():
                     card_html = f"""
-                    <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
-                        <h3 style="color: {CBE_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
-                        <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CBE_ORANGE_MID}; margin-top: 10px;">
-                            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
+                    <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CCI_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);" dir="rtl">
+                        <h3 style="color: {CCI_NAVY}; font-weight: bold; margin-bottom: 8px; text-align: right;">🛡️ تقرير وتوصيات دولة: {item['country']} (المؤشر المركب: {item['score_str']})</h3>
+                        <div style="background: {CCI_BG}; padding: 12px; border-radius: 8px; border-right: 4px solid {CCI_ORANGE_MID}; margin-top: 10px;">
+                            <p style="font-weight: bold; color: {CCI_NAVY}; margin-bottom: 6px; text-align: right;">🎯 التوصيات الاستراتيجية الموجهة:</p>
                             <ul style="margin: 0; padding-right: 20px; color: #1E293B; line-height: 1.8; text-align: right;">
                                 <li>{item['recs'][0]}</li>
                                 <li>{item['recs'][1]}</li>
                             </ul>
                             <hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 10px 0;">
-                            <p style="font-weight: bold; color: {CBE_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
+                            <p style="font-weight: bold; color: {CCI_NAVY}; margin-bottom: 6px; text-align: right;">💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</p>
                             <div style="color: #1E293B; line-height: 1.8; text-align: right; padding-right: 20px;">
                                 {item['deep']}
+                            </div>
+                        </div>
+                    </div>
                     """
                     st.markdown(card_html, unsafe_allow_html=True)
             else:
@@ -1054,7 +1447,7 @@ with tab4:
             df_rep = pd.DataFrame(st.session_state.history_state).sort_values(
                 by="المؤشر المركب (AACRI)", ascending=False
             ).reset_index(drop=True)
-            
+
             top_row = df_rep.iloc[0]
             top_country = top_row["الدولة"]
             top_score = top_row["المؤشر المركب (AACRI)"]
@@ -1068,15 +1461,15 @@ with tab4:
                 c_name = row['الدولة']
                 c_score = row['المؤشر المركب (AACRI)']
                 c_diag = row['التقييم المنظومي']
-                
+
                 t_val = row['البنية التقنية (20%)']
                 e_val = row['الديناميكيات الاقتصادية (15%)']
                 h_val = row['رأس المال البشري (30%)']
                 r_val = row['البيئة التنظيمية والتشريعية (20%)']
                 c_val = row['المحددات الثقافية والهوياتية (15%)']
-                
+
                 if c_score >= 80:
-                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%), مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
+                    specific_strategic_angle = f"تتمتع دولة ({c_name}) بأداء متقدم ومستدام ({c_score}%)، مما يمنحها ميزة قيادة التحالفات الرقمية الإقليمية، وتوطين النماذج التوليدية الضخمة، وتعظيم عوائد الاقتصاد البرتقالي المستند للابتكار المفتوح."
                     specific_policy_action = f"تأسيس 'مجلس سيادي أعلى للذكاء الاصطناعي'، إطلاق مبادرات تصدير المعايير الثقافية، وتوظيف رأس المال البشري المتميز ({h_val}%)."
                 elif c_score >= 51:
                     specific_strategic_angle = f"تسجل دولة ({c_name}) جاهزية متوسطة ({c_score}%) تواجه بعض الاختناقات الهيكلية في سلاسل القيمة الإبداعية والتشريعات التنظيمية؛ وهو ما يتطلب تدخلاً استباقياً لردم الفجوات."
@@ -1101,25 +1494,25 @@ with tab4:
                         "⚠️ تنبيه توثيقي: لم يتم تسجيل أو تثبيت أي سيناريو استشرافي لهذا البلد في محاكي السياسات."
                         "</span>"
                     )
-                
+
                 if c_name in st.session_state.decision_results_dict:
                     dec_item = st.session_state.decision_results_dict[c_name]
                     dec_detail = f"{dec_item['recs'][0]} — وكذلك: {dec_item['recs'][1]}"
                 else:
                     dec_detail = (
                         "<span style='background-color: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #FCD34D;'>"
-                        "⚠ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد."
+                        "⚠️ تنبيه توثيقي: لم يتم اعتماد أو تثبيت توصيات لوحة القرار والتطعيم الثقافي لهذا البلد."
                         "</span>"
                     )
 
                 single_card_html = f"""
-                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CBE_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
-                    <h4 style="color: {CBE_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16.5px;">
-                        📌 التشخيص المنظومي والنتائج الاستراتيجية المستقلة لدولة: <span style="color: {CBE_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
+                <div style="background: #FFFFFF; padding: 22px; border-radius: 12px; border: 1.5px solid {CCI_ORANGE_MID}; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" dir="rtl">
+                    <h4 style="color: {CCI_NAVY}; font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16.5px;">
+                        📌 التشخيص المنظومي والنتائج الاستراتيجية المستقلة لدولة: <span style="color: {CCI_ORANGE_MID};">{c_name}</span> (المؤشر المركب: {c_score}%)
                     </h4>
                     <p style="margin-bottom: 8px; color: #334155; font-size: 14px;"><b>التقييم التشخيصي الشامل:</b> {c_diag}</p>
-                    <div style="background: {CBE_BG}; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid {CBE_ORANGE_MID};">
-                        <p style="margin: 0 0 6px 0; font-weight: bold; color: {CBE_NAVY}; font-size: 13.5px;">• زاوية التحليل الاستراتيجي المتميزة:</p>
+                    <div style="background: {CCI_BG}; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid {CCI_ORANGE_MID};">
+                        <p style="margin: 0 0 6px 0; font-weight: bold; color: {CCI_NAVY}; font-size: 13.5px;">• زاوية التحليل الاستراتيجي المتميزة:</p>
                         <p style="margin: 0; color: #1E293B; font-size: 13.5px; line-height: 1.7;">{specific_strategic_angle}</p>
                     </div>
                     <ul style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 13.5px; line-height: 1.8;">
@@ -1134,17 +1527,17 @@ with tab4:
                 word_blocks_html += single_card_html
 
             st.markdown(f"""
-            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CBE_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
-              <div style="text-align: center; border-bottom: 2px solid {CBE_ORANGE_MID}; padding-bottom: 15px; margin-bottom: 25px;">
-                <h2 style="color: {CBE_NAVY}; font-weight: 800; margin: 0;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h2>
+            <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 30px; border-radius: 14px; border: 2px solid {CCI_ORANGE_MID}; line-height: 1.9; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
+              <div style="text-align: center; border-bottom: 2px solid {CCI_ORANGE_MID}; padding-bottom: 15px; margin-bottom: 25px;">
+                <h2 style="color: {CCI_NAVY}; font-weight: 800; margin: 0;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h2>
                 <p style="color: #64748B; font-size: 14.5px; margin-top: 6px;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار - بناءً على مخرجات الدراسة المنهجية والتفكير المنظومي (AACRI)</p>
               </div>
             """, unsafe_allow_html=True)
 
             st.markdown(f"""
-            <div style="background: {CBE_BG}; padding: 18px; border-radius: 10px; border-right: 5px solid {CBE_ORANGE_MID}; margin-bottom: 25px;" dir="rtl">
-                <h4 style="color: {CBE_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h4>
-                <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CBE_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_str}.</p>
+            <div style="background: {CCI_BG}; padding: 18px; border-radius: 10px; border-right: 5px solid {CCI_ORANGE_MID}; margin-bottom: 25px;" dir="rtl">
+                <h4 style="color: {CCI_NAVY}; margin-top: 0;">🏆 مؤشرات الأداء العام والريادة الإقليمية (التصنيف الجغرافي والديموغرافي والتاريخي):</h4>
+                <p style="margin-bottom: 8px;">تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <span style="font-weight: bold; color: {CCI_ORANGE_MID};">{top_country}</span> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p style="margin-bottom: 8px; line-height: 1.8;"><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
                 <p style="margin: 0;">إجمالي الدول الخاضعة للتشخيص والتحليل المنظومي حتى الآن: <b>{len(df_rep)} دولة عربية</b>.</p>
             </div>
@@ -1225,7 +1618,7 @@ with tab5:
             file_path = app["filename"]
             if os.path.exists(file_path):
                 st.success(f"✅ الملف متوفر وجاهز للتحميل: `{file_path}`")
-                
+
                 with open(file_path, "rb") as f:
                     pdf_bytes = f.read()
                 st.download_button(
@@ -1253,11 +1646,11 @@ with tab6:
     """, unsafe_allow_html=True)
 
     user_guide_filename = "دليل المستخدم.pdf"
-    
+
     with st.expander(f"📑 دليل المستخدم الرسمي للمنصة"):
         if os.path.exists(user_guide_filename):
             st.success(f"✅ ملف دليل المستخدم متوفر وجاهز للتحميل: `{user_guide_filename}`")
-            
+
             with open(user_guide_filename, "rb") as f:
                 pdf_bytes_ug = f.read()
             st.download_button(
@@ -1289,7 +1682,7 @@ if st.session_state.current_user == "admin":
         if visitors_data_list:
             df_visitors = pd.DataFrame(visitors_data_list)
             st.dataframe(df_visitors, use_container_width=True)
-            
+
             csv_visitors = df_visitors.to_csv(index=False).encode('utf-8-sig')
             st.download_button(
                 label="📥 تحميل سجل الزوار والأفراد وعناوين IP (CSV)",
