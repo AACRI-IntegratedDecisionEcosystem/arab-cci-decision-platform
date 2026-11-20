@@ -25,9 +25,10 @@ CCI_ORANGE_MID = "#B45309"      # برتقالي غامق تراثي
 CCI_ORANGE_LIGHT = "#D97706"    # برتقالي أفتح نسبياً عند التحديد
 CCI_NAVY = "#0A192F"           # أزرق ملكي عميق
 CCI_NAVY_HOVER = "#162A4A"     # درجة تمرير متناسقة مع الخلفية الأساسية
-CCI_GOLD_BRIGHT = "#FBBF24"    # لون خط نصي مشرق عند التمرير / الضغط / التحديد
+CCI_GOLD_BRIGHT = "#FBBF24"    # لون ذهبي مشرق في الوضع العادي
+CCI_WHITE_ACTIVE = "#FFFFFF"   # لون أبيض واضح عند المرور / الضغط / التحديد
 CCI_BG = "#F8FAFC"             # خلفية ناعمة
-UI_CSS_VERSION = "cci-tabs-v15"
+UI_CSS_VERSION = "cci-tabs-v16"
 
 # أولوية الخطوط: Bahij TheSansArabic ثم Readex Pro ثم Tajawal ثم Cairo
 APP_FONT = "'Bahij TheSansArabic', 'Readex Pro', 'Tajawal', 'Cairo', sans-serif"
@@ -128,11 +129,11 @@ div[data-testid="stTabs"] [data-baseweb="tab-list"] [role="tablist"] {{
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border: 1.5px solid rgba(251, 191, 36, 0.35) !important;
+        border: 1.5px solid rgba(251, 191, 36, 0.45) !important;
         border-radius: 8px !important;
         font-family: {APP_FONT} !important;
         font-weight: 700 !important;
-        font-size: 12.5px !important;
+        font-size: 12px !important;
         line-height: 1.35 !important;
         text-align: center !important;
         white-space: normal !important;
@@ -198,7 +199,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-list"] [role="tablist"] {{
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border: 1.5px solid rgba(251, 191, 36, 0.45) !important;
+        border: 1.5px solid rgba(251, 191, 36, 0.55) !important;
         border-radius: 8px !important;
         font-family: {APP_FONT} !important;
         font-weight: 700 !important;
@@ -235,19 +236,19 @@ html body [role="tablist"] [role="tab"] * {{
 """
 
 TABS_COLOR_RULES = f"""
-/* الوضع الافتراضي: نص أبيض واضح على خلفية تراثية دافئة متناسقة */
+/* الوضع العادي: خلفية داكنة متسقة مع نص ذهبي مشرق واضح */
 html body [data-baseweb="tab-list"] button[role="tab"],
 html body [data-baseweb="tab-list"] button[role="tab"] *,
 html body [role="tablist"] [role="tab"],
 html body [role="tablist"] [role="tab"] * {{
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
+    color: {CCI_GOLD_BRIGHT} !important;
+    -webkit-text-fill-color: {CCI_GOLD_BRIGHT} !important;
     opacity: 1 !important;
 }}
 
 html body [data-baseweb="tab-list"] button[role="tab"],
 html body [role="tablist"] [role="tab"] {{
-    background-color: rgba(120, 53, 15, 0.88) !important;
+    background: linear-gradient(135deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%) !important;
 }}
 
 html body [data-baseweb="tab-list"] button[role="tab"] *,
@@ -255,25 +256,26 @@ html body [role="tablist"] [role="tab"] * {{
     background: transparent !important;
 }}
 
-/* عند المرور أو الضغط أو التركيز أو التحديد: خط نصي ذهبي مشرق متناسق مع الخلفية */
+/* عند المرور أو الضغط أو التركيز أو التحديد: لون أبيض واضح مع خلفية بارزة */
 html body [data-baseweb="tab-list"] button[role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]),
 html body [data-baseweb="tab-list"] button[role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]) *,
 html body [role="tablist"] [role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]),
 html body [role="tablist"] [role="tab"]:is(:hover, :active, :focus-visible, [aria-selected="true"]) * {{
-    color: {CCI_GOLD_BRIGHT} !important;
-    -webkit-text-fill-color: {CCI_GOLD_BRIGHT} !important;
+    color: {CCI_WHITE_ACTIVE} !important;
+    -webkit-text-fill-color: {CCI_WHITE_ACTIVE} !important;
 }}
 
 html body [data-baseweb="tab-list"] button[role="tab"]:hover,
 html body [role="tablist"] [role="tab"]:hover {{
-    background-color: {CCI_ORANGE_MID} !important;
+    background: linear-gradient(135deg, {CCI_NAVY_HOVER} 0%, {CCI_ORANGE_MID} 100%) !important;
+    border-color: {CCI_GOLD_BRIGHT} !important;
 }}
 
 html body [data-baseweb="tab-list"] button[role="tab"][aria-selected="true"],
 html body [role="tablist"] [role="tab"][aria-selected="true"] {{
     background: linear-gradient(135deg, {CCI_ORANGE_MID} 0%, {CCI_ORANGE_LIGHT} 100%) !important;
     font-weight: 800 !important;
-    border: 2px solid #FFFFFF !important;
+    border: 2px solid {CCI_GOLD_BRIGHT} !important;
     box-shadow: 0 4px 15px rgba(180, 83, 9, 0.45) !important;
 }}
 """
@@ -285,11 +287,11 @@ TABS_GUARD_JS = """
 (function () {
   var W = window;
   if (W.__cciTabsObserver) { try { W.__cciTabsObserver.disconnect(); } catch (e) {} }
-  var BASE_BG = 'rgba(120, 53, 15, 0.88)';
+  var BASE_BG = '%BASE_BG%';
   var HOVER_BG = '%HOVER%';
   var ACTIVE_BG = '%ACTIVE_BG%';
   var GOLD = '%GOLD%';
-  var WHITE = '#FFFFFF';
+  var WHITE = '%WHITE%';
   var SEL = '[role="tablist"] [role="tab"]';
 
   function setColor(el, c) {
@@ -299,7 +301,7 @@ TABS_GUARD_JS = """
 
   function paint(btn, hot) {
     var sel = btn.getAttribute('aria-selected') === 'true';
-    var c = (sel || hot) ? GOLD : WHITE;
+    var c = (sel || hot) ? WHITE : GOLD;
     setColor(btn, c);
     if (sel) {
       btn.style.setProperty('background', ACTIVE_BG, 'important');
@@ -359,9 +361,11 @@ def inject_tabs_css():
 
     guard_js = (
         TABS_GUARD_JS
-        .replace("%HOVER%", CCI_ORANGE_MID)
+        .replace("%BASE_BG%", f"linear-gradient(135deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%)")
+        .replace("%HOVER%", f"linear-gradient(135deg, {CCI_NAVY_HOVER} 0%, {CCI_ORANGE_MID} 100%)")
         .replace("%ACTIVE_BG%", f"linear-gradient(135deg, {CCI_ORANGE_MID} 0%, {CCI_ORANGE_LIGHT} 100%)")
         .replace("%GOLD%", CCI_GOLD_BRIGHT)
+        .replace("%WHITE%", CCI_WHITE_ACTIVE)
     )
 
     components.html(
@@ -468,6 +472,66 @@ div[role="listbox"] *,
 div[role="option"] {{
     direction: rtl !important;
     text-align: right !important;
+}}
+
+/* بطاقات التبويب الرئيسي */
+.home-hero-card {{
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%) !important;
+    padding: clamp(20px, 3.5vw, 30px) !important;
+    border-radius: 14px !important;
+    border-right: 6px solid {CCI_ORANGE_MID} !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-right-width: 6px !important;
+    box-shadow: 0 6px 20px rgba(10, 25, 47, 0.06) !important;
+    margin-bottom: 22px !important;
+}}
+
+.home-section-card {{
+    background: #FFFFFF !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    border: 1px solid #E2E8F0 !important;
+    border-top: 4px solid {CCI_NAVY} !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+    height: 100% !important;
+    margin-bottom: 16px !important;
+}}
+
+.home-section-card h4 {{
+    color: {CCI_NAVY} !important;
+    font-weight: 800 !important;
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+}}
+
+.home-section-card p {{
+    color: #334155 !important;
+    font-size: 13.8px !important;
+    line-height: 1.75 !important;
+    margin: 0 !important;
+}}
+
+.home-kpi-box {{
+    background: linear-gradient(135deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%) !important;
+    color: #FFFFFF !important;
+    padding: 16px 18px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid {CCI_GOLD_BRIGHT} !important;
+    text-align: center !important;
+    box-shadow: 0 4px 14px rgba(10, 25, 47, 0.14) !important;
+}}
+
+.home-kpi-val {{
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: {CCI_GOLD_BRIGHT} !important;
+    line-height: 1.3 !important;
+}}
+
+.home-kpi-lbl {{
+    font-size: 13px !important;
+    color: #F8FAFC !important;
+    margin-top: 4px !important;
 }}
 
 /* تصميم جدول RTL مخصص ومصغر ومريح بصرياً */
@@ -854,7 +918,6 @@ if "decision_results_dict" not in st.session_state:
 st.markdown(f"""
 <div class="header-center">
 <h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
-<h1> منصة مشكاة</h1>
 <h3>ضمن مخرجات دراسة بحثية مقاربة منهجية لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي</h3>
 </div>
 """, unsafe_allow_html=True)
@@ -872,10 +935,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# التقسيم الرئيسي إلى التبويبات
+# التقسيم الرئيسي إلى التبويبات (مع إضافة تبويب الرئيسية في المقدمة)
 # ==============================================================================
 if st.session_state.current_user == "admin":
-    tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
+    tab_home, tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
+        "🏠 الرئيسية",
         "📊 تشخيص مؤشر الجاهزية (AACRI)",
         "📈 محاكي السياسات (Policy Simulator)",
         "🛡️ لوحة دعم اتخاذ القرار",
@@ -885,7 +949,8 @@ if st.session_state.current_user == "admin":
         "🔒 سجل الزوار والأفراد (Admin)"
     ])
 else:
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab_home, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "🏠 الرئيسية",
         "📊 تشخيص مؤشر الجاهزية (AACRI)",
         "📈 محاكي السياسات (Policy Simulator)",
         "🛡️ لوحة دعم اتخاذ القرار",
@@ -896,6 +961,124 @@ else:
 
 # حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل وتفاعلات الموبايل واللابتوب
 inject_tabs_css()
+
+# ------------------------------------------------------------------------------
+# التبويب الرئيسي: الرئيسية (التعريف بالمنصة وأقسامها)
+# ------------------------------------------------------------------------------
+with tab_home:
+    st.markdown(f"""
+    <div class="home-hero-card" dir="rtl" style="text-align: right;">
+        <h3 style="color: {CCI_NAVY}; font-weight: 800; margin-top: 0; margin-bottom: 10px;">
+            🏛️ مرحباً بك في منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية
+        </h3>
+        <p style="color: #1E293B; font-size: 14.8px; line-height: 1.85; margin-bottom: 10px;">
+            تُعد هذه المنصة نموذجاً تشغيلياً تفاعلياً لدعم صُنّاع القرار والباحثين والخبراء في صياغة وتطوير سياسات <b>الصناعات الثقافية والإبداعية العربية (CCIs)</b> في ظل التحولات المتسارعة للذكاء الاصطناعي التوليدي، مستندةً إلى <b>التفكير المنظومي (Systems Thinking)</b>، والتحليل الهرمي (AHP)، ومؤشر الجاهزية الذكية المركب (AACRI) المبني على خمسة محاور رئيسة و69 متغيراً.
+        </p>
+        <p style="color: #475569; font-size: 13.8px; line-height: 1.75; margin: 0;">
+            <b>الهدف الاستراتيجي:</b> تمكين «المبدع المعزز»، وحماية الهوية والأمن الثقافي الرقمي، وتحويل التحديات الخوارزمية إلى فرص نمو مستدام للاقتصاد البرتقالي العربي.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4, gap="medium")
+    with kpi1:
+        st.markdown(f"""
+        <div class="home-kpi-box" dir="rtl">
+            <div class="home-kpi-val">22</div>
+            <div class="home-kpi-lbl">دولة عربية ضمن الإطار الجغرافي</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with kpi2:
+        st.markdown(f"""
+        <div class="home-kpi-box" dir="rtl">
+            <div class="home-kpi-val">5 / 69</div>
+            <div class="home-kpi-lbl">محاور هرمية و69 متغيراً في AACRI</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with kpi3:
+        st.markdown(f"""
+        <div class="home-kpi-box" dir="rtl">
+            <div class="home-kpi-val">{len(st.session_state.history_state)}</div>
+            <div class="home-kpi-lbl">دول مُشخّصة في الجلسة الحالية</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with kpi4:
+        st.markdown(f"""
+        <div class="home-kpi-box" dir="rtl">
+            <div class="home-kpi-val">{len(st.session_state.simulated_results_dict) + len(st.session_state.decision_results_dict)}</div>
+            <div class="home-kpi-lbl">سيناريوهات وتوصيات مُثبّتة</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div dir="rtl" style="text-align: right; margin-bottom: 12px;">
+        <h3 style="color: {CCI_NAVY}; font-weight: 800; margin: 0;">🧭 أقسام المنصة وآلية العمل المتكاملة</h3>
+        <p style="color: #475569; font-size: 14px; margin-top: 4px;">
+            تتكامل أقسام المنصة في سلسلة تشغيلية مترابطة تبدأ من التشخيص القياسي وتنتهي بالتقارير التنفيذية والملاحق المنهجية:
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    r1_c1, r1_c2, r1_c3 = st.columns(3, gap="medium")
+    with r1_c1:
+        st.markdown("""
+        <div class="home-section-card" dir="rtl" style="text-align: right;">
+            <h4>📊 تشخيص مؤشر الجاهزية (AACRI)</h4>
+            <p>قياس جاهزية الدول العربية عبر خمسة محاور موزونة (البنية التقنية 20%، الاقتصاد 15%، رأس المال البشري 30%، البيئة التشريعية 20%، المحددات الثقافية 15%) مع رسم راداري وترتيب تراكمي وتصدير CSV.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with r1_c2:
+        st.markdown("""
+        <div class="home-section-card" dir="rtl" style="text-align: right;">
+            <h4>📈 محاكي السياسات (Policy Simulator)</h4>
+            <p>اختبار السيناريوهات الاستراتيجية (التشاؤمي، المعتدل، الطموح) وضبط نسب التحفيز عبر المحاور الخمسة لاستشراف الأثر المستقبلي وتثبيت ومقارنة السيناريوهات وتصديرها في ملف Word.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with r1_c3:
+        st.markdown("""
+        <div class="home-section-card" dir="rtl" style="text-align: right;">
+            <h4>🛡️ لوحة دعم اتخاذ القرار</h4>
+            <p>توليد وتثبيت توصيات سياساتية مخصصة لكل دولة وفق مستوى جاهزيتها، وتفعيل آليات التطعيم الثقافي (Cultural Grafting) وصون الهوية والسيادة الرقمية.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    r2_c1, r2_c2, r2_c3 = st.columns(3, gap="medium")
+    with r2_c1:
+        st.markdown("""
+        <div class="home-section-card" dir="rtl" style="text-align: right;">
+            <h4>📑 التقرير التنفيذي الموحد</h4>
+            <p>دمج مخرجات التشخيص والترتيب الإقليمي والمحاكاة والتوصيات في تقرير تنفيذي موحد للقيادات العليا مع إمكانية تحميله بصيغة مستند Word جاهز للعرض.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with r2_c2:
+        st.markdown("""
+        <div class="home-section-card" dir="rtl" style="text-align: right;">
+            <h4>📚 ملاحق المشروع والوثائق (PDF)</h4>
+            <p>إتاحة الملاحق العلمية والمنهجية الستة للدراسة (الاستقراء الببليومتري، حلقات السببية CLDs، المصفوفة الإجرائية، المقارنات الزوجية، المعادلات، وبروتوكول الاختبار الميداني).</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with r2_c3:
+        st.markdown("""
+        <div class="home-section-card" dir="rtl" style="text-align: right;">
+            <h4>📖 دليل المستخدم الرسمي</h4>
+            <p>مرجع إرشادي متكامل يوضح خطوات استخدام المنصة وتفسير مؤشراتها ومخرجاتها للمحكمين والباحثين وصُنّاع السياسات بصيغة PDF.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div style="background: #FFFFFF; padding: 18px 22px; border-radius: 12px; border-right: 5px solid {CCI_NAVY}; border: 1px solid #CBD5E1; border-right-width: 5px; margin-top: 8px;" dir="rtl">
+        <h4 style="color: {CCI_NAVY}; font-weight: 800; margin-top: 0; margin-bottom: 8px;">⚡ مسار العمل الموصى به داخل المنصة:</h4>
+        <ol style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 14px; line-height: 1.85;">
+            <li>ابدأ من تبويب <b>«تشخيص مؤشر الجاهزية (AACRI)»</b> لاختيار الدولة وتسجيل درجات محاورها الخمسة.</li>
+            <li>انتقل إلى <b>«محاكي السياسات»</b> لاختبار السيناريوهات الاستراتيجية وتثبيت النتائج التراكمية.</li>
+            <li>فعّل <b>«لوحة دعم اتخاذ القرار»</b> لاعتماد التوصيات المخصصة لكل دولة.</li>
+            <li>استخرج <b>«التقرير التنفيذي الموحد»</b> أو استعرض <b>«الملاحق ودليل المستخدم»</b> حسب حاجتك البحثية أو المؤسسية.</li>
+        </ol>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
