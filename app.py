@@ -1,13 +1,23 @@
-import json
-import random
 import io
 import os
+import re
+import json
+import hashlib
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
+
+try:
+    from docx import Document
+    from docx.shared import Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml import OxmlElement
+    HAS_PYTHON_DOCX = True
+except ImportError:
+    HAS_PYTHON_DOCX = False
 
 # ==============================================================================
 # إعدادات صفحة Streamlit وتطبيق الهوية البصرية (RTL + Responsive)
@@ -28,7 +38,7 @@ CCI_NAVY_HOVER = "#162A4A"     # درجة تمرير متناسقة مع الخ�
 CCI_GOLD_BRIGHT = "#FBBF24"    # لون ذهبي مشرق في الوضع العادي
 CCI_WHITE_ACTIVE = "#FFFFFF"   # لون أبيض واضح عند المرور / الضغط / التحديد
 CCI_BG = "#F8FAFC"             # خلفية ناعمة
-UI_CSS_VERSION = "cci-tabs-v16"
+UI_CSS_VERSION = "cci-tabs-v17"
 
 # أولوية الخطوط: Bahij TheSansArabic ثم Readex Pro ثم Tajawal ثم Cairo
 APP_FONT = "'Bahij TheSansArabic', 'Readex Pro', 'Tajawal', 'Cairo', sans-serif"
@@ -78,7 +88,7 @@ html body [role="tablist"] {{
     box-sizing: border-box !important;
     gap: 6px !important;
     padding: 8px !important;
-    margin: 0 0 18px 0 !important;
+    margin: 0 0 16px 0 !important;
     background: linear-gradient(135deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%) !important;
     border: 2px solid {CCI_GOLD_BRIGHT} !important;
     border-radius: 12px !important;
@@ -313,11 +323,56 @@ TABS_GUARD_JS = """
     btn.querySelectorAll('*').forEach(function (n) { setColor(n, c); });
   }
 
+  function saveActiveTabToUrl(idx) {
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.set('tab', String(idx));
+      window.history.replaceState({}, '', u.toString());
+    } catch (e) {}
+  }
+
+  function goToTab(idx, shouldScroll) {
+    var tabs = document.querySelectorAll(SEL);
+    if (tabs && tabs[idx]) {
+      tabs[idx].click();
+      saveActiveTabToUrl(idx);
+      setTimeout(run, 25);
+      if (window.innerWidth <= 768) {
+        try { tabs[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch (e) {}
+      }
+      if (shouldScroll) {
+        var tabList = document.querySelector('[role="tablist"]');
+        if (tabList) {
+          try { tabList.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+        }
+      }
+    }
+  }
+
+  function restoreTabFromUrl() {
+    if (W.__cciTabRestored) return;
+    try {
+      var u = new URL(window.location.href);
+      var t = u.searchParams.get('tab');
+      if (t !== null && t !== '0') {
+        var idx = parseInt(t, 10);
+        var tabs = document.querySelectorAll(SEL);
+        if (!isNaN(idx) && tabs && tabs[idx]) {
+          W.__cciTabRestored = true;
+          tabs[idx].click();
+          setTimeout(run, 35);
+        }
+      } else {
+        W.__cciTabRestored = true;
+      }
+    } catch (e) {}
+  }
+
   function run() {
     document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
       .forEach(function (el) { el.style.setProperty('display', 'none', 'important'); });
 
-    document.querySelectorAll(SEL).forEach(function (b) {
+    document.querySelectorAll(SEL).forEach(function (b, idx) {
       paint(b, b.matches(':hover'));
       if (!b.__cciBound) {
         b.__cciBound = 1;
@@ -326,9 +381,32 @@ TABS_GUARD_JS = """
         b.addEventListener('pointerdown',  function () { paint(b, true); });
         b.addEventListener('pointerup',    function () { paint(b, false); });
         b.addEventListener('click', function () {
+          saveActiveTabToUrl(idx);
           setTimeout(run, 0);
           if (window.innerWidth <= 768) {
             try { b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch (e) {}
+          }
+        });
+      }
+    });
+
+    /* ربط مفاتيح أقسام المنصة في الصفحة الرئيسية بالتبويبات المقابلة */
+    document.querySelectorAll('[data-cci-tab]').forEach(function (card) {
+      if (!card.__cciNav) {
+        card.__cciNav = 1;
+        card.addEventListener('click', function () {
+          var idx = parseInt(card.getAttribute('data-cci-tab'), 10);
+          if (!isNaN(idx)) {
+            goToTab(idx, true);
+          }
+        });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            var idx = parseInt(card.getAttribute('data-cci-tab'), 10);
+            if (!isNaN(idx)) {
+              goToTab(idx, true);
+            }
           }
         });
       }
@@ -343,7 +421,7 @@ TABS_GUARD_JS = """
   }
 
   run();
-  setTimeout(run, 100);
+  setTimeout(function () { restoreTabFromUrl(); run(); }, 120);
   setTimeout(run, 400);
 
   W.__cciTabsObserver = new MutationObserver(schedule);
@@ -394,6 +472,40 @@ def inject_tabs_css():
     )
 
 
+def sync_session_browser_backup():
+    """حفظ نسخة احتياطية من حالة الجلسة في localStorage بالمتصفح لدعم الثبات عند التحديث."""
+    backup_payload = json.dumps({
+        "history_state": st.session_state.get("history_state", []),
+        "simulated_results": {
+            k: {
+                "country": v.get("country"),
+                "simulated_val": v.get("simulated_val"),
+                "delta": v.get("delta"),
+                "scenario": v.get("scenario"),
+                "analysis_text": v.get("analysis_text"),
+                "action_plan": v.get("action_plan"),
+            }
+            for k, v in st.session_state.get("simulated_results_dict", {}).items()
+        },
+        "decision_results": st.session_state.get("decision_results_dict", {}),
+    }, ensure_ascii=False)
+
+    components.html(
+        f"""
+        <script>
+        (function() {{
+            try {{
+                var data = {backup_payload};
+                window.parent.localStorage.setItem('cci_platform_state_v1', JSON.stringify(data));
+            }} catch (e) {{}}
+        }})();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+
+
 CUSTOM_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
@@ -409,15 +521,16 @@ CUSTOM_CSS = f"""
     font-weight: 700;
 }}
 
-/* إخفاء شريط أدوات Streamlit العلوي وأيقونة أدوات التطوير نهائياً للعرض الأكاديمي */
-header {{
+/* إخفاء شريط أدوات Streamlit العلوي وأي هامش علوي زائد */
+header,
+.stAppToolbar,
+div[data-testid="stHeader"],
+div[data-testid="stDecoration"] {{
     visibility: hidden !important;
     display: none !important;
-}}
-
-.stAppToolbar, div[data-testid="stHeader"] {{
-    display: none !important;
-    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }}
 
 /* إخفاء إطارات السكربت المخفية دون إيقاف تنفيذ JavaScript */
@@ -428,6 +541,8 @@ iframe[height="0"] {{
     border: 0 !important;
     opacity: 0 !important;
     pointer-events: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }}
 
 html, body, [class*="css"] {{
@@ -435,6 +550,8 @@ html, body, [class*="css"] {{
     direction: rtl !important;
     text-align: right !important;
     background-color: {CCI_BG} !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }}
 
 .stApp p, .stApp label, .stApp li, .stApp td, .stApp th, .stApp h1, .stApp h2, .stApp h3,
@@ -450,13 +567,23 @@ html, body, [class*="css"] {{
     overflow-x: hidden !important;
 }}
 
+[data-testid="stAppViewContainer"],
+section[data-testid="stMain"],
+.main {{
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}}
+
 .block-container,
 [data-testid="stMainBlockContainer"],
 [data-testid="stAppViewBlockContainer"] {{
     width: 100% !important;
     max-width: 100% !important;
+    padding-top: 0.45rem !important;
+    padding-bottom: 1.5rem !important;
     padding-left: 1.25rem !important;
     padding-right: 1.25rem !important;
+    margin-top: 0 !important;
 }}
 
 div.stMarkdown, div.stText, div.stSelectbox, div.stSlider, div.stDataFrame, div.stTable {{
@@ -479,9 +606,8 @@ div[role="option"] {{
     background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%) !important;
     padding: clamp(20px, 3.5vw, 30px) !important;
     border-radius: 14px !important;
-    border-right: 6px solid {CCI_ORANGE_MID} !important;
     border: 1.5px solid #E2E8F0 !important;
-    border-right-width: 6px !important;
+    border-right: 6px solid {CCI_ORANGE_MID} !important;
     box-shadow: 0 6px 20px rgba(10, 25, 47, 0.06) !important;
     margin-bottom: 22px !important;
 }}
@@ -490,11 +616,26 @@ div[role="option"] {{
     background: #FFFFFF !important;
     padding: 20px !important;
     border-radius: 12px !important;
-    border: 1px solid #E2E8F0 !important;
+    border: 1.5px solid #E2E8F0 !important;
     border-top: 4px solid {CCI_NAVY} !important;
+    border-right: 4px solid {CCI_ORANGE_MID} !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
     height: 100% !important;
     margin-bottom: 16px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    transition: all 0.22s ease !important;
+}}
+
+.home-section-card:hover {{
+    background: linear-gradient(135deg, {CCI_NAVY} 0%, {CCI_ORANGE_DARK} 100%) !important;
+    border-color: {CCI_GOLD_BRIGHT} !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 24px rgba(10, 25, 47, 0.22) !important;
+}}
+
+.home-section-card:active {{
+    transform: scale(0.985) !important;
 }}
 
 .home-section-card h4 {{
@@ -502,13 +643,41 @@ div[role="option"] {{
     font-weight: 800 !important;
     margin-top: 0 !important;
     margin-bottom: 10px !important;
+    transition: color 0.2s ease !important;
 }}
 
 .home-section-card p {{
     color: #334155 !important;
     font-size: 13.8px !important;
     line-height: 1.75 !important;
-    margin: 0 !important;
+    margin: 0 0 12px 0 !important;
+    transition: color 0.2s ease !important;
+}}
+
+.home-section-cta {{
+    display: inline-block !important;
+    background: #FEF3C7 !important;
+    color: {CCI_NAVY} !important;
+    border: 1px solid {CCI_ORANGE_MID} !important;
+    border-radius: 50px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+}}
+
+.home-section-card:hover h4 {{
+    color: {CCI_GOLD_BRIGHT} !important;
+}}
+
+.home-section-card:hover p {{
+    color: #F8FAFC !important;
+}}
+
+.home-section-card:hover .home-section-cta {{
+    background: {CCI_GOLD_BRIGHT} !important;
+    color: {CCI_NAVY} !important;
+    border-color: #FFFFFF !important;
 }}
 
 .home-kpi-box {{
@@ -593,11 +762,11 @@ div[role="option"] {{
     background-size: cover !important;
     background-position: center !important;
     color: #FFFFFF !important;
-    padding: clamp(24px, 4vw, 40px) clamp(12px, 3vw, 20px) !important;
+    padding: clamp(20px, 3.5vw, 34px) clamp(12px, 3vw, 20px) !important;
     border-radius: 16px !important;
     border-bottom: 5px solid {CCI_ORANGE_MID} !important;
     box-shadow: 0 12px 35px rgba(0,0,0,0.35) !important;
-    margin-bottom: 20px !important;
+    margin-bottom: 16px !important;
     direction: rtl !important;
 }}
 
@@ -605,7 +774,7 @@ div[role="option"] {{
     color: #FBBF24 !important;
     font-size: clamp(19px, 4.5vw, 26px) !important;
     font-weight: 800 !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 10px !important;
     line-height: 1.45 !important;
     text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
 }}
@@ -626,7 +795,7 @@ div[role="option"] {{
     overflow: hidden;
     white-space: nowrap;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    margin-bottom: 25px;
+    margin-bottom: 18px;
     border-radius: 8px;
     direction: ltr !important;
 }}
@@ -668,7 +837,7 @@ div[role="option"] {{
     .block-container,
     [data-testid="stMainBlockContainer"],
     [data-testid="stAppViewBlockContainer"] {{
-        padding-top: 1rem !important;
+        padding-top: 0.4rem !important;
         padding-bottom: 1.5rem !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
@@ -704,6 +873,104 @@ div[role="option"] {{
 </style>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+# ==============================================================================
+# دوال مساعدة لتوليد ملفات Word (.docx) الأصلية بدون أي تحذيرات
+# ==============================================================================
+def _clean_word_text(text) -> str:
+    if not isinstance(text, str):
+        return str(text)
+    t = re.sub(r"<[^>]+>", "", text)
+    t = t.replace(" ", " ").replace("&", "&").replace("<", "<").replace(">", ">")
+    t = t.replace("\xa0", " ").replace("\u200b", "")
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def _set_rtl_paragraph(p):
+    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    pPr = p._p.get_or_add_pPr()
+    bidi = OxmlElement("w:bidi")
+    pPr.append(bidi)
+
+
+def build_word_document(title: str, subtitle: str, html_body: str) -> tuple[bytes, str, str]:
+    """توليد ملف .docx أصلي متوافق مع Microsoft Word وLibreOffice مع ترويسة وتذييل واتجاه RTL."""
+    if HAS_PYTHON_DOCX:
+        doc = Document()
+        section = doc.sections[0]
+
+        header = section.header
+        hp = header.paragraphs[0]
+        hp.text = "منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية"
+        _set_rtl_paragraph(hp)
+        if hp.runs:
+            hp.runs[0].font.size = Pt(9)
+            hp.runs[0].font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
+
+        footer = section.footer
+        fp = footer.paragraphs[0]
+        fp.text = f"جميع الحقوق محفوظة للدراسة البحثية © 2026 | تاريخ التوليد: {datetime.now().strftime('%Y-%m-%d')}"
+        _set_rtl_paragraph(fp)
+        if fp.runs:
+            fp.runs[0].font.size = Pt(9)
+            fp.runs[0].font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
+
+        h_main = doc.add_heading(_clean_word_text(title), level=0)
+        h_main.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        if h_main.runs:
+            h_main.runs[0].font.color.rgb = RGBColor(0x0A, 0x19, 0x2F)
+
+        if subtitle:
+            p_sub = doc.add_paragraph(_clean_word_text(subtitle))
+            p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            if p_sub.runs:
+                p_sub.runs[0].font.size = Pt(11)
+                p_sub.runs[0].font.color.rgb = RGBColor(0xB4, 0x53, 0x09)
+
+        normalized = re.sub(r"<(br|hr)\s*/?>", "\n", html_body, flags=re.IGNORECASE)
+        normalized = re.sub(r"</(p|div|h[1-6]|li|tr)>", "\n", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(r"<li[^>]*>", "• ", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(r"<h[1-4][^>]*>", "### ", normalized, flags=re.IGNORECASE)
+
+        for raw_line in normalized.splitlines():
+            line = _clean_word_text(raw_line)
+            if not line:
+                continue
+            if line.startswith("### "):
+                sec_title = line[4:].strip()
+                if sec_title:
+                    hd = doc.add_heading(sec_title, level=2)
+                    _set_rtl_paragraph(hd)
+                    if hd.runs:
+                        hd.runs[0].font.color.rgb = RGBColor(0x0A, 0x19, 0x2F)
+            elif line.startswith("• "):
+                p = doc.add_paragraph(line[2:].strip(), style="List Bullet")
+                _set_rtl_paragraph(p)
+            else:
+                p = doc.add_paragraph(line)
+                _set_rtl_paragraph(p)
+
+        buf = io.BytesIO()
+        doc.save(buf)
+        return (
+            buf.getvalue(),
+            ".docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+
+    fallback_html = f"""
+    <html dir="rtl">
+    <head><meta charset="utf-8"><title>{title}</title></head>
+    <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right; direction: rtl; line-height: 1.8;">
+        <h1 style="color: #0A192F; text-align: center;">{title}</h1>
+        <p style="text-align: center; color: #B45309;">{subtitle}</p>
+        <hr>
+        {html_body}
+    </body>
+    </html>
+    """
+    return fallback_html.encode("utf-8-sig"), ".doc", "application/msword"
+
 
 # ==============================================================================
 # دالة استخراج عنوان الـ IP الحقيقي للزائر بدقة
@@ -759,17 +1026,34 @@ def append_visitor_to_file(visitor_entry):
         df_out.to_csv(LOG_FILE_PATH, index=False, encoding='utf-8-sig')
 
 # ==============================================================================
-# إدارة جلسة الدخول (Authentication) وتتبع الزوار (مع الحفظ الدائم)
+# إدارة جلسة الدخول المستمرة (الصمود أمام Refresh / F5) ودعم user بأي حالة أحرف
 # ==============================================================================
+ADMIN_USER = "admin"
+ADMIN_PASS = "2621326_a"
+USER_PASS = "123"
+
+ADMIN_AUTH_TOKEN = hashlib.sha256(f"cci_admin_{ADMIN_USER}_{ADMIN_PASS}".encode()).hexdigest()[:24]
+USER_AUTH_TOKEN = hashlib.sha256(f"cci_user_role_{USER_PASS}".encode()).hexdigest()[:24]
+
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "current_user" not in st.session_state:
     st.session_state.current_user = ""
 
+# استعادة الجلسة تلقائياً عند عمل Refresh للمتصفح إذا كان رمز الجلسة موجوداً في الرابط
+if not st.session_state.authenticated:
+    url_auth = str(st.query_params.get("auth", "")).strip()
+    if url_auth == ADMIN_AUTH_TOKEN:
+        st.session_state.authenticated = True
+        st.session_state.current_user = "admin"
+    elif url_auth == USER_AUTH_TOKEN:
+        st.session_state.authenticated = True
+        st.session_state.current_user = "user"
+
 if not st.session_state.authenticated:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         login_container = st.container()
         with login_container:
             st.markdown(f"""
@@ -787,10 +1071,13 @@ if not st.session_state.authenticated:
             if st.button("🔐 تسجيل الدخول للمنصة", use_container_width=True):
                 visitor_ip_addr = get_visitor_ip()
                 current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                norm_user = str(username).strip().lower()
+                clean_pass = str(password).strip()
 
-                if username == "admin" and password == "2621326_a":
+                if norm_user == ADMIN_USER and clean_pass == ADMIN_PASS:
                     st.session_state.authenticated = True
                     st.session_state.current_user = "admin"
+                    st.query_params["auth"] = ADMIN_AUTH_TOKEN
 
                     new_record = {
                         "عنوان IP": visitor_ip_addr,
@@ -801,13 +1088,14 @@ if not st.session_state.authenticated:
                     append_visitor_to_file(new_record)
                     st.rerun()
 
-                elif username == "user" and password == "123":
+                elif norm_user == "user" and clean_pass == USER_PASS:
                     st.session_state.authenticated = True
                     st.session_state.current_user = "user"
+                    st.query_params["auth"] = USER_AUTH_TOKEN
 
                     new_record = {
                         "عنوان IP": visitor_ip_addr,
-                        "اسم المستخدم": "user",
+                        "اسم المستخدم": str(username).strip() or "user",
                         "الدور": "مستخدم عادي (User)",
                         "وقت الدخول": current_time_str
                     }
@@ -825,6 +1113,7 @@ with logout_col2:
     if st.button("🚪 تسجيل الخروج", use_container_width=True, type="secondary"):
         st.session_state.authenticated = False
         st.session_state.current_user = ""
+        st.query_params.clear()
         st.rerun()
 
 # ==============================================================================
@@ -882,11 +1171,11 @@ def describe_rf(val):
 
 def describe_cd(val):
     if val >= 80:
-        return f"محددات ثقافية والهوياتية راسخة (%{val}) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
+        return f"محددات ثقافية وهوياتية راسخة ({val}%) توفر حصانة رقمية عالية ومحتوى عربياً غنياً بالأرشفة الثلاثية."
     elif val >= 50:
-        return f"محددات ثقافية متوازنة (%{val}) تتطلب تعزيز المحتوى الرقمي الثقافي والتراثي المتاح بالعربية."
+        return f"محددات ثقافية متوازنة ({val}%) تتطلب تعزيز المحتوى الرقمي الثقافي والتراثي المتاح بالعربية."
     else:
-        return f"هشاشة واضحة في المحددات الثقافية الهوياتية (%{val}) تستوجب تفعيل دروع الأمن الثقافي الرقمي."
+        return f"هشاشة واضحة في المحددات الثقافية الهوياتية ({val}%) تستوجب تفعيل دروع الأمن الثقافي الرقمي."
 
 def get_region_and_features(country_name):
     gulf_countries = ["دولة قطر", "المملكة العربية السعودية", "دولة الإمارات العربية المتحدة", "سلطنة عمان", "مملكة البحرين", "دولة الكويت"]
@@ -918,7 +1207,6 @@ if "decision_results_dict" not in st.session_state:
 st.markdown(f"""
 <div class="header-center">
 <h1>نموذج مقترح لتطوير منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</h1>
-<h1>منصة مشكاة</h1>
 <h3>ضمن مخرجات دراسة بحثية مقاربة منهجية لتطوير مهن الصناعات الثقافية والإبداعية العربية في عصر الذكاء الاصطناعي بمنظور التفكير المنظومي</h3>
 </div>
 """, unsafe_allow_html=True)
@@ -942,10 +1230,10 @@ if st.session_state.current_user == "admin":
     tab_home, tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
         "🏠 الرئيسية",
         "📊 تشخيص مؤشر الجاهزية (AACRI)",
-        "📈 محاكي السياسات ",
+        "📈 محاكي السياسات (Policy Simulator)",
         "🛡️ لوحة دعم اتخاذ القرار",
         "📑 التقرير التنفيذي الموحد",
-        "📚 ملاحق المشروع والوثائق ",
+        "📚 ملاحق المشروع والوثائق (PDF)",
         "📖 دليل المستخدم الرسمي",
         "🔒 سجل الزوار والأفراد (Admin)"
     ])
@@ -953,18 +1241,20 @@ else:
     tab_home, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🏠 الرئيسية",
         "📊 تشخيص مؤشر الجاهزية (AACRI)",
-        "📈 محاكي السياسات ",
+        "📈 محاكي السياسات (Policy Simulator)",
         "🛡️ لوحة دعم اتخاذ القرار",
         "📑 التقرير التنفيذي الموحد",
-        "📚 ملاحق المشروع والوثائق ",
+        "📚 ملاحق المشروع والوثائق (PDF)",
         "📖 دليل المستخدم الرسمي"
     ])
+    tab_admin = None
 
-# حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل وتفاعلات الموبايل واللابتوب
+# حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل + استعادة التبويب عند التحديث
 inject_tabs_css()
+sync_session_browser_backup()
 
 # ------------------------------------------------------------------------------
-# التبويب الرئيسي: الرئيسية (التعريف بالمنصة وأقسامها)
+# التبويب الرئيسي: الرئيسية (التعريف بالمنصة ومفاتيح الانتقال السريع لأقسامها)
 # ------------------------------------------------------------------------------
 with tab_home:
     st.markdown(f"""
@@ -1013,10 +1303,10 @@ with tab_home:
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"""
-    <div dir="rtl" style="text-align: right; margin-bottom: 12px;">
+    <div dir="rtl" style="text-align: right; margin-bottom: 14px;">
         <h3 style="color: {CCI_NAVY}; font-weight: 800; margin: 0;">🧭 أقسام المنصة وآلية العمل المتكاملة</h3>
         <p style="color: #475569; font-size: 14px; margin-top: 4px;">
-            تتكامل أقسام المنصة في سلسلة تشغيلية مترابطة تبدأ من التشخيص القياسي وتنتهي بالتقارير التنفيذية والملاحق المنهجية:
+            انقر على أي بطاقة قسم للانتقال المباشر والمرن إليه داخل المنصة:
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1024,51 +1314,57 @@ with tab_home:
     r1_c1, r1_c2, r1_c3 = st.columns(3, gap="medium")
     with r1_c1:
         st.markdown("""
-        <div class="home-section-card" dir="rtl" style="text-align: right;">
+        <div class="home-section-card" data-cci-tab="1" role="button" tabindex="0" dir="rtl" style="text-align: right;">
             <h4>📊 تشخيص مؤشر الجاهزية (AACRI)</h4>
             <p>قياس جاهزية الدول العربية عبر خمسة محاور موزونة (البنية التقنية 20%، الاقتصاد 15%، رأس المال البشري 30%، البيئة التشريعية 20%، المحددات الثقافية 15%) مع رسم راداري وترتيب تراكمي وتصدير CSV.</p>
+            <span class="home-section-cta">انتقال مباشر للقسم ⬅️</span>
         </div>
         """, unsafe_allow_html=True)
     with r1_c2:
         st.markdown("""
-        <div class="home-section-card" dir="rtl" style="text-align: right;">
+        <div class="home-section-card" data-cci-tab="2" role="button" tabindex="0" dir="rtl" style="text-align: right;">
             <h4>📈 محاكي السياسات (Policy Simulator)</h4>
             <p>اختبار السيناريوهات الاستراتيجية (التشاؤمي، المعتدل، الطموح) وضبط نسب التحفيز عبر المحاور الخمسة لاستشراف الأثر المستقبلي وتثبيت ومقارنة السيناريوهات وتصديرها في ملف Word.</p>
+            <span class="home-section-cta">انتقال مباشر للقسم ⬅️</span>
         </div>
         """, unsafe_allow_html=True)
     with r1_c3:
         st.markdown("""
-        <div class="home-section-card" dir="rtl" style="text-align: right;">
+        <div class="home-section-card" data-cci-tab="3" role="button" tabindex="0" dir="rtl" style="text-align: right;">
             <h4>🛡️ لوحة دعم اتخاذ القرار</h4>
             <p>توليد وتثبيت توصيات سياساتية مخصصة لكل دولة وفق مستوى جاهزيتها، وتفعيل آليات التطعيم الثقافي (Cultural Grafting) وصون الهوية والسيادة الرقمية.</p>
+            <span class="home-section-cta">انتقال مباشر للقسم ⬅️</span>
         </div>
         """, unsafe_allow_html=True)
 
     r2_c1, r2_c2, r2_c3 = st.columns(3, gap="medium")
     with r2_c1:
         st.markdown("""
-        <div class="home-section-card" dir="rtl" style="text-align: right;">
+        <div class="home-section-card" data-cci-tab="4" role="button" tabindex="0" dir="rtl" style="text-align: right;">
             <h4>📑 التقرير التنفيذي الموحد</h4>
-            <p>دمج مخرجات التشخيص والترتيب الإقليمي والمحاكاة والتوصيات في تقرير تنفيذي موحد للقيادات العليا مع إمكانية تحميله بصيغة مستند Word جاهز للعرض.</p>
+            <p>دمج مخرجات التشخيص والترتيب الإقليمي والمحاكاة والتوصيات في تقرير تنفيذي موحد للقيادات العليا مع إمكانية تحميله بصيغة مستند Word (.docx) جاهز للعرض.</p>
+            <span class="home-section-cta">انتقال مباشر للقسم ⬅️</span>
         </div>
         """, unsafe_allow_html=True)
     with r2_c2:
         st.markdown("""
-        <div class="home-section-card" dir="rtl" style="text-align: right;">
+        <div class="home-section-card" data-cci-tab="5" role="button" tabindex="0" dir="rtl" style="text-align: right;">
             <h4>📚 ملاحق المشروع والوثائق (PDF)</h4>
             <p>إتاحة الملاحق العلمية والمنهجية الستة للدراسة (الاستقراء الببليومتري، حلقات السببية CLDs، المصفوفة الإجرائية، المقارنات الزوجية، المعادلات، وبروتوكول الاختبار الميداني).</p>
+            <span class="home-section-cta">انتقال مباشر للقسم ⬅️</span>
         </div>
         """, unsafe_allow_html=True)
     with r2_c3:
         st.markdown("""
-        <div class="home-section-card" dir="rtl" style="text-align: right;">
+        <div class="home-section-card" data-cci-tab="6" role="button" tabindex="0" dir="rtl" style="text-align: right;">
             <h4>📖 دليل المستخدم الرسمي</h4>
             <p>مرجع إرشادي متكامل يوضح خطوات استخدام المنصة وتفسير مؤشراتها ومخرجاتها للمحكمين والباحثين وصُنّاع السياسات بصيغة PDF.</p>
+            <span class="home-section-cta">انتقال مباشر للقسم ⬅️</span>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style="background: #FFFFFF; padding: 18px 22px; border-radius: 12px; border-right: 5px solid {CCI_NAVY}; border: 1px solid #CBD5E1; border-right-width: 5px; margin-top: 8px;" dir="rtl">
+    <div style="background: #FFFFFF; padding: 18px 22px; border-radius: 12px; border: 1px solid #CBD5E1; border-right: 5px solid {CCI_NAVY}; margin-top: 8px;" dir="rtl">
         <h4 style="color: {CCI_NAVY}; font-weight: 800; margin-top: 0; margin-bottom: 8px;">⚡ مسار العمل الموصى به داخل المنصة:</h4>
         <ol style="margin: 0; padding-right: 20px; color: #1E293B; font-size: 14px; line-height: 1.85;">
             <li>ابدأ من تبويب <b>«تشخيص مؤشر الجاهزية (AACRI)»</b> لاختيار الدولة وتسجيل درجات محاورها الخمسة.</li>
@@ -1312,42 +1608,30 @@ with tab2:
                 st.success("✅ تم مسح جميع سيناريوهات المحاكي بنجاح.")
                 st.rerun()
 
-            sim_word_html = f"""
-            <html dir="rtl">
-            <head><meta charset="utf-8"><title>تقرير محاكي السياسات</title></head>
-            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
-                <h1 style="color: #0A192F; text-align: center;">تقرير محاكي السياسات الاستشرافي والمتابعة التراكمية</h1>
-                <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
-                <hr>
-                <h3>📋 مقارنة السيناريوهات المثبتة للدول (المختارة):</h3>
-            """
+            sim_body_parts = ["<h3>📋 مقارنة السيناريوهات المثبتة للدول (المختارة):</h3>"]
             if st.session_state.simulated_results_dict:
                 for k, v in st.session_state.simulated_results_dict.items():
-                    sim_word_html += f"""
-                    <div style="border: 1px solid #CBD5E1; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
-                        <h4>السيناريو: {k}</h4>
-                        <div>{v['html']}</div>
-                        <div style="margin-top: 10px;">{v['deep']}</div>
-                    </div>
-                    """
+                    sim_body_parts.append(f"<h4>السيناريو: {k}</h4>")
+                    sim_body_parts.append(v["html"])
+                    sim_body_parts.append(v["deep"])
             else:
-                sim_word_html += "<p>لا توجد سيناريوهات مسجلة حالياً.</p>"
+                sim_body_parts.append("<p>لا توجد سيناريوهات مسجلة حالياً.</p>")
 
-            sim_word_html += f"""
-                <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-                <p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار.</p>
-                <hr>
-                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
-                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
-            </body>
-            </html>
-            """
+            sim_body_parts.append(
+                "<hr><h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>"
+                "<p>يغطي هذا التقرير مخرجات النمذجة القياسية ومتغيرات التحفيز الاستراتيجي لصنّاع القرار.</p>"
+                "<p><b>يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</b></p>"
+            )
+            sim_docx_bytes, sim_ext, sim_mime = build_word_document(
+                "تقرير محاكي السياسات الاستشرافي والمتابعة التراكمية",
+                "منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية",
+                "\n".join(sim_body_parts),
+            )
             st.download_button(
                 label="📥 تحميل تقرير محاكي السياسات (Word)",
-                data=sim_word_html.encode("utf-8-sig"),
-                file_name="تقرير_محاكي_السياسات.doc",
-                mime="application/msword",
+                data=sim_docx_bytes,
+                file_name=f"تقرير_محاكي_السياسات{sim_ext}",
+                mime=sim_mime,
                 use_container_width=True
             )
 
@@ -1487,47 +1771,34 @@ with tab3:
                 st.success("✅ تم مسح جميع توصيات لوحة القرار بنجاح.")
                 st.rerun()
 
-            dec_word_html = f"""
-            <html dir="rtl">
-            <head><meta charset="utf-8"><title>تقرير لوحة دعم القرار</title></head>
-            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
-                <h1 style="color: #0A192F; text-align: center;">تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي</h1>
-                <p style="text-align: center; color: #64748B;">منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية</p>
-                <hr>
-                <h3>🛡️ تقرير وتوصيات الدول المسجلة:</h3>
-            """
+            dec_body_parts = ["<h3>🛡️ تقرير وتوصيات الدول المسجلة:</h3>"]
             if st.session_state.decision_results_dict:
                 for k, v in st.session_state.decision_results_dict.items():
-                    dec_word_html += f"""
-                    <div style="border: 1px solid #CBD5E1; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
-                        <h3>تقرير وتوصيات دولة: {v['country']} (المؤشر المركب: {v['score_str']})</h3>
-                        <p><b>🎯 التوصيات الاستراتيجية الموجهة:</b></p>
-                        <ul>
-                            <li>{v['recs'][0]}</li>
-                            <li>{v['recs'][1]}</li>
-                        </ul>
-                        <p><b>💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</b></p>
-                        <div>{v['deep']}</div>
-                    </div>
-                    """
+                    dec_body_parts.append(
+                        f"<h3>تقرير وتوصيات دولة: {v['country']} (المؤشر المركب: {v['score_str']})</h3>"
+                        f"<p><b>🎯 التوصيات الاستراتيجية الموجهة:</b></p>"
+                        f"<ul><li>{v['recs'][0]}</li><li>{v['recs'][1]}</li></ul>"
+                        f"<p><b>💡 إضافات تحليلية استراتيجية عميقة ومخصصة:</b></p>"
+                        f"<div>{v['deep']}</div>"
+                    )
             else:
-                dec_word_html += "<p>لا توجد توصيات مسجلة حالياً.</p>"
+                dec_body_parts.append("<p>لا توجد توصيات مسجلة حالياً.</p>")
 
-            dec_word_html += f"""
-                <hr>
-                <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
-                <p>تعكس هذه التوصيات متطلبات الأمن الثقافي والسيادة الرقمية ودعم المبدع المعزز.</p>
-                <hr>
-                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
-                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
-            </body>
-            </html>
-            """
+            dec_body_parts.append(
+                "<hr><h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>"
+                "<p>تعكس هذه التوصيات متطلبات الأمن الثقافي والسيادة الرقمية ودعم المبدع المعزز.</p>"
+                "<p><b>يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</b></p>"
+            )
+            dec_docx_bytes, dec_ext, dec_mime = build_word_document(
+                "تقرير لوحة دعم اتخاذ القرار والتطعيم الثقافي",
+                "منصة منظومة القرار المتكاملة للسياسات الثقافية والإبداعية العربية",
+                "\n".join(dec_body_parts),
+            )
             st.download_button(
                 label="📥 تحميل تقرير لوحة دعم القرار (Word)",
-                data=dec_word_html.encode("utf-8-sig"),
-                file_name="تقرير_لوحة_دعم_القرار.doc",
-                mime="application/msword",
+                data=dec_docx_bytes,
+                file_name=f"تقرير_لوحة_دعم_القرار{dec_ext}",
+                mime=dec_mime,
                 use_container_width=True
             )
 
@@ -1747,13 +2018,7 @@ with tab4:
             </div>
             """, unsafe_allow_html=True)
 
-            word_content = f"""
-            <html dir="rtl">
-            <head><meta charset="utf-8"><title>التقرير التنفيذي الموحد</title></head>
-            <body style="font-family: 'Cairo', Arial, sans-serif; text-align: right;">
-                <h1 style="color: #0A192F; text-align: center;">📑 التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية</h1>
-                <p style="text-align: center; color: #64748B;">ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)</p>
-                <hr>
+            exec_body_html = f"""
                 <h3>🏆 مؤشرات الأداء العام والريادة الإقليمية:</h3>
                 <p>تتصدّر الدولة التالية قائمة الجاهزية الذكية وفق الترتيب التنازلي للمؤشر المركب: <b>{top_country}</b> بقيمة مركبة تبلغ {top_score_str}.</p>
                 <p><b>الإطار الإقليمي والأبعاد الديموغرافية والتاريخية:</b> {region_info}</p>
@@ -1761,17 +2026,18 @@ with tab4:
                 <hr>
                 <h3>📈 ملخص النتائج التحليلية التراكمية والمعمقة لكافة أقسام المنصة:</h3>
                 {word_blocks_html}
-                <hr>
-                <p style="text-align: center; font-weight: bold; color: #B45309; margin-top: 20px;">يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</p>
-                <p style="text-align: center; font-size: 12px; color: #64748B;">جميع الحقوق محفوظة للدراسة البحثية © 2026</p>
-            </body>
-            </html>
+                <p><b>يُنصح بالمراجعة الدقيقة للقرارات الاستراتيجية</b></p>
             """
+            exec_docx_bytes, exec_ext, exec_mime = build_word_document(
+                "التقرير التنفيذي الموحد لسياسات الصناعات الثقافية والإبداعية العربية",
+                "ملخص استراتيجي موجه للقيادات العليا وصناع القرار (AACRI)",
+                exec_body_html,
+            )
             st.download_button(
                 label="📥 تحميل التقرير التنفيذي في ملف مستند (Word)",
-                data=word_content.encode("utf-8-sig"),
-                file_name="التقرير_التنفيذي_للسياسات_الثقافية.doc",
-                mime="application/msword",
+                data=exec_docx_bytes,
+                file_name=f"التقرير_التنفيذي_للسياسات_الثقافية{exec_ext}",
+                mime=exec_mime,
                 use_container_width=True
             )
 
@@ -1854,7 +2120,7 @@ with tab6:
 # ------------------------------------------------------------------------------
 # التبويب السابع: سجل الزوار والأفراد (مخصص للأدمن فقط) - مع استعراض السجلات القديمة
 # ------------------------------------------------------------------------------
-if st.session_state.current_user == "admin":
+if st.session_state.current_user == "admin" and tab_admin is not None:
     with tab_admin:
         st.markdown("""
         <div dir="rtl" style="text-align: right;">
