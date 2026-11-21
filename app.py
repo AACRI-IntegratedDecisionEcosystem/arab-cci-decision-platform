@@ -38,7 +38,7 @@ CCI_NAVY_HOVER = "#162A4A"     # درجة تمرير متناسقة مع الخ�
 CCI_GOLD_BRIGHT = "#FBBF24"    # لون ذهبي مشرق في الوضع العادي
 CCI_WHITE_ACTIVE = "#FFFFFF"   # لون أبيض واضح عند المرور / الضغط / التحديد
 CCI_BG = "#F8FAFC"             # خلفية ناعمة
-UI_CSS_VERSION = "cci-tabs-v18"
+UI_CSS_VERSION = "cci-tabs-v17"
 
 # أولوية الخطوط: Bahij TheSansArabic ثم Readex Pro ثم Tajawal ثم Cairo
 APP_FONT = "'Bahij TheSansArabic', 'Readex Pro', 'Tajawal', 'Cairo', sans-serif"
@@ -296,87 +296,13 @@ TABS_CSS = f"<style id='cci-tabs-{UI_CSS_VERSION}'>{TABS_RULES}</style>"
 TABS_GUARD_JS = """
 (function () {
   var W = window;
-  var P = window.parent;
   if (W.__cciTabsObserver) { try { W.__cciTabsObserver.disconnect(); } catch (e) {} }
-
   var BASE_BG = '%BASE_BG%';
   var HOVER_BG = '%HOVER%';
   var ACTIVE_BG = '%ACTIVE_BG%';
   var GOLD = '%GOLD%';
   var WHITE = '%WHITE%';
   var SEL = '[role="tablist"] [role="tab"]';
-  var TAB_LS_KEY = 'cci_active_tab_idx_v18';
-  var SCROLL_LS_KEY = 'cci_scroll_pos_v18';
-
-  function getSavedTabIdx() {
-    try {
-      var u = new URL(P.location.href);
-      var q = u.searchParams.get('tab');
-      if (q !== null && q !== '') {
-        var qi = parseInt(q, 10);
-        if (!isNaN(qi) && qi >= 0) return qi;
-      }
-    } catch (e) {}
-    try {
-      var ls = P.localStorage.getItem(TAB_LS_KEY);
-      if (ls !== null && ls !== '') {
-        var li = parseInt(ls, 10);
-        if (!isNaN(li) && li >= 0) return li;
-      }
-    } catch (e) {}
-    return 0;
-  }
-
-  function saveActiveTab(idx) {
-    if (isNaN(idx) || idx < 0) return;
-    P.__cciUserSelectedTab = idx;
-    try {
-      P.localStorage.setItem(TAB_LS_KEY, String(idx));
-    } catch (e) {}
-    try {
-      var u = new URL(P.location.href);
-      u.searchParams.set('tab', String(idx));
-      P.history.replaceState({}, '', u.toString());
-    } catch (e) {}
-  }
-
-  function saveScrollNow() {
-    try {
-      var docEl = P.document.documentElement;
-      var y = P.scrollY || P.pageYOffset || docEl.scrollTop || P.document.body.scrollTop || 0;
-      var x = P.scrollX || P.pageXOffset || docEl.scrollLeft || P.document.body.scrollLeft || 0;
-      if (y > 0 || x > 0) {
-        P.localStorage.setItem(SCROLL_LS_KEY, JSON.stringify({ x: x, y: y, t: Date.now() }));
-      }
-    } catch (e) {}
-  }
-
-  function restoreScrollIfNeeded() {
-    if (P.__cciScrollRestored) return;
-    try {
-      var raw = P.localStorage.getItem(SCROLL_LS_KEY);
-      if (!raw) {
-        P.__cciScrollRestored = true;
-        return;
-      }
-      var pos = JSON.parse(raw);
-      if (pos && typeof pos.y === 'number' && pos.y > 0) {
-        P.scrollTo({ top: pos.y, left: pos.x || 0, behavior: 'instant' });
-      }
-    } catch (e) {}
-  }
-
-  if (!P.__cciScrollTrackerAttached) {
-    P.__cciScrollTrackerAttached = true;
-    var scrollTimer = null;
-    P.addEventListener('scroll', function () {
-      if (scrollTimer) clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(saveScrollNow, 120);
-    }, { passive: true });
-    P.addEventListener('beforeunload', function () {
-      saveScrollNow();
-    });
-  }
 
   function setColor(el, c) {
     el.style.setProperty('color', c, 'important');
@@ -397,19 +323,25 @@ TABS_GUARD_JS = """
     btn.querySelectorAll('*').forEach(function (n) { setColor(n, c); });
   }
 
+  function saveActiveTabToUrl(idx) {
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.set('tab', String(idx));
+      window.history.replaceState({}, '', u.toString());
+    } catch (e) {}
+  }
+
   function goToTab(idx, shouldScroll) {
-    var tabs = P.document.querySelectorAll(SEL);
+    var tabs = document.querySelectorAll(SEL);
     if (tabs && tabs[idx]) {
-      saveActiveTab(idx);
-      if (tabs[idx].getAttribute('aria-selected') !== 'true') {
-        tabs[idx].click();
-      }
+      tabs[idx].click();
+      saveActiveTabToUrl(idx);
       setTimeout(run, 25);
-      if (P.innerWidth <= 768) {
+      if (window.innerWidth <= 768) {
         try { tabs[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch (e) {}
       }
       if (shouldScroll) {
-        var tabList = P.document.querySelector('[role="tablist"]');
+        var tabList = document.querySelector('[role="tablist"]');
         if (tabList) {
           try { tabList.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
         }
@@ -417,33 +349,31 @@ TABS_GUARD_JS = """
     }
   }
 
-  function enforceSavedTabOnLoad() {
-    var targetIdx = (typeof P.__cciUserSelectedTab === 'number') ? P.__cciUserSelectedTab : getSavedTabIdx();
-    var tabs = P.document.querySelectorAll(SEL);
-    if (!tabs || tabs.length === 0) return;
-
-    var clampedIdx = Math.min(targetIdx, tabs.length - 1);
-    if (clampedIdx > 0 && tabs[clampedIdx] && tabs[clampedIdx].getAttribute('aria-selected') !== 'true') {
-      tabs[clampedIdx].click();
-      setTimeout(function () {
-        paintAll();
-        restoreScrollIfNeeded();
-      }, 40);
-    } else {
-      restoreScrollIfNeeded();
-    }
+  function restoreTabFromUrl() {
+    if (W.__cciTabRestored) return;
+    try {
+      var u = new URL(window.location.href);
+      var t = u.searchParams.get('tab');
+      if (t !== null && t !== '0') {
+        var idx = parseInt(t, 10);
+        var tabs = document.querySelectorAll(SEL);
+        if (!isNaN(idx) && tabs && tabs[idx]) {
+          W.__cciTabRestored = true;
+          tabs[idx].click();
+          setTimeout(run, 35);
+        }
+      } else {
+        W.__cciTabRestored = true;
+      }
+    } catch (e) {}
   }
 
-  function paintAll() {
-    P.document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
+  function run() {
+    document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
       .forEach(function (el) { el.style.setProperty('display', 'none', 'important'); });
 
-    var tabs = P.document.querySelectorAll(SEL);
-    tabs.forEach(function (b, idx) {
+    document.querySelectorAll(SEL).forEach(function (b, idx) {
       paint(b, b.matches(':hover'));
-      if (b.getAttribute('aria-selected') === 'true') {
-        saveActiveTab(idx);
-      }
       if (!b.__cciBound) {
         b.__cciBound = 1;
         b.addEventListener('pointerenter', function () { paint(b, true); });
@@ -451,22 +381,17 @@ TABS_GUARD_JS = """
         b.addEventListener('pointerdown',  function () { paint(b, true); });
         b.addEventListener('pointerup',    function () { paint(b, false); });
         b.addEventListener('click', function () {
-          saveActiveTab(idx);
+          saveActiveTabToUrl(idx);
           setTimeout(run, 0);
-          if (P.innerWidth <= 768) {
+          if (window.innerWidth <= 768) {
             try { b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch (e) {}
           }
         });
       }
     });
-  }
-
-  function run() {
-    paintAll();
-    enforceSavedTabOnLoad();
 
     /* ربط مفاتيح أقسام المنصة في الصفحة الرئيسية بالتبويبات المقابلة */
-    P.document.querySelectorAll('[data-cci-tab]').forEach(function (card) {
+    document.querySelectorAll('[data-cci-tab]').forEach(function (card) {
       if (!card.__cciNav) {
         card.__cciNav = 1;
         card.addEventListener('click', function () {
@@ -492,19 +417,15 @@ TABS_GUARD_JS = """
   function schedule() {
     if (queued) return;
     queued = true;
-    P.requestAnimationFrame(function () { queued = false; run(); });
+    requestAnimationFrame(function () { queued = false; run(); });
   }
 
   run();
-  setTimeout(run, 120);
-  setTimeout(run, 350);
-  setTimeout(function () {
-    restoreScrollIfNeeded();
-    setTimeout(function () { P.__cciScrollRestored = true; }, 300);
-  }, 450);
+  setTimeout(function () { restoreTabFromUrl(); run(); }, 120);
+  setTimeout(run, 400);
 
   W.__cciTabsObserver = new MutationObserver(schedule);
-  W.__cciTabsObserver.observe(P.document.body, {
+  W.__cciTabsObserver.observe(document.body, {
     childList: true, subtree: true,
     attributes: true, attributeFilter: ['aria-selected']
   });
@@ -1328,7 +1249,7 @@ else:
     ])
     tab_admin = None
 
-# حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل + استعادة التبويب وموضع التمرير عند التحديث
+# حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل + استعادة التبويب عند التحديث
 inject_tabs_css()
 sync_session_browser_backup()
 
