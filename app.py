@@ -1229,7 +1229,7 @@ st.markdown("""
 if st.session_state.current_user == "admin":
     tab_home, tab1, tab2, tab3, tab4, tab5, tab6, tab_admin = st.tabs([
         "🏠 الرئيسية",
-        "📊 تشخيص مؤشر الجاهزية (AACRI)",
+        "📊  مؤشر الجاهزية (AACRI)",
         "📈 محاكي السياسات ",
         "🛡️ لوحة دعم اتخاذ القرار",
         "📑 التقرير التنفيذي الموحد",
@@ -1240,7 +1240,7 @@ if st.session_state.current_user == "admin":
 else:
     tab_home, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🏠 الرئيسية",
-        "📊 تشخيص مؤشر الجاهزية (AACRI)",
+        "📊  مؤشر الجاهزية (AACRI)",
         "📈 محاكي السياسات ",
         "🛡️ لوحة دعم اتخاذ القرار",
         "📑 التقرير التنفيذي الموحد",
