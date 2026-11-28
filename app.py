@@ -41,7 +41,7 @@ CCI_BG = "#F8FAFC"             # خلفية ناعمة
 UI_CSS_VERSION = "cci-tabs-v18"
 
 # خط عربي مجاني واضح وثابت للمواقع الإلكترونية عبر Google Fonts
-APP_FONT = "'Cairo', 'Tajawal', 'Readex Pro', system-ui, -apple-system, sans-serif"
+APP_FONT = "'IBM Plex Sans Arabic', 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif"
 
 # ------------------------------------------------------------------------------
 # تنسيق الشريط العلوي (التبويبات): بعرض الشاشة ومتجاوب 100% بين اللابتوب والموبايل
@@ -304,20 +304,32 @@ TABS_GUARD_JS = """
   var GOLD = '%GOLD%';
   var WHITE = '%WHITE%';
   var SEL = '[role="tablist"] [role="tab"]';
+  var FONT_STACK = "'IBM Plex Sans Arabic', 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif";
 
-  /* ضمان تحميل خط Cairo في الصفحة الأم لمنع تقطّع الحروف العربية */
-  try {
-    if (!P.document.getElementById('cci-google-font-cairo')) {
-      var fontLink = P.document.createElement('link');
-      fontLink.id = 'cci-google-font-cairo';
-      fontLink.rel = 'stylesheet';
-      fontLink.href = 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap';
-      P.document.head.appendChild(fontLink);
-    }
-  } catch (e) {}
+  /* ضمان تحميل خط عربي مجاني واضح وثابت في الصفحة الأم عند كل تحميل أو ضغط */
+  function ensureArabicFontLoaded() {
+    try {
+      if (!P.document.getElementById('cci-google-font-arabic')) {
+        var fontLink = P.document.createElement('link');
+        fontLink.id = 'cci-google-font-arabic';
+        fontLink.rel = 'stylesheet';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap';
+        P.document.head.appendChild(fontLink);
+      }
+      if (!P.document.getElementById('cci-font-override-style')) {
+        var fStyle = P.document.createElement('style');
+        fStyle.id = 'cci-font-override-style';
+        fStyle.textContent =
+          "html, body, .stApp, .stApp *, [data-testid='stMarkdownContainer'], [data-testid='stMarkdownContainer'] * {" +
+          "  font-family: " + FONT_STACK + " !important;" +
+          "}";
+        P.document.head.appendChild(fStyle);
+      }
+    } catch (e) {}
+  }
 
-  /* صوت نقرة خفيف وناعم جداً عند الضغط على أي مفتاح أو عنصر تفاعلي مناسب */
-  function playSoftClickSound() {
+  /* صوت نقرة خفيف وناعم جداً ("تك" خفيفة) عند الضغط على أي مفتاح أو عنصر تفاعلي */
+  function playSoftTickSound() {
     try {
       var AudioCtx = P.AudioContext || P.webkitAudioContext || W.AudioContext || W.webkitAudioContext;
       if (!AudioCtx) return;
@@ -331,27 +343,29 @@ TABS_GUARD_JS = """
       var now = ctx.currentTime;
       var osc = ctx.createOscillator();
       var gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(520, now);
-      osc.frequency.exponentialRampToValueAtTime(260, now + 0.035);
 
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.025, now + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(680, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.022);
+
+      gain.gain.setValueAtTime(0.0008, now);
+      gain.gain.linearRampToValueAtTime(0.022, now + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.026);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.045);
+      osc.stop(now + 0.03);
     } catch (e) {}
   }
 
   if (!P.__cciSoftSoundAttached) {
     P.__cciSoftSoundAttached = true;
     P.document.addEventListener('pointerdown', function (ev) {
-      var target = ev.target && ev.target.closest ? ev.target.closest('button, [role="tab"], [data-cci-tab], summary') : null;
+      ensureArabicFontLoaded();
+      var target = ev.target && ev.target.closest ? ev.target.closest('button, [role="tab"], [data-cci-tab], summary, [role="option"]') : null;
       if (target) {
-        playSoftClickSound();
+        playSoftTickSound();
       }
     }, { passive: true });
   }
@@ -359,6 +373,7 @@ TABS_GUARD_JS = """
   function setColor(el, c) {
     el.style.setProperty('color', c, 'important');
     el.style.setProperty('-webkit-text-fill-color', c, 'important');
+    el.style.setProperty('font-family', FONT_STACK, 'important');
   }
 
   function paint(btn, hot) {
@@ -421,6 +436,7 @@ TABS_GUARD_JS = """
   }
 
   function run() {
+    ensureArabicFontLoaded();
     P.document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
       .forEach(function (el) { el.style.setProperty('display', 'none', 'important'); });
 
@@ -560,7 +576,7 @@ def sync_session_browser_backup():
 
 CUSTOM_CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap');
 
 /* إخفاء شريط أدوات Streamlit العلوي وأي هامش علوي زائد */
 header,
