@@ -38,10 +38,10 @@ CCI_NAVY_HOVER = "#162A4A"     # درجة تمرير متناسقة مع الخ�
 CCI_GOLD_BRIGHT = "#FBBF24"    # لون ذهبي مشرق في الوضع العادي
 CCI_WHITE_ACTIVE = "#FFFFFF"   # لون أبيض واضح عند المرور / الضغط / التحديد
 CCI_BG = "#F8FAFC"             # خلفية ناعمة
-UI_CSS_VERSION = "cci-tabs-v18"
+UI_CSS_VERSION = "cci-tabs-v19"
 
 # خط عربي مجاني واضح وثابت للمواقع الإلكترونية عبر Google Fonts
-APP_FONT = "'IBM Plex Sans Arabic', 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif"
+APP_FONT = "'Cairo', 'Tajawal', 'Readex Pro', system-ui, -apple-system, sans-serif"
 
 # ------------------------------------------------------------------------------
 # تنسيق الشريط العلوي (التبويبات): بعرض الشاشة ومتجاوب 100% بين اللابتوب والموبايل
@@ -304,29 +304,17 @@ TABS_GUARD_JS = """
   var GOLD = '%GOLD%';
   var WHITE = '%WHITE%';
   var SEL = '[role="tablist"] [role="tab"]';
-  var FONT_STACK = "'IBM Plex Sans Arabic', 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif";
 
-  /* ضمان تحميل خط عربي مجاني واضح وثابت في الصفحة الأم عند كل تحميل أو ضغط */
-  function ensureArabicFontLoaded() {
-    try {
-      if (!P.document.getElementById('cci-google-font-arabic')) {
-        var fontLink = P.document.createElement('link');
-        fontLink.id = 'cci-google-font-arabic';
-        fontLink.rel = 'stylesheet';
-        fontLink.href = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap';
-        P.document.head.appendChild(fontLink);
-      }
-      if (!P.document.getElementById('cci-font-override-style')) {
-        var fStyle = P.document.createElement('style');
-        fStyle.id = 'cci-font-override-style';
-        fStyle.textContent =
-          "html, body, .stApp, .stApp *, [data-testid='stMarkdownContainer'], [data-testid='stMarkdownContainer'] * {" +
-          "  font-family: " + FONT_STACK + " !important;" +
-          "}";
-        P.document.head.appendChild(fStyle);
-      }
-    } catch (e) {}
-  }
+  /* ضمان تحميل خط Cairo و Tajawal في الصفحة الأم لمنع أي خط غير مفهوم */
+  try {
+    if (!P.document.getElementById('cci-google-font-cairo')) {
+      var fontLink = P.document.createElement('link');
+      fontLink.id = 'cci-google-font-cairo';
+      fontLink.rel = 'stylesheet';
+      fontLink.href = 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap';
+      P.document.head.appendChild(fontLink);
+    }
+  } catch (e) {}
 
   /* صوت نقرة خفيف وناعم جداً ("تك" خفيفة) عند الضغط على أي مفتاح أو عنصر تفاعلي */
   function playSoftTickSound() {
@@ -343,28 +331,31 @@ TABS_GUARD_JS = """
       var now = ctx.currentTime;
       var osc = ctx.createOscillator();
       var gain = ctx.createGain();
-
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(680, now);
-      osc.frequency.exponentialRampToValueAtTime(220, now + 0.022);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.025);
 
       gain.gain.setValueAtTime(0.0008, now);
-      gain.gain.linearRampToValueAtTime(0.022, now + 0.003);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.026);
+      gain.gain.linearRampToValueAtTime(0.022, now + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.03);
+      osc.stop(now + 0.032);
     } catch (e) {}
   }
 
   if (!P.__cciSoftSoundAttached) {
     P.__cciSoftSoundAttached = true;
     P.document.addEventListener('pointerdown', function (ev) {
-      ensureArabicFontLoaded();
-      var target = ev.target && ev.target.closest ? ev.target.closest('button, [role="tab"], [data-cci-tab], summary, [role="option"]') : null;
+      var target = ev.target && ev.target.closest ? ev.target.closest('button, [role="tab"], [data-cci-tab], summary, a, input[type="checkbox"], input[type="radio"]') : null;
       if (target) {
+        playSoftTickSound();
+      }
+    }, { passive: true });
+    P.document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
         playSoftTickSound();
       }
     }, { passive: true });
@@ -373,7 +364,6 @@ TABS_GUARD_JS = """
   function setColor(el, c) {
     el.style.setProperty('color', c, 'important');
     el.style.setProperty('-webkit-text-fill-color', c, 'important');
-    el.style.setProperty('font-family', FONT_STACK, 'important');
   }
 
   function paint(btn, hot) {
@@ -436,7 +426,6 @@ TABS_GUARD_JS = """
   }
 
   function run() {
-    ensureArabicFontLoaded();
     P.document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
       .forEach(function (el) { el.style.setProperty('display', 'none', 'important'); });
 
@@ -516,6 +505,9 @@ def inject_tabs_css():
 
     components.html(
         f"""
+        <head>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap">
+        </head>
         <script>
         (function() {{
             var doc = window.parent.document;
@@ -576,7 +568,7 @@ def sync_session_browser_backup():
 
 CUSTOM_CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap');
 
 /* إخفاء شريط أدوات Streamlit العلوي وأي هامش علوي زائد */
 header,
@@ -1312,7 +1304,6 @@ else:
 # حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل + استعادة التبويب عند التحديث
 inject_tabs_css()
 sync_session_browser_backup()
-
 # ------------------------------------------------------------------------------
 # التبويب الرئيسي: الرئيسة (التعريف بالمنصة ومفاتيح الانتقال السريع لأقسامها)
 # ------------------------------------------------------------------------------
