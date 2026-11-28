@@ -2,6 +2,7 @@ import io
 import os
 import re
 import json
+import html
 import hashlib
 import pandas as pd
 import streamlit as st
@@ -38,7 +39,7 @@ CCI_NAVY_HOVER = "#162A4A"     # درجة تمرير متناسقة مع الخ�
 CCI_GOLD_BRIGHT = "#FBBF24"    # لون ذهبي مشرق في الوضع العادي
 CCI_WHITE_ACTIVE = "#FFFFFF"   # لون أبيض واضح عند المرور / الضغط / التحديد
 CCI_BG = "#F8FAFC"             # خلفية ناعمة
-UI_CSS_VERSION = "cci-tabs-v20"
+UI_CSS_VERSION = "cci-tabs-v21"
 
 # خط عربي مجاني واضح وثابت للمواقع الإلكترونية عبر Google Fonts
 APP_FONT = "'Cairo', 'Tajawal', 'Readex Pro', system-ui, -apple-system, sans-serif"
@@ -48,9 +49,43 @@ def clean_text(text) -> str:
     if not isinstance(text, str):
         return str(text)
     t = re.sub(r"<[^>]+>", "", text)
-    t = t.replace(" ", " ").replace("&", "&").replace("<", "<").replace(">", ">")
+    t = html.unescape(t)
     t = t.replace("\xa0", " ").replace("\u200b", "")
     return re.sub(r"\s+", " ", t).strip()
+
+
+def flat_html(s: str) -> str:
+    """يزيل المسافات البادئة والأسطر الفارغة حتى لا يحوّل Markdown الـ HTML إلى كتلة كود."""
+    return " ".join(l.strip() for l in s.splitlines() if l.strip())
+
+
+def bullets_to_html(text: str) -> str:
+    items = [re.sub(r"^[-•]\s*", "", l.strip()) for l in text.strip().splitlines() if l.strip()]
+    return "<ul>" + "".join(f"<li>{i}</li>" for i in items) + "</ul>"
+
+
+def score_band(score):
+    if score >= 80:
+        return "مرتفع", "#15803D", "#DCFCE7"
+    if score >= 51:
+        return "متوسط", "#B45309", "#FEF3C7"
+    return "حرج", "#B91C1C", "#FEE2E2"
+
+
+AXES = [
+    ("ti", "البنية التقنية", 0.20, CCI_NAVY),
+    ("ed", "الديناميكيات الاقتصادية", 0.15, "#0F766E"),
+    ("hc", "رأس المال البشري", 0.30, "#92400E"),
+    ("rf", "البيئة التنظيمية والتشريعية", 0.20, "#1E3A8A"),
+    ("cd", "المحددات الثقافية والهوياتية", 0.15, CCI_ORANGE_DARK),
+]
+
+
+def axis_counts(dimensions):
+    n_dims = len(dimensions)
+    n_subs = sum(len(d[2]) for d in dimensions)
+    n_vars = sum(len(sd[2]) for d in dimensions for sd in d[2])
+    return n_dims, n_subs, n_vars
 
 
 # ==============================================================================
@@ -671,7 +706,7 @@ TABS_CSS = f"<style id='cci-tabs-{UI_CSS_VERSION}'>{TABS_RULES}</style>"
 TABS_GUARD_JS = """
 (function () {
   var W = window;
-  var P = window.parent;
+  var P = window;   // السكربت يعمل أصلاً داخل الصفحة الأم
   if (W.__cciTabsObserver) { try { W.__cciTabsObserver.disconnect(); } catch (e) {} }
   var BASE_BG = '%BASE_BG%';
   var HOVER_BG = '%HOVER%';
@@ -809,31 +844,37 @@ TABS_GUARD_JS = """
     } catch (e) {}
   }
 
-  function bindAllCards(docRoot) {
-    docRoot.querySelectorAll('[data-cci-tab]').forEach(function (card) {
-      if (card.getAttribute('data-cci-bound') === '1') return;
-      card.setAttribute('data-cci-bound', '1');
-      card.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        var rawIdx = card.getAttribute('data-cci-tab');
-        var idx = parseInt(rawIdx, 10);
-        if (!isNaN(idx)) {
-          goToTab(idx, true);
-        }
-      });
-      card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          e.stopPropagation();
-          var idx = parseInt(card.getAttribute('data-cci-tab'), 10);
-          if (!isNaN(idx)) {
-            goToTab(idx, true);
-          }
-        }
-      });
-    });
+  /* مستمع واحد مفوَّض: لا يتأثر بإعادة رسم Streamlit ولا يحتاج ربطاً لكل بطاقة */
+  function cardToIndex(card) {
+    var idx = parseInt(card.getAttribute('data-cci-tab'), 10);
+    if (!isNaN(idx)) return idx;
+    var all = Array.prototype.slice.call(P.document.querySelectorAll('.home-section-card'));
+    var pos = all.indexOf(card);
+    return pos >= 0 ? pos + 1 : -1;     // احتياط: ترتيب البطاقة إن حُذفت سمة data
   }
+  function findCard(ev) {
+    return ev.target && ev.target.closest ? ev.target.closest('.home-section-card') : null;
+  }
+  if (P.__cciCardClick) P.document.removeEventListener('click', P.__cciCardClick, true);
+  if (P.__cciCardKey)   P.document.removeEventListener('keydown', P.__cciCardKey, true);
+
+  P.__cciCardClick = function (ev) {
+    var card = findCard(ev);
+    if (!card) return;
+    ev.preventDefault();
+    var idx = cardToIndex(card);
+    if (idx >= 0) goToTab(idx, true);
+  };
+  P.__cciCardKey = function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    var card = findCard(ev);
+    if (!card) return;
+    ev.preventDefault();
+    var idx = cardToIndex(card);
+    if (idx >= 0) goToTab(idx, true);
+  };
+  P.document.addEventListener('click', P.__cciCardClick, true);
+  P.document.addEventListener('keydown', P.__cciCardKey, true);
 
   function run() {
     P.document.querySelectorAll('[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]')
@@ -857,9 +898,6 @@ TABS_GUARD_JS = """
         });
       }
     });
-
-    /* ربط مفاتيح أقسام المنصة في الصفحة الرئيسة بالتبويبات المقابلة وتأكيد الربط */
-    bindAllCards(P.document);
   }
 
   var queued = false;
@@ -1530,16 +1568,59 @@ details.aacri-dim-dropdown[open] .aacri-dim-chevron {{
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
+EXTRA_CSS = f"""
+<style>
+/* حاويات السكربتات الصفرية لا تترك فراغاً بين العناصر */
+.element-container:has(> iframe[height="0"]),
+div[data-testid="stElementContainer"]:has(> iframe[height="0"]) {{
+    position: absolute !important; width: 0 !important; height: 0 !important;
+    margin: 0 !important; overflow: hidden !important;
+}}
+
+.score-chip {{
+    display: inline-block; padding: 2px 11px; border-radius: 14px;
+    font-weight: 800; font-size: 12.5px; white-space: nowrap;
+}}
+.score-chip.big {{ font-size: 14px; padding: 5px 16px; }}
+
+.aacri-result-head {{
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; padding-bottom: 10px; margin-bottom: 6px; border-bottom: 2px solid {CCI_GOLD_BRIGHT};
+}}
+.aacri-result-kicker {{ font-size: 12.5px; color: #64748B; font-weight: 700; }}
+.aacri-result-country {{ font-size: 21px; font-weight: 800; color: {CCI_NAVY}; }}
+
+.aacri-bar-row {{ margin: 9px 0; direction: rtl; }}
+.aacri-bar-head {{
+    display: flex; justify-content: space-between; gap: 8px;
+    font-size: 13px; font-weight: 700; color: #1E293B; margin-bottom: 4px;
+}}
+.aacri-bar-track {{ height: 10px; background: #E2E8F0; border-radius: 8px; overflow: hidden; }}
+.aacri-bar-fill {{ height: 100%; border-radius: 8px; }}
+
+.aacri-diag-box {{
+    background: {CCI_BG}; border-right: 5px solid {CCI_ORANGE_MID};
+    border-radius: 8px; padding: 14px 16px; margin-top: 10px;
+    font-size: 14.2px; line-height: 1.85; color: #1E293B; direction: rtl;
+}}
+
+.aacri-kpi-grid {{
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px; margin: 6px 0 14px 0; direction: rtl;
+}}
+.aacri-kpi {{ border-radius: 10px; padding: 12px 14px; border: 1px solid #E2E8F0; text-align: right; }}
+.aacri-kpi-w {{ font-size: 22px; font-weight: 900; line-height: 1.2; }}
+.aacri-kpi-t {{ font-size: 13px; font-weight: 800; color: {CCI_NAVY}; margin: 3px 0; }}
+.aacri-kpi-m {{ font-size: 12px; color: #475569; font-weight: 600; }}
+</style>
+"""
+st.markdown(EXTRA_CSS, unsafe_allow_html=True)
+
 # ==============================================================================
 # دوال مساعدة لتوليد ملفات Word (.docx) الأصلية بدون أي تحذيرات
 # ==============================================================================
 def _clean_word_text(text) -> str:
-    if not isinstance(text, str):
-        return str(text)
-    t = re.sub(r"<[^>]+>", "", text)
-    t = t.replace(" ", " ").replace("&", "&").replace("<", "<").replace(">", ">")
-    t = t.replace("\xa0", " ").replace("\u200b", "")
-    return re.sub(r"\s+", " ", t).strip()
+    return clean_text(text)
 
 
 def _set_rtl_paragraph(p):
@@ -1908,7 +1989,6 @@ else:
 
 # حقن وتثبيت تنسيق الشريط العلوي بعرض الشاشة الكامل + استعادة التبويب عند التحديث
 inject_tabs_css()
-sync_session_browser_backup()
 
 # ------------------------------------------------------------------------------
 # التبويب الرئيسي: الرئيسة (التعريف بالمنصة ومفاتيح الانتقال السريع لأقسامها)
@@ -2034,6 +2114,138 @@ with tab_home:
 
     st.markdown(f'<div class="footer-copyright">جميع الحقوق محفوظة للدراسة البحثية © 2026</div>', unsafe_allow_html=True)
 
+
+def render_aacri_result(rec: dict, detail_html: str = ""):
+    score = rec["المؤشر المركب (AACRI)"]
+    label, fg, bg = score_band(score)
+    vals = [
+        rec["البنية التقنية (20%)"],
+        rec["الديناميكيات الاقتصادية (15%)"],
+        rec["رأس المال البشري (30%)"],
+        rec["البيئة التنظيمية والتشريعية (20%)"],
+        rec["المحددات الثقافية والهوياتية (15%)"],
+    ]
+    detail_html = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", detail_html or "")
+
+    with st.container(border=True):
+        st.markdown(flat_html(f"""
+            <div dir="rtl" class="aacri-result-head">
+              <div>
+                <div class="aacri-result-kicker">التشخيص المنظومي · إطار AACRI (69 متغيراً)</div>
+                <div class="aacri-result-country">{rec['الدولة']}</div>
+              </div>
+              <span class="score-chip big" style="color:{fg};background:{bg};">مستوى الجاهزية: {label}</span>
+            </div>
+        """), unsafe_allow_html=True)
+
+        fig_g = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=score,
+            number={"suffix": "%", "font": {"size": 44, "family": "Cairo", "color": CCI_NAVY}},
+            gauge={
+                "axis": {"range": [0, 100], "tickwidth": 1},
+                "bar": {"color": CCI_NAVY, "thickness": 0.28},
+                "steps": [
+                    {"range": [0, 51], "color": "#FECACA"},
+                    {"range": [51, 80], "color": "#FDE68A"},
+                    {"range": [80, 100], "color": "#BBF7D0"},
+                ],
+                "threshold": {"line": {"color": CCI_ORANGE_MID, "width": 4}, "thickness": 0.85, "value": score},
+            },
+        ))
+        fig_g.update_layout(height=235, margin=dict(l=25, r=25, t=15, b=5),
+                            paper_bgcolor="#FFFFFF", font=dict(family="Cairo"))
+        st.plotly_chart(fig_g, use_container_width=True)
+
+        bars = ""
+        for (_code, name, w, color), v in zip(AXES, vals):
+            bars += (
+                f'<div class="aacri-bar-row"><div class="aacri-bar-head">'
+                f'<span>{name}</span><span>{v}% × {int(w * 100)}% = <b>{v * w:.1f}</b></span></div>'
+                f'<div class="aacri-bar-track"><div class="aacri-bar-fill" '
+                f'style="width:{v}%;background:{color};"></div></div></div>'
+            )
+        st.markdown(f'<div dir="rtl">{bars}</div>', unsafe_allow_html=True)
+
+        if detail_html:
+            st.markdown(f'<div class="aacri-diag-box"><b>التقييم التشخيصي والتفصيل المنظومي:</b><br>{detail_html}</div>',
+                        unsafe_allow_html=True)
+
+        names = [f"{n} ({int(w * 100)}%)" for _c, n, w, _col in AXES]
+        fig_r = go.Figure(go.Scatterpolar(
+            r=vals + vals[:1], theta=names + names[:1], fill="toself",
+            name=rec["الدولة"], line_color=CCI_ORANGE_MID, fillcolor="rgba(180,83,9,0.22)"))
+        fig_r.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+                            height=340, margin=dict(l=40, r=40, t=20, b=20),
+                            paper_bgcolor="#FFFFFF", font=dict(family="Cairo", size=12), showlegend=False)
+        st.plotly_chart(fig_r, use_container_width=True)
+
+
+def build_axes_summary_html() -> str:
+    cards = []
+    for axis_id, title, weight, _b, accent, bg_soft, border_soft, dims in AACRI_HIERARCHY_MATRIX:
+        n_dims, n_subs, n_vars = axis_counts(dims)
+        short = title.split(". ", 1)[-1].split(" (وزن")[0]
+        cards.append(
+            f'<div class="aacri-kpi" style="border-top:4px solid {accent};background:{bg_soft};">'
+            f'<div class="aacri-kpi-w" style="color:{accent};">{weight:g}%</div>'
+            f'<div class="aacri-kpi-t">{html.escape(short)}</div>'
+            f'<div class="aacri-kpi-m">{n_dims} أبعاد · {n_subs} فرعية · {n_vars} متغيراً</div></div>'
+        )
+    return '<div class="aacri-kpi-grid">' + "".join(cards) + "</div>"
+
+
+def build_hierarchy_html(target_axis_id: str = "all") -> str:
+    out = ['<div dir="rtl" style="width:100%;">']
+    for axis_id, axis_title, axis_weight, _b, accent, bg_soft, border_soft, dimensions in AACRI_HIERARCHY_MATRIX:
+        if target_axis_id != "all" and axis_id != target_axis_id:
+            continue
+        n_dims, n_subs, n_vars = axis_counts(dimensions)
+        dim_w = axis_weight / n_dims
+
+        out.append(
+            f'<div class="aacri-axis-block" style="border-top:4px solid {accent};">'
+            f'<div class="aacri-axis-header">'
+            f'<span class="aacri-axis-title" style="color:{accent};">{html.escape(axis_title)}</span>'
+            f'<span class="aacri-axis-pill" style="background:{bg_soft};color:{accent};border:1px solid {border_soft};">'
+            f'{n_dims} أبعاد أساسية | {n_subs} فرعية | {n_vars} متغيراً</span></div>'
+        )
+
+        for dim_code, dim_title, sub_dims in dimensions:
+            sub_w = dim_w / len(sub_dims)
+            dim_vars = sum(len(sd[2]) for sd in sub_dims)
+            out.append(
+                f'<details class="aacri-dim-dropdown"><summary>'
+                f'<span class="aacri-dim-summary-right"><span class="aacri-dim-num">{dim_code}</span>'
+                f'<span>البُعد الأساسي: {html.escape(dim_title)}</span></span>'
+                f'<span class="aacri-dim-meta"><span class="aacri-dim-weight-badge">⚖️ {dim_w:.2f}%</span>'
+                f'<span>({len(sub_dims)} فرعية | {dim_vars} متغيراً)</span>'
+                f'<span class="aacri-dim-chevron">▼</span></span></summary>'
+                f'<div class="aacri-dim-body">'
+            )
+            for sd_code, sd_title, variables in sub_dims:
+                var_w = sub_w / len(variables)
+                out.append(
+                    f'<div class="aacri-sub-card" style="border-right-color:{accent};">'
+                    f'<div class="aacri-sub-title-row"><div class="aacri-sub-title-left">'
+                    f'<span class="aacri-sub-code-badge" style="background:{accent};color:#FFFFFF;">{sd_code}</span>'
+                    f'<span class="aacri-sub-name" style="color:{accent};">{html.escape(sd_title)}</span></div>'
+                    f'<span class="aacri-sub-weight-pill">⚖️ <b>{sub_w:.3f}%</b></span></div>'
+                )
+                for var_name, unit_name in variables:
+                    out.append(
+                        f'<div class="aacri-var-item"><span class="aacri-var-label">🔹 {html.escape(clean_text(var_name))}</span>'
+                        f'<span class="aacri-var-badges"><span class="aacri-weight-tag">⚖️ <b>{var_w:.3f}%</b></span>'
+                        f'<span class="aacri-unit-tag" style="background:{bg_soft};color:{accent};border-color:{border_soft};">'
+                        f'{html.escape(clean_text(unit_name))}</span></span></div>'
+                    )
+                out.append('</div>')
+            out.append('</div></details>')
+        out.append('</div>')
+    out.append('</div>')
+    return "".join(out)
+
+
 # ------------------------------------------------------------------------------
 # التبويب الأول: تشخيص مؤشر الجاهزية (AACRI)
 # ------------------------------------------------------------------------------
@@ -2099,25 +2311,15 @@ with tab1:
                 if not updated:
                     st.session_state.history_state.append(entry)
 
-                st.markdown(f"""
-                <div dir="rtl" style="text-align: right; background: #FFFFFF; padding: 25px; border-radius: 12px; border: 1.5px solid {CCI_ORANGE_MID}; line-height: 1.9; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                  <h3 style="color: {CCI_NAVY}; font-weight: bold; margin-bottom: 12px;">📊 نتائج التشخيص المنظومي للدولة العربية (إطار AACRI - 69 متغيراً)</h3>
-                  <p style="font-size: 15px; margin-bottom: 8px;"><b>النموذج الخاضع للتشخيص:</b> <span style="color: {CCI_NAVY}; font-weight: bold;">{country_sel}</span></p>
-                  <p style="font-size: 16px; margin-bottom: 12px;"><b>القيمة المركبة لمؤشر الجاهزية الذكية (AACRI):</b> <span style="font-size: 18px;">{score_str_plain}</span></p>
-                  <div style="background: {CCI_BG}; padding: 16px; border-radius: 8px; border-right: 5px solid {CCI_ORANGE_MID}; margin-top: 10px;">
-                    <p style="margin: 0 0 8px 0; font-weight: bold; color: {CCI_NAVY};">التقييم التشخيصي والتفصيل المنظومي:</p>
-                    <p style="margin: 0; color: #1E293B; font-size: 14.5px;">{detailed_diag}</p>
-                  </div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.session_state.last_aacri = {"country": country_sel, "detail": detailed_diag}
 
-                categories = ['البنية التقنية (20%)', 'الديناميكيات الاقتصادية (15%)', 'رأس المال البشري (30%)', 'البيئة التنظيمية والتشريعية (20%)', 'المحددات الثقافية والهوياتية (15%)']
-                scores_list = [ti_slider, ed_slider, hc_slider, rf_slider, cd_slider]
-                fig = go.Figure()
-                fig.add_trace(go.Scatterpolar(r=scores_list, theta=categories, fill='toself', name=country_sel, line_color=CCI_ORANGE_MID))
-                fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), paper_bgcolor="#FFFFFF", font=dict(family="Cairo", size=13))
-                st.plotly_chart(fig, use_container_width=True)
-        else:
+        last = st.session_state.get("last_aacri")
+        rec = None
+        if last:
+            rec = next((r for r in st.session_state.history_state if r["الدولة"] == last["country"]), None)
+        if rec:
+            render_aacri_result(rec, last["detail"])
+        elif not calc_clicked:
             st.info("📊 يرجى اختيار الدولة وضبط درجات المحاور ثم الضغط على زر الحساب لعرض النتائج والتمثيل الراداري.")
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -2131,46 +2333,30 @@ with tab1:
     if st.session_state.history_state:
         df_history = pd.DataFrame(st.session_state.history_state).sort_values(by="المؤشر المركب (AACRI)", ascending=False).reset_index(drop=True)
 
-        table_html = """
-<div dir="rtl" style="width: 100%; overflow-x: auto; max-height: 280px;">
-<table class="custom-rtl-table">
-<thead>
-<tr>
-<th style="width: 30px; text-align: center;">م</th>
-<th>الدولة</th>
-<th>المؤشر المركب</th>
-<th>رأس المال البشري</th>
-<th>البنية التقنية</th>
-<th>البيئة التنظيمية</th>
-<th>الديناميكيات الاقتصادية</th>
-<th>المحددات الثقافية</th>
-<th>التقييم المنظومي</th>
-</tr>
-</thead>
-<tbody>
-"""
-
+        medals = {0: "🥇", 1: "🥈", 2: "🥉"}
+        headers = ["م", "الدولة", "المؤشر المركب", "رأس المال البشري", "البنية التقنية",
+                   "البيئة التنظيمية", "الديناميكيات الاقتصادية", "المحددات الثقافية", "التقييم المنظومي"]
+        rows_html = ""
         for idx, row in df_history.iterrows():
-            table_html += f"""
-<tr>
-<td style="text-align: center; font-weight: bold;">{idx + 1}</td>
-<td style="font-weight: bold; color: {CCI_NAVY};">{row['الدولة']}</td>
-<td style="font-weight: bold; color: {CCI_ORANGE_MID};">{row['المؤشر المركب (AACRI)']}%</td>
-<td>{row['رأس المال البشري (30%)']}%</td>
-<td>{row['البنية التقنية (20%)']}%</td>
-<td>{row['البيئة التنظيمية والتشريعية (20%)']}%</td>
-<td>{row['الديناميكيات الاقتصادية (15%)']}%</td>
-<td>{row['المحددات الثقافية والهوياتية (15%)']}%</td>
-<td style="font-size: 11px;">{row['التقييم المنظومي']}</td>
-</tr>
-"""
-
-        table_html += """
-</tbody>
-</table>
-</div>
-"""
-
+            sc = row["المؤشر المركب (AACRI)"]
+            _lbl, fg, bg = score_band(sc)
+            rows_html += (
+                f'<tr><td style="text-align:center;font-weight:bold;">{medals.get(idx, idx + 1)}</td>'
+                f'<td style="font-weight:bold;color:{CCI_NAVY};">{row["الدولة"]}</td>'
+                f'<td><span class="score-chip" style="color:{fg};background:{bg};">{sc}%</span></td>'
+                f'<td>{row["رأس المال البشري (30%)"]}%</td>'
+                f'<td>{row["البنية التقنية (20%)"]}%</td>'
+                f'<td>{row["البيئة التنظيمية والتشريعية (20%)"]}%</td>'
+                f'<td>{row["الديناميكيات الاقتصادية (15%)"]}%</td>'
+                f'<td>{row["المحددات الثقافية والهوياتية (15%)"]}%</td>'
+                f'<td style="font-size:11px;">{row["التقييم المنظومي"]}</td></tr>'
+            )
+        table_html = (
+            '<div dir="rtl" style="width:100%;overflow-x:auto;max-height:340px;">'
+            '<table class="custom-rtl-table"><thead><tr>'
+            + "".join(f"<th>{h}</th>" for h in headers)
+            + "</tr></thead><tbody>" + rows_html + "</tbody></table></div>"
+        )
         st.markdown(table_html, unsafe_allow_html=True)
 
         csv_data = df_history.to_csv(index=False).encode('utf-8-sig')
@@ -2198,20 +2384,14 @@ with tab1:
     st.markdown("<br>", unsafe_allow_html=True)
 
     with st.expander("📂 استعراض المصفوفة الهرمية والمحاور والأبعاد والمتغيرات الـ 69 لمؤشر (AACRI)", expanded=False):
-        st.markdown(f"""
-        <div dir="rtl" style="text-align: right; line-height: 1.8; margin-bottom: 10px; padding: 10px 14px;">
-        <ul>
-            <li><b>1. البنية التقنية والتحول الرقمي الإبداعي (وزن 20%):</b> يضم 13 متغيراً موزعة على بعدين أساسيين (جاهزية البنية التحتية السحابية والحاسوبية، وتوطين أدوات الذكاء الاصطناعي) و4 أبعاد فرعية.</li>
-            <li><b>2. الديناميكيات الاقتصادية وسلاسل القيمة الإبداعية (وزن 15%):</b> يضم 15 متغيراً موزعة على 3 أبعاد أساسية (مساهمة الاقتصاد البرتقالي في الناتج المحلي، الاستثمار ودعم ريادة الأعمال، والسياحة الثقافية والتكامل الإبداعي) و6 أبعاد فرعية.</li>
-            <li><b>3. رأس المال البشري والمهارات التوليدية (وزن 30%):</b> يضم 12 متغيراً موزعة على بعدين أساسيين (جاهزية مهارات القوى العاملة، وريادة الأعمال الإبداعية والتعليم البيني) و4 أبعاد فرعية.</li>
-            <li><b>4. البيئة التنظيمية والتشريعية - الحوكمة الرقمية (وزن 20%):</b> يضم 14 متغيراً موزعة على 3 أبعاد أساسية (حماية حقوق الملكية الفكرية، أطر الشفافية والإفصاح، وأطر التحفيز الضريبي والمؤسسي) و6 أبعاد فرعية.</li>
-            <li><b>5. المحددات الثقافية والهوياتية والأمن الثقافي (وزن 15%):</b> يضم 15 متغيراً موزعة على 3 أبعاد أساسية (السيادة السردية وحماية المحتوى، رقمنة التراث اللامادي والمادي، والدبلوماسية الثقافية والقوة الناعمة) و6 أبعاد فرعية.</li>
-        </ul>
-        <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-right: 4px solid {CCI_ORANGE_MID}; border-radius: 8px; padding: 10px 14px; font-size: 13.5px; color: {CCI_NAVY}; font-weight: 700;">
-            💡 آلية الاستعراض التفاعلي: اضغط على أي <b>بُعد أساسي</b> أدناه لفتح القائمة المنسدلة الخاصة به واستعراض الأبعاد الفرعية والمتغيرات ووحدات القياس والأوزان المعتمدة لكل بُعد وبعد فرعي ومتغير.
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(build_axes_summary_html(), unsafe_allow_html=True)
+        st.markdown(
+            f'<div dir="rtl" style="background:#F8FAFC;border:1px solid #CBD5E1;border-right:4px solid {CCI_ORANGE_MID};'
+            f'border-radius:8px;padding:10px 14px;font-size:13.5px;color:{CCI_NAVY};font-weight:700;margin-bottom:8px;">'
+            f'💡 اضغط على أي <b>بُعد أساسي</b> لفتحه واستعراض الأبعاد الفرعية والمتغيرات ووحدات القياس. '
+            f'الأوزان الفرعية موزعة بالتساوي ضمن كل محور؛ استبدلها بأوزان AHP إن كانت مختلفة.</div>',
+            unsafe_allow_html=True,
+        )
 
         filter_axis_choice = st.radio(
             "تصفية العرض حسب المحور الرئيسي:",
@@ -2235,83 +2415,7 @@ with tab1:
             "🏛️ 5. المحددات الثقافية والهوياتية والأمن الثقافي": "cd",
         }
         target_axis_id = selected_axis_map.get(filter_axis_choice, "all")
-
-        accordion_html = '<div dir="rtl" style="width: 100%;">'
-        for axis in AACRI_HIERARCHY_MATRIX:
-            axis_id, axis_title, axis_weight, axis_badge, accent, bg_soft, border_soft, dimensions = axis
-            if target_axis_id != "all" and axis_id != target_axis_id:
-                continue
-
-            num_dims = len(dimensions)
-            base_dim_weight = axis_weight / num_dims
-
-            accordion_html += f"""
-            <div class="aacri-axis-block" style="border-top: 4px solid {accent};">
-                <div class="aacri-axis-header">
-                    <span class="aacri-axis-title" style="color: {accent};">{axis_title}</span>
-                    <span class="aacri-axis-pill" style="background: {bg_soft}; color: {accent}; border: 1px solid {border_soft};">{axis_badge}</span>
-                </div>
-            """
-
-            for dim in dimensions:
-                dim_code, dim_title, sub_dims = dim
-                num_subs = len(sub_dims)
-                base_sub_weight = base_dim_weight / num_subs
-                total_vars = sum(len(sd[2]) for sd in sub_dims)
-
-                accordion_html += f"""
-                <details class="aacri-dim-dropdown">
-                    <summary>
-                        <span class="aacri-dim-summary-right">
-                            <span class="aacri-dim-num">{dim_code}</span>
-                            <span>البُعد الأساسي: {dim_title}</span>
-                        </span>
-                        <span class="aacri-dim-meta">
-                            <span class="aacri-dim-weight-badge">⚖️ وزن البُعد: {base_dim_weight:.2f}%</span>
-                            <span>({num_subs} أبعاد فرعية | {total_vars} متغيرات)</span>
-                            <span class="aacri-dim-chevron">▼</span>
-                        </span>
-                    </summary>
-                    <div class="aacri-dim-body">
-                """
-
-                for sd in sub_dims:
-                    sd_code, sd_title, variables = sd
-                    num_vars = len(variables)
-                    var_w_pct = base_sub_weight / num_vars
-
-                    accordion_html += f"""
-                        <div class="aacri-sub-card" style="border-right-color: {accent};">
-                            <div class="aacri-sub-title-row">
-                                <div class="aacri-sub-title-left">
-                                    <span class="aacri-sub-code-badge" style="background: {accent}; color: #FFFFFF;">{sd_code}</span>
-                                    <span class="aacri-sub-name" style="color: {accent};">البُعد الفرعي: {sd_title}</span>
-                                </div>
-                                <span class="aacri-sub-weight-pill">⚖️ وزن البُعد الفرعي: <b>{base_sub_weight:.3f}%</b></span>
-                            </div>
-                    """
-                    for var_item in variables:
-                        var_name, unit_name = var_item
-                        accordion_html += f"""
-                            <div class="aacri-var-item">
-                                <span class="aacri-var-label">🔹 {clean_text(var_name)}</span>
-                                <span class="aacri-var-badges">
-                                    <span class="aacri-weight-tag">⚖️ وزن المتغير: <b>{var_w_pct:.3f}%</b></span>
-                                    <span class="aacri-unit-tag" style="background: {bg_soft}; color: {accent}; border-color: {border_soft};">وحدة القياس: <b>{clean_text(unit_name)}</b></span>
-                                </span>
-                            </div>
-                        """
-                    accordion_html += "</div>"
-
-                accordion_html += """
-                    </div>
-                </details>
-                """
-
-            accordion_html += "</div>"
-
-        accordion_html += "</div>"
-        st.markdown(accordion_html, unsafe_allow_html=True)
+        st.markdown(build_hierarchy_html(target_axis_id), unsafe_allow_html=True)
 
         axes_names = [
             '1. البنية التقنية (20%)',
@@ -2628,7 +2732,7 @@ with tab3:
                             "country": decision_country_sel,
                             "score_str": score_str_plain,
                             "recs": recs_list,
-                            "deep": deep_analysis_text
+                            "deep": bullets_to_html(deep_analysis_text)
                         }
 
             if st.session_state.decision_results_dict:
